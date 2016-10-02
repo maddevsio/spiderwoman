@@ -11,6 +11,8 @@ import (
 	"crypto/tls"
 	"sync"
 	"sort"
+	"os"
+	"bufio"
 )
 
 type Ext struct {
@@ -18,9 +20,13 @@ type Ext struct {
 }
 
 var (
-	m map[string]int
-	mResolved map[string]int
+	externalLinks map[string]map[string]int
+	externalLinksResolved map[string]map[string]int
 	mutex sync.Mutex
+	hosts []string
+	syncCrawl sync.WaitGroup
+	syncResolve sync.WaitGroup
+	err error
 )
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
@@ -60,7 +66,10 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 			return
 		}
 
-		m[href] += 1
+		if (externalLinks[ctx.URL().Host] == nil) {
+			externalLinks[ctx.URL().Host] = make(map[string]int)
+		}
+		externalLinks[ctx.URL().Host][href] += 1
 
 	})
 	return nil, true
@@ -80,13 +89,15 @@ func (e *Ext) ComputeDelay(host string, di *gocrawl.DelayInfo, lastFetch *gocraw
 }
 
 func main() {
-	var syncCrawl sync.WaitGroup
-	var syncResolve sync.WaitGroup
-	m = make(map[string]int)
-	mResolved = make(map[string]int)
-	var hosts [1]string
-	hosts[0] = "http://nambataxi.kg/"
-	for i:=0; i<len(hosts); i++ {
+	externalLinks = make(map[string]map[string]int)
+	externalLinksResolved = make(map[string]map[string]int)
+	hosts, err = getHostsFromFile()
+	if err != nil {
+		fmt.Println("Error opening or parsing config file: " + err.Error())
+		return
+	}
+
+	for i := 0; i < len(hosts); i++ {
 		syncCrawl.Add(1)
 		go func(key int) {
 			fmt.Println(hosts[key])
@@ -96,7 +107,7 @@ func main() {
 			opts.CrawlDelay = 0
 			opts.LogFlags = gocrawl.LogError
 			opts.SameHostOnly = true
-			opts.MaxVisits = 10
+			opts.MaxVisits = 30
 			opts.UserAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 			opts.RobotUserAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 			c := gocrawl.NewCrawlerWithOptions(opts)
@@ -106,38 +117,50 @@ func main() {
 	}
 	syncCrawl.Wait()
 
+	//spew.Dump(externalLinks)
+
 	fmt.Println("Going to resolve URLs...")
-	for url, times := range m {
-		syncResolve.Add(1)
-		go func(url string, times int, wg *sync.WaitGroup) {
-			resolvedUrl := resolve(url)
+	for host := range externalLinks {
+		for url, times := range externalLinks[host] {
+			syncResolve.Add(1)
+			go func(url string, times int, host string, wg *sync.WaitGroup) {
+				resolvedUrl := resolve(url)
 
-			mutex.Lock()
-			mResolved[resolvedUrl] = times
-			mutex.Unlock()
+				mutex.Lock()
+				if (externalLinksResolved[host] == nil) {
+					externalLinksResolved[host]= make(map[string]int)
+				}
+				externalLinksResolved[host][resolvedUrl] = times
+				mutex.Unlock()
 
-			wg.Done()
-		}(url, times, &syncResolve)
+				wg.Done()
+			}(url, times, host, &syncResolve)
+		}
 	}
 	syncResolve.Wait()
 
+	//spew.Dump(externalLinksResolved)
+
 	fmt.Println("Sorting the list")
-	sortMapByKeys(mResolved)
+	sortMapByKeys(externalLinksResolved)
 }
 
-func sortMapByKeys(m map[string]int) {
-	n := map[int][]string{}
-	var a []int
-	for k, v := range m {
-		n[v] = append(n[v], k)
-	}
-	for k := range n {
-		a = append(a, k)
-	}
-	sort.Sort(sort.Reverse(sort.IntSlice(a)))
-	for _, k := range a {
-		for _, s := range n[k] {
-			fmt.Printf("%s, %d\n", s, k)
+func sortMapByKeys(externalLinksResolved map[string]map[string]int) {
+	for host, m := range externalLinksResolved {
+		fmt.Println("HOST = " + host)
+		n := map[int][]string{}
+		var a []int
+		for k, v := range m {
+			n[v] = append(n[v], k)
+		}
+		for k := range n {
+			a = append(a, k)
+		}
+		sort.Sort(sort.Reverse(sort.IntSlice(a)))
+		for _, k := range a {
+			for _, s := range n[k] {
+				fmt.Printf("%s, %d\n", s, k)
+			}
 		}
 	}
 }
@@ -155,4 +178,22 @@ func resolve(url string) string {
 	} else {
 		return url
 	}
+}
+
+func getHostsFromFile() ([]string, error) {
+	file, err := os.Open("./sites.txt")
+	if err != nil {
+		file, err = os.Open("./sites.default.txt")
+		if err != nil {
+			return nil, err
+		}
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	return lines, scanner.Err()
 }
