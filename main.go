@@ -27,6 +27,7 @@ var (
 	syncCrawl sync.WaitGroup
 	syncResolve sync.WaitGroup
 	err error
+	externalLinksIterator int
 )
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
@@ -66,10 +67,12 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 			return
 		}
 
+		mutex.Lock()
 		if (externalLinks[ctx.URL().Host] == nil) {
 			externalLinks[ctx.URL().Host] = make(map[string]int)
 		}
 		externalLinks[ctx.URL().Host][href] += 1
+		mutex.Unlock()
 
 	})
 	return nil, true
@@ -122,6 +125,7 @@ func main() {
 	fmt.Println("Going to resolve URLs...")
 	for host := range externalLinks {
 		for url, times := range externalLinks[host] {
+			externalLinksIterator++
 			syncResolve.Add(1)
 			go func(url string, times int, host string, wg *sync.WaitGroup) {
 				resolvedUrl := resolve(url)
@@ -135,6 +139,9 @@ func main() {
 
 				wg.Done()
 			}(url, times, host, &syncResolve)
+			if externalLinksIterator%10 == 0 {
+				syncResolve.Wait()
+			}
 		}
 	}
 	syncResolve.Wait()
@@ -169,7 +176,7 @@ func resolve(url string) string {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	client := &http.Client{Transport: tr}
+	client := &http.Client{Transport: tr, Timeout: 30 * time.Second}
 
 	response, err := client.Get(url)
 	if err == nil {
