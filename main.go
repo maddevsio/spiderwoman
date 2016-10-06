@@ -13,51 +13,97 @@ import (
 	"sort"
 	"os"
 	"bufio"
+	"net/http/httputil"
+	"log"
 )
 
-type Ext struct {
-	*gocrawl.DefaultExtender
-}
-
 var (
-	externalLinks map[string]map[string]int
-	externalLinksResolved map[string]map[string]int
 	mutex sync.Mutex
 	hosts []string
 	syncCrawl sync.WaitGroup
 	syncResolve sync.WaitGroup
 	err error
 	externalLinksIterator int
+
+	externalLinks map[string]map[string]int         = make(map[string]map[string]int)
+	externalLinksResolved map[string]map[string]int = make(map[string]map[string]int)
+	userAgent string = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+	verbose bool     = false
+	maxVisits int    = 30
 )
+
+type Ext struct {
+	*gocrawl.DefaultExtender
+}
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
 	fmt.Printf("Visit: %s\n", ctx.URL())
 	doc.Find("a").Each(func(i int, s *goquery.Selection) {
 		href, _ := s.Attr("href")
 
-		// restriction chain, shitcoded, will be refactored
+		// TODO: restriction chain, shitcoded, will be refactored
 		if strings.Contains(href, ctx.URL().Host) {
-			return
+			if !strings.Contains(href, "/go/") &&
+				!strings.Contains(href, "/go.php?") &&
+				!strings.Contains(href, "/goto/") &&
+				!strings.Contains(href, "/banners/click/") &&
+				!strings.Contains(href, "/adrotate-out.php?") &&
+				!strings.Contains(href, "/bsdb/bs.php?") {
+				return
+			} else {
+				if verbose {
+					fmt.Println(href)
+				}
+			}
+
 		}
+		// TODO: remove duplicates
 		if (!strings.HasPrefix(href, "http")) {
+			if !strings.Contains(href, "/go/") &&
+				!strings.Contains(href, "/go.php?") &&
+				!strings.Contains(href, "/goto/") &&
+				!strings.Contains(href, "/banners/click/") &&
+				!strings.Contains(href, "/adrotate-out.php?") &&
+				!strings.Contains(href, "/bsdb/bs.php?") {
+				return
+			} else {
+				href = ctx.URL().Scheme + "://" + ctx.URL().Host + href
+				if verbose {
+					fmt.Println(href)
+				}
+			}
+		}
+		if (strings.Contains(href, "telegram.me")) {
 			return
 		}
-		if (strings.Contains(href, "//telegram.me")) {
+		if (strings.Contains(href, "plus.google.com")) {
 			return
 		}
-		if (strings.Contains(href, "//plus.google.com")) {
+		if (strings.Contains(href, "facebook.com")) {
 			return
 		}
-		if (strings.Contains(href, "//www.facebook.com")) {
+		if (strings.Contains(href, "vk.com")) {
 			return
 		}
-		if (strings.Contains(href, "//vk.com")) {
+		if (strings.Contains(href, "youtube.com")) {
 			return
 		}
-		if (strings.Contains(href, "//www.youtube.com")) {
+		if (strings.Contains(href, "instagram.com")) {
 			return
 		}
-		if (strings.Contains(href, "//twitter.com")) {
+		if (strings.Contains(href, "twitter.com")) {
+			return
+		}
+		if (strings.Contains(href, "yandex.ru")) {
+			return
+		}
+		if (strings.Contains(href, "feedburner.com")) {
+			return
+		}
+		if (strings.Contains(href, "itunes.apple.com")) {
+			return
+		}
+		if (strings.Contains(href, "play.google.com")) {
 			return
 		}
 		if (strings.HasSuffix(href, ".png")) {
@@ -92,8 +138,6 @@ func (e *Ext) ComputeDelay(host string, di *gocrawl.DelayInfo, lastFetch *gocraw
 }
 
 func main() {
-	externalLinks = make(map[string]map[string]int)
-	externalLinksResolved = make(map[string]map[string]int)
 	hosts, err = getHostsFromFile()
 	if err != nil {
 		fmt.Println("Error opening or parsing config file: " + err.Error())
@@ -110,9 +154,9 @@ func main() {
 			opts.CrawlDelay = 0
 			opts.LogFlags = gocrawl.LogError
 			opts.SameHostOnly = true
-			opts.MaxVisits = 30
-			opts.UserAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-			opts.RobotUserAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+			opts.MaxVisits = maxVisits
+			opts.UserAgent = userAgent
+			opts.RobotUserAgent = userAgent
 			c := gocrawl.NewCrawlerWithOptions(opts)
 			defer syncCrawl.Done()
 			c.Run(hosts[key])
@@ -128,7 +172,7 @@ func main() {
 			externalLinksIterator++
 			syncResolve.Add(1)
 			go func(url string, times int, host string, wg *sync.WaitGroup) {
-				resolvedUrl := resolve(url)
+				resolvedUrl := resolve(url, host)
 
 				mutex.Lock()
 				if (externalLinksResolved[host] == nil) {
@@ -148,13 +192,12 @@ func main() {
 
 	//spew.Dump(externalLinksResolved)
 
-	fmt.Println("Sorting the list")
+	fmt.Println("\n\n\n\nSorting the list")
 	sortMapByKeys(externalLinksResolved)
 }
 
 func sortMapByKeys(externalLinksResolved map[string]map[string]int) {
 	for host, m := range externalLinksResolved {
-		fmt.Println("HOST = " + host)
 		n := map[int][]string{}
 		var a []int
 		for k, v := range m {
@@ -166,19 +209,33 @@ func sortMapByKeys(externalLinksResolved map[string]map[string]int) {
 		sort.Sort(sort.Reverse(sort.IntSlice(a)))
 		for _, k := range a {
 			for _, s := range n[k] {
-				fmt.Printf("%s, %d\n", s, k)
+				fmt.Printf("%s\t%s\t%d\n", host, s, k)
 			}
 		}
 	}
 }
 
-func resolve(url string) string {
+// TODO: need to use cache, do not resolve same URLs
+func resolve(url string, host string) string {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr, Timeout: 30 * time.Second}
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		if verbose {
+			fmt.Println("Bad URL: " + url + " Err:" + err.Error())
+		}
+		return url
+	}
+	request.Header.Add("User-Agent", userAgent)
+	request.Header.Add("Referer", "http://" + host)
 
-	response, err := client.Get(url)
+	if verbose {
+		debug(httputil.DumpRequestOut(request, false))
+	}
+
+	response, err := client.Do(request)
 	if err == nil {
 		fmt.Println(response.Request.URL.String())
 		return response.Request.URL.String()
@@ -203,4 +260,12 @@ func getHostsFromFile() ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	return lines, scanner.Err()
+}
+
+func debug(data []byte, err error) {
+	if err == nil {
+		fmt.Printf("%s\n\n", data)
+	} else {
+		log.Fatalf("%s\n\n", err)
+	}
 }
