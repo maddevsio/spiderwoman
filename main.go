@@ -15,6 +15,7 @@ import (
 	"bufio"
 	"net/http/httputil"
 	"log"
+	"net/url"
 )
 
 var (
@@ -209,7 +210,14 @@ func sortMapByKeys(externalLinksResolved map[string]map[string]int) {
 		sort.Sort(sort.Reverse(sort.IntSlice(a)))
 		for _, k := range a {
 			for _, s := range n[k] {
-				fmt.Printf("%s\t%s\t%d\n", host, s, k)
+				var externalLinkHost string
+				u, err := url.Parse(s)
+				if err !=nil {
+					externalLinkHost = s
+				} else {
+					externalLinkHost = u.Host
+				}
+				fmt.Printf("%s\t%s\t%d\t%s\n", host, s, k, externalLinkHost)
 			}
 		}
 	}
@@ -220,7 +228,7 @@ func resolve(url string, host string) string {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	client := &http.Client{Transport: tr, Timeout: 30 * time.Second}
+	client := &http.Client{Transport: tr, Timeout: 15 * time.Second}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		if verbose {
