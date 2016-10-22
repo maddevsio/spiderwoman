@@ -21,6 +21,7 @@ import (
 var (
 	mutex sync.Mutex
 	hosts []string
+	stopHosts []string
 	syncCrawl sync.WaitGroup
 	syncResolve sync.WaitGroup
 	err error
@@ -31,6 +32,8 @@ var (
 	userAgent string = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 	verbose bool     = false
 	maxVisits int    = 30
+	internalOutPatterns []string = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
+	badSuffixes []string = []string{".png", ".jpg", ".pdf"}
 )
 
 type Ext struct {
@@ -42,14 +45,9 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 	doc.Find("a").Each(func(i int, s *goquery.Selection) {
 		href, _ := s.Attr("href")
 
-		// TODO: restriction chain, shitcoded, will be refactored
+		// analyze absolute urls, e.g. http://bla.com/lolz
 		if strings.Contains(href, ctx.URL().Host) {
-			if !strings.Contains(href, "/go/") &&
-				!strings.Contains(href, "/go.php?") &&
-				!strings.Contains(href, "/goto/") &&
-				!strings.Contains(href, "/banners/click/") &&
-				!strings.Contains(href, "/adrotate-out.php?") &&
-				!strings.Contains(href, "/bsdb/bs.php?") {
+			if !hasInternalOutPatterns(href) {
 				return
 			} else {
 				if verbose {
@@ -58,14 +56,10 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 			}
 
 		}
-		// TODO: remove duplicates
+
+		// analyze relative urls, e.g. /lolz.html
 		if (!strings.HasPrefix(href, "http")) {
-			if !strings.Contains(href, "/go/") &&
-				!strings.Contains(href, "/go.php?") &&
-				!strings.Contains(href, "/goto/") &&
-				!strings.Contains(href, "/banners/click/") &&
-				!strings.Contains(href, "/adrotate-out.php?") &&
-				!strings.Contains(href, "/bsdb/bs.php?") {
+			if !hasInternalOutPatterns(href) {
 				return
 			} else {
 				href = ctx.URL().Scheme + "://" + ctx.URL().Host + href
@@ -74,43 +68,12 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 				}
 			}
 		}
-		if (strings.Contains(href, "telegram.me")) {
+
+		if (hasStopHost(href)) {
 			return
 		}
-		if (strings.Contains(href, "plus.google.com")) {
-			return
-		}
-		if (strings.Contains(href, "facebook.com")) {
-			return
-		}
-		if (strings.Contains(href, "vk.com")) {
-			return
-		}
-		if (strings.Contains(href, "youtube.com")) {
-			return
-		}
-		if (strings.Contains(href, "instagram.com")) {
-			return
-		}
-		if (strings.Contains(href, "twitter.com")) {
-			return
-		}
-		if (strings.Contains(href, "yandex.ru")) {
-			return
-		}
-		if (strings.Contains(href, "feedburner.com")) {
-			return
-		}
-		if (strings.Contains(href, "itunes.apple.com")) {
-			return
-		}
-		if (strings.Contains(href, "play.google.com")) {
-			return
-		}
-		if (strings.HasSuffix(href, ".png")) {
-			return
-		}
-		if (strings.HasSuffix(href, ".jpg")) {
+
+		if (hasBadSuffixes(href)) {
 			return
 		}
 
@@ -197,6 +160,8 @@ func main() {
 	sortMapByKeys(externalLinksResolved)
 }
 
+// helper functions
+
 func sortMapByKeys(externalLinksResolved map[string]map[string]int) {
 	for host, m := range externalLinksResolved {
 		n := map[int][]string{}
@@ -253,9 +218,44 @@ func resolve(url string, host string) string {
 }
 
 func getHostsFromFile() ([]string, error) {
-	file, err := os.Open("./sites.txt")
+	return getSliceFromFile("./sites.txt", "./sites.default.txt")
+}
+
+func hasStopHost(href string) bool {
+	if len(stopHosts) == 0 {
+		stopHosts, err = getSliceFromFile("./stops.txt", "./stops.default.txt")
+	}
+
+	for i := range stopHosts {
+		if (strings.Contains(href, stopHosts[i])) {
+			return true
+		}
+	}
+	return false
+}
+
+func hasInternalOutPatterns(href string) bool {
+	for i := range internalOutPatterns {
+		if strings.Contains(href, internalOutPatterns[i]) {
+			return true;
+		}
+	}
+	return false;
+}
+
+func hasBadSuffixes(href string) bool {
+	for i := range badSuffixes {
+		if strings.HasSuffix(href, badSuffixes[i]) {
+			return true;
+		}
+	}
+	return false;
+}
+
+func getSliceFromFile(realFile string, defaultFile string) ([]string, error) {
+	file, err := os.Open(realFile)
 	if err != nil {
-		file, err = os.Open("./sites.default.txt")
+		file, err = os.Open(defaultFile)
 		if err != nil {
 			return nil, err
 		}
