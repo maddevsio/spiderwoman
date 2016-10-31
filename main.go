@@ -42,6 +42,9 @@ type Ext struct {
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
 	fmt.Printf("Visit: %s\n", ctx.URL())
+	if doc == nil {
+		return
+	}
 	doc.Find("a").Each(func(i int, s *goquery.Selection) {
 		href, _ := s.Attr("href")
 
@@ -95,7 +98,7 @@ func (e *Ext) Filter(ctx *gocrawl.URLContext, isVisited bool) bool {
 func (de *Ext) RequestRobots(ctx *gocrawl.URLContext, robotAgent string) (data []byte, doRequest bool) {
 	return nil, false
 }
-
+lolz
 
 func (e *Ext) ComputeDelay(host string, di *gocrawl.DelayInfo, lastFetch *gocrawl.FetchInfo) time.Duration {
 	return 0
