@@ -98,7 +98,6 @@ func (e *Ext) Filter(ctx *gocrawl.URLContext, isVisited bool) bool {
 func (de *Ext) RequestRobots(ctx *gocrawl.URLContext, robotAgent string) (data []byte, doRequest bool) {
 	return nil, false
 }
-lolz
 
 func (e *Ext) ComputeDelay(host string, di *gocrawl.DelayInfo, lastFetch *gocrawl.FetchInfo) time.Duration {
 	return 0
