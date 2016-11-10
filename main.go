@@ -29,9 +29,11 @@ var (
 
 	externalLinks map[string]map[string]int         = make(map[string]map[string]int)
 	externalLinksResolved map[string]map[string]int = make(map[string]map[string]int)
-	userAgent string = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-	verbose bool     = false
-	maxVisits int    = 30
+	userAgent string     = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+	resolveURLsPool int  = 900
+	verbose bool         = true
+	maxVisits int        = 10
+	resolveTimeout int   = 7
 	internalOutPatterns []string = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
 	badSuffixes []string = []string{".png", ".jpg", ".pdf"}
 )
@@ -118,7 +120,11 @@ func main() {
 			// Set custom options
 			opts := gocrawl.NewOptions(ext)
 			opts.CrawlDelay = 0
-			opts.LogFlags = gocrawl.LogError
+			if verbose {
+				opts.LogFlags = gocrawl.LogInfo
+			} else {
+				opts.LogFlags = gocrawl.LogError
+			}
 			opts.SameHostOnly = true
 			opts.MaxVisits = maxVisits
 			opts.UserAgent = userAgent
@@ -149,7 +155,7 @@ func main() {
 
 				wg.Done()
 			}(url, times, host, &syncResolve)
-			if externalLinksIterator%10 == 0 {
+			if externalLinksIterator%resolveURLsPool == 0 {
 				syncResolve.Wait()
 			}
 		}
@@ -195,7 +201,7 @@ func resolve(url string, host string) string {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	client := &http.Client{Transport: tr, Timeout: 15 * time.Second}
+	client := &http.Client{Transport: tr, Timeout: time.Duration(resolveTimeout) * time.Second}
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		if verbose {
@@ -229,7 +235,7 @@ func hasStopHost(href string) bool {
 	}
 
 	for i := range stopHosts {
-		if (strings.Contains(href, stopHosts[i])) {
+		if (strings.Contains(strings.ToLower(href), strings.ToLower(stopHosts[i]))) {
 			return true
 		}
 	}
