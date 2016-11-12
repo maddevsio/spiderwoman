@@ -32,7 +32,7 @@ var (
 	userAgent string     = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 	resolveURLsPool int  = 900
 	verbose bool         = true
-	maxVisits int        = 10
+	maxVisits int        = 1
 	resolveTimeout int   = 7
 	internalOutPatterns []string = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
 	badSuffixes []string = []string{".png", ".jpg", ".pdf"}
@@ -130,8 +130,8 @@ func main() {
 			opts.UserAgent = userAgent
 			opts.RobotUserAgent = userAgent
 			c := gocrawl.NewCrawlerWithOptions(opts)
-			defer syncCrawl.Done()
 			c.Run(hosts[key])
+			syncCrawl.Done()
 		}(i)
 	}
 	syncCrawl.Wait()
@@ -202,25 +202,36 @@ func resolve(url string, host string) string {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr, Timeout: time.Duration(resolveTimeout) * time.Second}
+
+	if verbose {
+		fmt.Println("Initial URL " + url)
+	}
+
 	request, err := http.NewRequest("GET", url, nil)
+
 	if err != nil {
 		if verbose {
 			fmt.Println("Bad URL: " + url + " Err:" + err.Error())
 		}
 		return url
 	}
+
 	request.Header.Add("User-Agent", userAgent)
 	request.Header.Add("Referer", "http://" + host)
 
 	if verbose {
-		debug(httputil.DumpRequestOut(request, false))
+		dump, err := httputil.DumpRequestOut(request, false)
+		if (err == nil) {
+			debug(dump, nil)
+		}
 	}
 
 	response, err := client.Do(request)
 	if err == nil {
-		fmt.Println(response.Request.URL.String())
+		fmt.Println("Resolved URL " + response.Request.URL.String())
 		return response.Request.URL.String()
 	} else {
+		fmt.Println("Error client.Do" + err.Error())
 		return url
 	}
 }
