@@ -32,7 +32,7 @@ var (
 	userAgent string     = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 	resolveURLsPool int  = 900
 	verbose bool         = true
-	maxVisits int        = 1
+	maxVisits int        = 10
 	resolveTimeout int   = 7
 	internalOutPatterns []string = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
 	badSuffixes []string = []string{".png", ".jpg", ".pdf"}
@@ -113,8 +113,9 @@ func main() {
 	}
 
 	for i := 0; i < len(hosts); i++ {
-		syncCrawl.Add(1)
-		go func(key int) {
+		///syncCrawl.Add(1)
+		//go func(key int) {
+			key := i
 			fmt.Println(hosts[key])
 			ext := &Ext{&gocrawl.DefaultExtender{}}
 			// Set custom options
@@ -131,10 +132,10 @@ func main() {
 			opts.RobotUserAgent = userAgent
 			c := gocrawl.NewCrawlerWithOptions(opts)
 			c.Run(hosts[key])
-			syncCrawl.Done()
-		}(i)
+			//syncCrawl.Done()
+		//}(i)
 	}
-	syncCrawl.Wait()
+	//syncCrawl.Wait()
 
 	//spew.Dump(externalLinks)
 
