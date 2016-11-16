@@ -30,7 +30,7 @@ var (
 	externalLinks map[string]map[string]int         = make(map[string]map[string]int)
 	externalLinksResolved map[string]map[string]int = make(map[string]map[string]int)
 	userAgent string     = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-	resolveURLsPool int  = 900
+	resolveURLsPool int  = 100
 	verbose bool         = true
 	maxVisits int        = 10
 	resolveTimeout int   = 7
@@ -202,7 +202,10 @@ func resolve(url string, host string) string {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	client := &http.Client{Transport: tr, Timeout: time.Duration(resolveTimeout) * time.Second}
+	client := &http.Client{
+		Transport: tr,
+		Timeout: time.Duration(resolveTimeout) * time.Second,
+	}
 
 	if verbose {
 		fmt.Println("Initial URL " + url)
@@ -230,6 +233,9 @@ func resolve(url string, host string) string {
 	response, err := client.Do(request)
 	if err == nil {
 		fmt.Println("Resolved URL " + response.Request.URL.String())
+		response.Body.Close()
+		response = nil
+		client = nil
 		return response.Request.URL.String()
 	} else {
 		fmt.Println("Error client.Do" + err.Error())
