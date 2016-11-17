@@ -233,9 +233,7 @@ func resolve(url string, host string) string {
 	response, err := client.Do(request)
 	if err == nil {
 		fmt.Println("Resolved URL " + response.Request.URL.String())
-		response.Body.Close()
-		response = nil
-		client = nil
+		defer response.Body.Close()
 		return response.Request.URL.String()
 	} else {
 		fmt.Println("Error client.Do" + err.Error())
