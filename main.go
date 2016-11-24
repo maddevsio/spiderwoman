@@ -14,7 +14,6 @@ import (
 	"os"
 	"bufio"
 	"net/http/httputil"
-	"log"
 	"net/url"
 )
 
@@ -22,7 +21,6 @@ var (
 	mutex sync.Mutex
 	hosts []string
 	stopHosts []string
-	syncCrawl sync.WaitGroup
 	syncResolve sync.WaitGroup
 	err error
 	externalLinksIterator int
@@ -166,12 +164,14 @@ func main() {
 	//spew.Dump(externalLinksResolved)
 
 	fmt.Println("\n\n\n\nSorting the list")
-	sortMapByKeys(externalLinksResolved)
+	csv := sortMapByKeys(externalLinksResolved)
+	saveFile(csv, "res.csv")
 }
 
 // helper functions
 
-func sortMapByKeys(externalLinksResolved map[string]map[string]int) {
+func sortMapByKeys(externalLinksResolved map[string]map[string]int) []string {
+	var lines []string
 	for host, m := range externalLinksResolved {
 		n := map[int][]string{}
 		var a []int
@@ -191,10 +191,15 @@ func sortMapByKeys(externalLinksResolved map[string]map[string]int) {
 				} else {
 					externalLinkHost = u.Host
 				}
-				fmt.Printf("%s\t%s\t%d\t%s\n", host, s, k, externalLinkHost)
+				str := fmt.Sprintf("%s\t%s\t%d\t%s\n", host, s, k, externalLinkHost)
+				lines = append(lines, str)
+				if verbose {
+					fmt.Printf(str)
+				}
 			}
 		}
 	}
+	return lines
 }
 
 // TODO: need to use cache, do not resolve same URLs
@@ -294,10 +299,23 @@ func getSliceFromFile(realFile string, defaultFile string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
+func saveFile(data []string, filename string) {
+	file, err := os.Create(filename)
+	if err != nil {
+		fmt.Printf("%s %s\n", "Cannot create the file", err)
+		return
+	}
+	defer file.Close()
+	for _, line := range data {
+		fmt.Fprintf(file, line)
+	}
+	fmt.Printf("File %s created", filename)
+}
+
 func debug(data []byte, err error) {
 	if err == nil {
 		fmt.Printf("%s\n\n", data)
 	} else {
-		log.Fatalf("%s\n\n", err)
+		fmt.Printf("%s\n\n", err)
 	}
 }
