@@ -31,7 +31,7 @@ var (
 	resolveURLsPool int  = 100
 	verbose bool         = true
 	maxVisits int        = 10
-	resolveTimeout int   = 7
+	resolveTimeout int   = 30
 	internalOutPatterns []string = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
 	badSuffixes []string = []string{".png", ".jpg", ".pdf"}
 )
