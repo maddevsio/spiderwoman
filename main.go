@@ -120,12 +120,13 @@ func main() {
 			opts := gocrawl.NewOptions(ext)
 			opts.CrawlDelay = 0
 			if verbose {
-				opts.LogFlags = gocrawl.LogInfo
+				opts.LogFlags = gocrawl.LogAll
 			} else {
 				opts.LogFlags = gocrawl.LogError
 			}
 			opts.SameHostOnly = true
 			opts.MaxVisits = maxVisits
+			opts.HeadBeforeGet = false
 			opts.UserAgent = userAgent
 			opts.RobotUserAgent = userAgent
 			c := gocrawl.NewCrawlerWithOptions(opts)
