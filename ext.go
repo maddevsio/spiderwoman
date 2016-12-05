@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/PuerkitoBio/gocrawl"
+	"github.com/maddevsio/spiderwoman/lib"
 )
 
 type Ext struct {
@@ -24,7 +25,7 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 
 		// analyze absolute urls, e.g. http://bla.com/lolz
 		if strings.Contains(href, ctx.URL().Host) {
-			if !hasInternalOutPatterns(href) {
+			if !lib.HasInternalOutPatterns(href, internalOutPatterns) {
 				return
 			} else {
 				if verbose {
@@ -36,7 +37,7 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 
 		// analyze relative urls, e.g. /lolz.html
 		if (!strings.HasPrefix(href, "http")) {
-			if !hasInternalOutPatterns(href) {
+			if !lib.HasInternalOutPatterns(href, internalOutPatterns) {
 				return
 			} else {
 				href = ctx.URL().Scheme + "://" + ctx.URL().Host + href
@@ -46,11 +47,11 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 			}
 		}
 
-		if (hasStopHost(href)) {
+		if (lib.HasStopHost(href, stopHosts)) {
 			return
 		}
 
-		if (hasBadSuffixes(href)) {
+		if (lib.HasBadSuffixes(href, badSuffixes)) {
 			return
 		}
 

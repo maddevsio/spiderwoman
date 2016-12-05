@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/PuerkitoBio/gocrawl"
-	"sync"
+	"github.com/maddevsio/spiderwoman/lib"
 )
 
 var (
@@ -27,14 +28,14 @@ var (
 )
 
 func main() {
-	hosts, err = getHostsFromFile()
+	hosts, err = lib.GetHostsFromFile()
 	if err != nil {
 		fmt.Println("Error opening or parsing config file: " + err.Error())
 		return
 	}
 
-	for host := range hosts {
-		fmt.Println(host)
+	for _, host := range hosts {
+		fmt.Println(" hh " + host)
 		ext := &Ext{&gocrawl.DefaultExtender{}}
 		opts := gocrawl.NewOptions(ext)
 		opts.CrawlDelay = 0
@@ -58,7 +59,7 @@ func main() {
 			externalLinksIterator++
 			syncResolve.Add(1)
 			go func(url string, times int, host string, wg *sync.WaitGroup) {
-				resolvedUrl := resolve(url, host)
+				resolvedUrl := lib.Resolve(url, host, resolveTimeout, verbose, userAgent)
 
 				mutex.Lock()
 				if (externalLinksResolved[host] == nil) {
@@ -77,6 +78,6 @@ func main() {
 	syncResolve.Wait()
 
 	fmt.Println("\n\n\n\nSorting the list")
-	csv := sortMapByKeys(externalLinksResolved)
-	saveFile(csv, "res.csv")
+	csv := lib.SortMapByKeys(externalLinksResolved, verbose)
+	lib.SaveFile(csv, "res.csv")
 }

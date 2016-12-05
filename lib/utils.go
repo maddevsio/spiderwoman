@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func debug(data []byte, err error) {
+func Debug(data []byte, err error) {
 	if err == nil {
 		fmt.Printf("%s\n\n", data)
 	} else {
@@ -21,7 +21,7 @@ func debug(data []byte, err error) {
 	}
 }
 
-func saveFile(data []string, filename string) {
+func SaveFile(data []string, filename string) {
 	file, err := os.Create(filename)
 	if err != nil {
 		fmt.Printf("%s %s\n", "Cannot create the file", err)
@@ -34,7 +34,7 @@ func saveFile(data []string, filename string) {
 	fmt.Printf("File %s created", filename)
 }
 
-func getSliceFromFile(realFile string, defaultFile string) ([]string, error) {
+func GetSliceFromFile(realFile string, defaultFile string) ([]string, error) {
 	file, err := os.Open(realFile)
 	if err != nil {
 		file, err = os.Open(defaultFile)
@@ -52,7 +52,7 @@ func getSliceFromFile(realFile string, defaultFile string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
-func sortMapByKeys(externalLinksResolved map[string]map[string]int) []string {
+func SortMapByKeys(externalLinksResolved map[string]map[string]int, verbose bool) []string {
 	var lines []string
 	for host, m := range externalLinksResolved {
 		n := map[int][]string{}
@@ -85,7 +85,7 @@ func sortMapByKeys(externalLinksResolved map[string]map[string]int) []string {
 }
 
 // TODO: need to use cache, do not resolve same URLs
-func resolve(url string, host string) string {
+func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgent string) string {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -113,7 +113,7 @@ func resolve(url string, host string) string {
 	if verbose {
 		dump, err := httputil.DumpRequestOut(request, false)
 		if (err == nil) {
-			debug(dump, nil)
+			Debug(dump, nil)
 		}
 	}
 
@@ -128,13 +128,13 @@ func resolve(url string, host string) string {
 	}
 }
 
-func getHostsFromFile() ([]string, error) {
-	return getSliceFromFile("./sites.txt", "./sites.default.txt")
+func GetHostsFromFile() ([]string, error) {
+	return GetSliceFromFile("./sites.txt", "./sites.default.txt")
 }
 
-func hasStopHost(href string) bool {
+func HasStopHost(href string, stopHosts []string) bool {
 	if len(stopHosts) == 0 {
-		stopHosts, err = getSliceFromFile("./stops.txt", "./stops.default.txt")
+		stopHosts, _ = GetSliceFromFile("./stops.txt", "./stops.default.txt")
 	}
 
 	for i := range stopHosts {
@@ -145,7 +145,7 @@ func hasStopHost(href string) bool {
 	return false
 }
 
-func hasInternalOutPatterns(href string) bool {
+func HasInternalOutPatterns(href string, internalOutPatterns []string) bool {
 	for i := range internalOutPatterns {
 		if strings.Contains(href, internalOutPatterns[i]) {
 			return true;
@@ -154,7 +154,7 @@ func hasInternalOutPatterns(href string) bool {
 	return false;
 }
 
-func hasBadSuffixes(href string) bool {
+func HasBadSuffixes(href string, badSuffixes []string) bool {
 	for i := range badSuffixes {
 		if strings.HasSuffix(href, badSuffixes[i]) {
 			return true;
