@@ -52,3 +52,7 @@ func TestCheckMonitorTable(t *testing.T) {
 		log.Fatal(err)
 	}
 }
+
+func TestSaveRecordToMonitor(t *testing.T) {
+	SaveRecordToMonitor()
+}

@@ -29,3 +29,7 @@ func CreateDBIfNotExists(dbFilepath string) {
 		return
 	}
 }
+
+func SaveRecordToMonitor() {
+
+}
