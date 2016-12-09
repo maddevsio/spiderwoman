@@ -119,7 +119,9 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 
 	response, err := client.Do(request)
 	if err == nil {
-		fmt.Println("Resolved URL " + response.Request.URL.String())
+		if verbose {
+			fmt.Println("Resolved URL " + response.Request.URL.String())
+		}
 		defer response.Body.Close()
 		return response.Request.URL.String()
 	} else {
