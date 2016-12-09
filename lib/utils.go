@@ -13,6 +13,13 @@ import (
 	"time"
 )
 
+const (
+	SitesFilepath = "./sites.txt"
+	SitesDefaultFilepath = "./sites.default.txt"
+	StopsFilepath = "./stops.txt"
+	StopsDefaultFilepath = "./stops.default.txt"
+)
+
 func Debug(data []byte, err error) {
 	if err == nil {
 		fmt.Printf("%s\n\n", data)
@@ -131,12 +138,12 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 }
 
 func GetHostsFromFile() ([]string, error) {
-	return GetSliceFromFile("./sites.txt", "./sites.default.txt")
+	return GetSliceFromFile(SitesFilepath, SitesDefaultFilepath)
 }
 
 func HasStopHost(href string, stopHosts []string) bool {
 	if len(stopHosts) == 0 {
-		stopHosts, _ = GetSliceFromFile("./stops.txt", "./stops.default.txt")
+		stopHosts, _ = GetSliceFromFile(StopsFilepath, StopsDefaultFilepath)
 	}
 
 	for i := range stopHosts {
