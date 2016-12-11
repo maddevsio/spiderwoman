@@ -1,22 +1,21 @@
 package lib
 
 import (
-	"testing"
+	"database/sql"
 	"log"
 	"os"
-	"database/sql"
+	"testing"
 )
 
 const (
 	DBFilepath = "/tmp/spiderwoman.db"
 )
 
-
 func TestCreateDBIfNotExists(t *testing.T) {
 	os.Remove(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	if _, err := os.Stat(DBFilepath); os.IsNotExist(err) {
-		t.Error("DB file does not exist");
+		t.Error("DB file does not exist")
 	}
 }
 
@@ -54,5 +53,9 @@ func TestCheckMonitorTable(t *testing.T) {
 }
 
 func TestSaveRecordToMonitor(t *testing.T) {
-	SaveRecordToMonitor()
+	source_host := "http://a"
+	external_link := "http://b/1"
+	count := 800
+	external_host := "b"
+	SaveRecordToMonitor(DBFilepath, source_host, external_link, count, external_host)
 }
