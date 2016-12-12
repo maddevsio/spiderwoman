@@ -3,7 +3,9 @@ package lib
 import (
 	"database/sql"
 	"os"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -49,4 +51,31 @@ func TestSaveRecordToMonitor(t *testing.T) {
 	external_host := "b"
 	res := SaveRecordToMonitor(DBFilepath, source_host, external_link, count, external_host)
 	assert.Equal(t, true, res)
+
+	db, err := sql.Open("sqlite3", DBFilepath)
+	assert.Equal(t, nil, err)
+	defer db.Close()
+
+	rows, err := db.Query("SELECT source_host, created FROM monitor;")
+	assert.Equal(t, nil, err)
+	defer rows.Close()
+
+	k := 0
+	for rows.Next() {
+		k += 1
+		var source_host string
+		var created string
+		err = rows.Scan(&source_host, &created)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, "http://a", source_host)
+	}
+	assert.Equal(t, 1, k)
+}
+
+func TestParseSqliteDate(t *testing.T) {
+	sqliteDate := "2016-12-13T07:17:23Z"
+	parsedTime, _ := time.Parse("2006-01-02T15:04:05Z", sqliteDate)
+	assert.Equal(t, "2016", strconv.Itoa(parsedTime.Year()))
+	assert.Equal(t, "12", strconv.Itoa(int(parsedTime.Month())))
+	assert.Equal(t, "13", strconv.Itoa(parsedTime.Day()))
 }
