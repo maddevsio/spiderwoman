@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -52,4 +53,8 @@ func SaveRecordToMonitor(dbFilepath string, source_host string, external_link st
 		return false
 	}
 	return true
+}
+
+func ParseSqliteDate(sqliteDate string) (time.Time, error) {
+	return time.Parse("2006-01-02T15:04:05Z", sqliteDate)
 }
