@@ -45,11 +45,11 @@ func TestCheckMonitorTable(t *testing.T) {
 }
 
 func TestSaveRecordToMonitor(t *testing.T) {
-	source_host := "http://a"
-	external_link := "http://b/1"
+	sourceHost := "http://a"
+	externalLink := "http://b/1"
 	count := 800
-	external_host := "b"
-	res := SaveRecordToMonitor(DBFilepath, source_host, external_link, count, external_host)
+	externalHost := "b"
+	res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 	assert.Equal(t, true, res)
 
 	db, err := sql.Open("sqlite3", DBFilepath)
@@ -62,12 +62,12 @@ func TestSaveRecordToMonitor(t *testing.T) {
 
 	k := 0
 	for rows.Next() {
-		k += 1
-		var source_host string
+		k++
+		var sourceHost string
 		var created string
-		err = rows.Scan(&source_host, &created)
+		err = rows.Scan(&sourceHost, &created)
 		assert.Equal(t, nil, err)
-		assert.Equal(t, "http://a", source_host)
+		assert.Equal(t, "http://a", sourceHost)
 	}
 	assert.Equal(t, 1, k)
 }

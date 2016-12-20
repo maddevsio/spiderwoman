@@ -16,7 +16,7 @@ func CreateDBIfNotExists(dbFilepath string) {
 	defer db.Close()
 
 	sqlStmt := `
-	create table monitor (
+	create table if not exists monitor (
 		id integer not null primary key,
 		source_host text,
 		external_link text,

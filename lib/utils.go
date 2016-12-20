@@ -1,22 +1,21 @@
 package lib
 
 import (
-	"fmt"
-	"os"
 	"bufio"
-	"net/http/httputil"
-	"strings"
-	"sort"
-	"net/url"
 	"crypto/tls"
+	"fmt"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
+	"strings"
 	"time"
 )
 
 const (
-	SitesFilepath = "./sites.txt"
+	SitesFilepath        = "./sites.txt"
 	SitesDefaultFilepath = "./sites.default.txt"
-	StopsFilepath = "./stops.txt"
+	StopsFilepath        = "./stops.txt"
 	StopsDefaultFilepath = "./stops.default.txt"
 )
 
@@ -59,36 +58,24 @@ func GetSliceFromFile(realFile string, defaultFile string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
-func SortMapByKeys(externalLinksResolved map[string]map[string]int, verbose bool) []string {
-	var lines []string
-	for host, m := range externalLinksResolved {
-		n := map[int][]string{}
-		var a []int
-		for k, v := range m {
-			n[v] = append(n[v], k)
-		}
-		for k := range n {
-			a = append(a, k)
-		}
-		sort.Sort(sort.Reverse(sort.IntSlice(a)))
-		for _, k := range a {
-			for _, s := range n[k] {
-				var externalLinkHost string
-				u, err := url.Parse(s)
-				if err !=nil {
-					externalLinkHost = s
-				} else {
-					externalLinkHost = u.Host
-				}
-				str := fmt.Sprintf("%s\t%s\t%d\t%s\n", host, s, k, externalLinkHost)
-				lines = append(lines, str)
-				if verbose {
-					fmt.Printf(str)
-				}
+func SaveDataToSqlite(DBFilepath string, externalLinksResolved map[string]map[string]int, verbose bool) bool {
+	for sourceHost, externalLinks := range externalLinksResolved {
+		for externalLink, count := range externalLinks {
+			var externalHost string
+			u, err := url.Parse(externalLink)
+			if err != nil {
+				externalHost = externalLink
+			} else {
+				externalHost = u.Host
+			}
+			CreateDBIfNotExists(DBFilepath)
+			res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+			if verbose {
+				fmt.Printf("Saving result of %s is: %t\n", externalLink, res)
 			}
 		}
 	}
-	return lines
+	return true
 }
 
 // TODO: need to use cache, do not resolve same URLs
@@ -98,7 +85,7 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 	}
 	client := &http.Client{
 		Transport: tr,
-		Timeout: time.Duration(resolveTimeout) * time.Second,
+		Timeout:   time.Duration(resolveTimeout) * time.Second,
 	}
 
 	if verbose {
@@ -115,11 +102,11 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 	}
 
 	request.Header.Add("User-Agent", userAgent)
-	request.Header.Add("Referer", "http://" + host)
+	request.Header.Add("Referer", "http://"+host)
 
 	if verbose {
-		dump, err := httputil.DumpRequestOut(request, false)
-		if (err == nil) {
+		dump, errDump := httputil.DumpRequestOut(request, false)
+		if errDump == nil {
 			Debug(dump, nil)
 		}
 	}
@@ -147,7 +134,7 @@ func HasStopHost(href string, stopHosts []string) bool {
 	}
 
 	for i := range stopHosts {
-		if (strings.Contains(strings.ToLower(href), strings.ToLower(stopHosts[i]))) {
+		if strings.Contains(strings.ToLower(href), strings.ToLower(stopHosts[i])) {
 			return true
 		}
 	}
@@ -157,17 +144,17 @@ func HasStopHost(href string, stopHosts []string) bool {
 func HasInternalOutPatterns(href string, internalOutPatterns []string) bool {
 	for i := range internalOutPatterns {
 		if strings.Contains(href, internalOutPatterns[i]) {
-			return true;
+			return true
 		}
 	}
-	return false;
+	return false
 }
 
 func HasBadSuffixes(href string, badSuffixes []string) bool {
 	for i := range badSuffixes {
 		if strings.HasSuffix(href, badSuffixes[i]) {
-			return true;
+			return true
 		}
 	}
-	return false;
+	return false
 }

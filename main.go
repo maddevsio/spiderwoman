@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"sync"
 	"net/http"
-	"github.com/PuerkitoBio/gocrawl"
-	"github.com/maddevsio/spiderwoman/lib"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/PuerkitoBio/gocrawl"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/maddevsio/spiderwoman/lib"
 )
 
 type Ext struct {
@@ -16,22 +17,23 @@ type Ext struct {
 }
 
 var (
-	mutex sync.Mutex
-	hosts []string
-	stopHosts []string
-	syncResolve sync.WaitGroup
-	err error
+	mutex                 sync.Mutex
+	hosts                 []string
+	stopHosts             []string
+	syncResolve           sync.WaitGroup
+	err                   error
 	externalLinksIterator int
 
-	externalLinks map[string]map[string]int         = make(map[string]map[string]int)
+	externalLinks         map[string]map[string]int = make(map[string]map[string]int)
 	externalLinksResolved map[string]map[string]int = make(map[string]map[string]int)
-	userAgent string     = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-	resolveURLsPool int  = 100
-	verbose bool         = true
-	maxVisits int        = 10
-	resolveTimeout int   = 30
-	internalOutPatterns []string = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
-	badSuffixes []string = []string{".png", ".jpg", ".pdf"}
+	userAgent             string                    = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+	resolveURLsPool       int                       = 100
+	verbose               bool                      = true
+	maxVisits             int                       = 10
+	resolveTimeout        int                       = 30
+	sqliteDBPath          string                    = "./res.db"
+	internalOutPatterns   []string                  = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
+	badSuffixes           []string                  = []string{".png", ".jpg", ".pdf"}
 )
 
 func main() {
@@ -68,8 +70,8 @@ func main() {
 				resolvedUrl := lib.Resolve(url, host, resolveTimeout, verbose, userAgent)
 
 				mutex.Lock()
-				if (externalLinksResolved[host] == nil) {
-					externalLinksResolved[host]= make(map[string]int)
+				if externalLinksResolved[host] == nil {
+					externalLinksResolved[host] = make(map[string]int)
 				}
 				externalLinksResolved[host][resolvedUrl] = times
 				mutex.Unlock()
@@ -83,9 +85,8 @@ func main() {
 	}
 	syncResolve.Wait()
 
-	fmt.Println("\n\n\n\nSorting the list")
-	csv := lib.SortMapByKeys(externalLinksResolved, verbose)
-	lib.SaveFile(csv, "res.csv")
+	fmt.Println("Saving the list")
+	lib.SaveDataToSqlite("res.db", externalLinksResolved, verbose)
 }
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
@@ -109,7 +110,7 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 		}
 
 		// analyze relative urls, e.g. /lolz.html
-		if (!strings.HasPrefix(href, "http")) {
+		if !strings.HasPrefix(href, "http") {
 			if !lib.HasInternalOutPatterns(href, internalOutPatterns) {
 				return
 			} else {
@@ -120,16 +121,16 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 			}
 		}
 
-		if (lib.HasStopHost(href, stopHosts)) {
+		if lib.HasStopHost(href, stopHosts) {
 			return
 		}
 
-		if (lib.HasBadSuffixes(href, badSuffixes)) {
+		if lib.HasBadSuffixes(href, badSuffixes) {
 			return
 		}
 
 		mutex.Lock()
-		if (externalLinks[ctx.URL().Host] == nil) {
+		if externalLinks[ctx.URL().Host] == nil {
 			externalLinks[ctx.URL().Host] = make(map[string]int)
 		}
 		externalLinks[ctx.URL().Host][href] += 1
