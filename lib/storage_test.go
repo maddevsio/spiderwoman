@@ -5,7 +5,6 @@ import (
 	"os"
 	"strconv"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -74,7 +73,7 @@ func TestSaveRecordToMonitor(t *testing.T) {
 
 func TestParseSqliteDate(t *testing.T) {
 	sqliteDate := "2016-12-13T07:17:23Z"
-	parsedTime, _ := time.Parse("2006-01-02T15:04:05Z", sqliteDate)
+	parsedTime, _ := ParseSqliteDate(sqliteDate)
 	assert.Equal(t, "2016", strconv.Itoa(parsedTime.Year()))
 	assert.Equal(t, "12", strconv.Itoa(int(parsedTime.Month())))
 	assert.Equal(t, "13", strconv.Itoa(parsedTime.Day()))
