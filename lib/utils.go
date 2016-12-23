@@ -68,7 +68,6 @@ func SaveDataToSqlite(DBFilepath string, externalLinksResolved map[string]map[st
 			} else {
 				externalHost = u.Host
 			}
-			CreateDBIfNotExists(DBFilepath)
 			res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 			if verbose {
 				fmt.Printf("Saving result of %s is: %t\n", externalLink, res)

@@ -86,7 +86,8 @@ func main() {
 	syncResolve.Wait()
 
 	fmt.Println("Saving the list")
-	lib.SaveDataToSqlite("res.db", externalLinksResolved, verbose)
+	lib.CreateDBIfNotExists(sqliteDBPath)
+	lib.SaveDataToSqlite(sqliteDBPath, externalLinksResolved, verbose)
 }
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
