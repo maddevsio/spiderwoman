@@ -44,6 +44,9 @@ func TestCheckMonitorTable(t *testing.T) {
 }
 
 func TestSaveRecordToMonitor(t *testing.T) {
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+
 	sourceHost := "http://a"
 	externalLink := "http://b/1"
 	count := 800
@@ -71,6 +74,36 @@ func TestSaveRecordToMonitor(t *testing.T) {
 	assert.Equal(t, 1, k)
 }
 
+func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+
+	sourceHost := "http://a"
+	externalLink := "http://themonitors.net/hyip/'.show_site_name($line['url'],100).'/"
+	count := 800
+	externalHost := "b"
+	res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+	assert.Equal(t, true, res)
+
+	db, err := sql.Open("sqlite3", DBFilepath)
+	assert.Equal(t, nil, err)
+	defer db.Close()
+
+	rows, err := db.Query("SELECT external_link FROM monitor;")
+	assert.Equal(t, nil, err)
+	defer rows.Close()
+
+	k := 0
+	for rows.Next() {
+		k++
+		var fetchedExternalLink string
+		err = rows.Scan(&fetchedExternalLink)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, externalLink, fetchedExternalLink)
+	}
+	assert.Equal(t, 1, k)
+}
+
 func TestParseSqliteDate(t *testing.T) {
 	sqliteDate := "2016-12-13T07:17:23Z"
 	parsedTime, _ := ParseSqliteDate(sqliteDate)
@@ -78,3 +111,8 @@ func TestParseSqliteDate(t *testing.T) {
 	assert.Equal(t, "12", strconv.Itoa(int(parsedTime.Month())))
 	assert.Equal(t, "13", strconv.Itoa(parsedTime.Day()))
 }
+
+func TestGetAllDataFromSqlite(t *testing.T) {
+
+}
+

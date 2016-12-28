@@ -2,7 +2,6 @@ package lib
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 
@@ -41,18 +40,29 @@ func SaveRecordToMonitor(dbFilepath string, source_host string, external_link st
 	}
 	defer db.Close()
 
-	query := fmt.Sprintf("insert into monitor(source_host, external_link, count, external_host, created) values('%v', '%v', %v, '%v', DateTime('now'))",
-		source_host,
-		external_link,
-		count,
-		external_host,
-	)
-	_, err = db.Exec(query)
+	stmt, err := db.Prepare("insert into monitor(source_host, external_link, count, external_host, created) values(?, ?, ?, ?, DateTime('now'))")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = stmt.Exec(source_host, external_link, count, external_host)
 	if err != nil {
 		log.Fatal(err)
 		return false
 	}
 	return true
+
+	//query := fmt.Sprintf("insert into monitor(source_host, external_link, count, external_host, created) values('%v', '%v', %v, '%v', DateTime('now'))",
+	//	source_host,
+	//	external_link,
+	//	count,
+	//	external_host,
+	//)
+
+}
+
+func GetAllDataFromMonitor(dbFilepath string) {
+
 }
 
 func ParseSqliteDate(sqliteDate string) (time.Time, error) {
