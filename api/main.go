@@ -2,12 +2,17 @@ package main
 
 import "gopkg.in/gin-gonic/gin.v1"
 
-func main() {
+func GetAPIEngine() *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
-	r.Run() // listen and serve on 0.0.0.0:8080
+	return r
+}
+
+func main() {
+	GetAPIEngine().Run(":8080")
 }
