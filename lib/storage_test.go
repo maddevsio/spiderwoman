@@ -105,13 +105,8 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 }
 
 func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
-	db, err := sql.Open("sqlite3", DBFilepath)
-	assert.Equal(t, nil, err)
-	defer db.Close()
-
 	os.Remove(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
-
 
 	for i := int(0); i < 10; i++ {
 		sourceHost := "http://a"
@@ -123,8 +118,8 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 
 	monitors, _ := GetAllDataFromMonitor(DBFilepath)
 	assert.Equal(t, 10, len(monitors))
-	assert.Equal(t, "http://b/1?0", monitors[0].externalLink)
-	assert.Equal(t, "http://b/1?9", monitors[9].externalLink)
+	assert.Equal(t, "http://b/1?0", monitors[0].ExternalLink)
+	assert.Equal(t, "http://b/1?9", monitors[9].ExternalLink)
 }
 
 func TestParseSqliteDate(t *testing.T) {

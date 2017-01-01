@@ -1,8 +1,11 @@
 package main
 
-import "gopkg.in/gin-gonic/gin.v1"
+import (
+	"gopkg.in/gin-gonic/gin.v1"
+	"github.com/maddevsio/spiderwoman/lib"
+)
 
-func GetAPIEngine() *gin.Engine {
+func GetAPIEngine(dbPath string) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -10,9 +13,14 @@ func GetAPIEngine() *gin.Engine {
 			"message": "pong",
 		})
 	})
+	r.GET("/all", func(c *gin.Context) {
+		m, _ := lib.GetAllDataFromMonitor(dbPath)
+		c.JSON(200, m)
+	})
+
 	return r
 }
 
 func main() {
-	GetAPIEngine().Run(":8080")
+	GetAPIEngine("../res.db").Run(":8080")
 }

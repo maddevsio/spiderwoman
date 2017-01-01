@@ -8,12 +8,12 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type monitor struct {
-	sourceHost string
-	externalLink string
-	count int
-	externalHost string
-	created string
+type Monitor struct {
+	SourceHost string
+	ExternalLink string
+	Count int
+	ExternalHost string
+	Created string
 }
 
 func CreateDBIfNotExists(dbFilepath string) {
@@ -62,7 +62,7 @@ func SaveRecordToMonitor(dbFilepath string, source_host string, external_link st
 
 }
 
-func GetAllDataFromMonitor(dbFilepath string) ([]monitor, error) {
+func GetAllDataFromMonitor(dbFilepath string) ([]Monitor, error) {
 	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
 	if err != nil {
 		log.Fatal(err)
@@ -73,11 +73,11 @@ func GetAllDataFromMonitor(dbFilepath string) ([]monitor, error) {
 	rows, err := db.Query("SELECT source_host, external_link, count, external_host, created FROM monitor;")
 	defer rows.Close()
 
-	var data []monitor
+	var data []Monitor
 
 	for rows.Next() {
-		m := monitor{}
-		err = rows.Scan(&m.sourceHost, &m.externalLink, &m.count, &m.externalHost, &m.created)
+		m := Monitor{}
+		err = rows.Scan(&m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created)
 		data = append(data, m)
 	}
 	return data, nil
