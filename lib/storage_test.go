@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"log"
+	"github.com/davecgh/go-spew/spew"
 )
 
 const (
@@ -104,14 +106,6 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 	assert.Equal(t, 1, k)
 }
 
-func TestParseSqliteDate(t *testing.T) {
-	sqliteDate := "2016-12-13T07:17:23Z"
-	parsedTime, _ := ParseSqliteDate(sqliteDate)
-	assert.Equal(t, "2016", strconv.Itoa(parsedTime.Year()))
-	assert.Equal(t, "12", strconv.Itoa(int(parsedTime.Month())))
-	assert.Equal(t, "13", strconv.Itoa(parsedTime.Day()))
-}
-
 func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 	// just implement the feature here, and extract earlier
 	// we need monitor struct
@@ -123,5 +117,30 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 		externalHost string
 		created string
 	}
+
+	db, err := sql.Open("sqlite3", DBFilepath)
+	assert.Equal(t, nil, err)
+	defer db.Close()
+
+
+	rows, err := db.Query("SELECT source_host, external_link, count, external_host, created FROM monitor;")
+	assert.Equal(t, nil, err)
+	defer rows.Close()
+
+	for rows.Next() {
+		m := monitor{}
+		err = rows.Scan(&m.sourceHost, &m.externalLink, &m.count, &m.externalHost, &m.created)
+		log.Print("Structure output")
+		spew.Dump(m)
+	}
+
+}
+
+func TestParseSqliteDate(t *testing.T) {
+	sqliteDate := "2016-12-13T07:17:23Z"
+	parsedTime, _ := ParseSqliteDate(sqliteDate)
+	assert.Equal(t, "2016", strconv.Itoa(parsedTime.Year()))
+	assert.Equal(t, "12", strconv.Itoa(int(parsedTime.Month())))
+	assert.Equal(t, "13", strconv.Itoa(parsedTime.Day()))
 }
 
