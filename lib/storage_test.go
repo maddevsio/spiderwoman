@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"log"
-	"github.com/davecgh/go-spew/spew"
 )
 
 const (
@@ -107,17 +105,6 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 }
 
 func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
-	// just implement the feature here, and extract earlier
-	// we need monitor struct
-
-	type monitor struct {
-		sourceHost string
-		externalLink string
-		count int
-		externalHost string
-		created string
-	}
-
 	db, err := sql.Open("sqlite3", DBFilepath)
 	assert.Equal(t, nil, err)
 	defer db.Close()
@@ -134,19 +121,10 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 		_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 	}
 
-	rows, err := db.Query("SELECT source_host, external_link, count, external_host, created FROM monitor;")
-	assert.Equal(t, nil, err)
-	defer rows.Close()
-
-	k := 0
-	for rows.Next() {
-		k++
-		m := monitor{}
-		err = rows.Scan(&m.sourceHost, &m.externalLink, &m.count, &m.externalHost, &m.created)
-		log.Print("Structure output")
-		spew.Dump(m)
-	}
-	assert.Equal(t, 10, k)
+	monitors, _ := GetAllDataFromMonitor(DBFilepath)
+	assert.Equal(t, 10, len(monitors))
+	assert.Equal(t, "http://b/1?0", monitors[0].externalLink)
+	assert.Equal(t, "http://b/1?9", monitors[9].externalLink)
 }
 
 func TestParseSqliteDate(t *testing.T) {
