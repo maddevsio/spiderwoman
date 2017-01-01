@@ -112,7 +112,16 @@ func TestParseSqliteDate(t *testing.T) {
 	assert.Equal(t, "13", strconv.Itoa(parsedTime.Day()))
 }
 
-func TestGetAllDataFromSqlite(t *testing.T) {
+func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
+	// just implement the feature here, and extract earlier
+	// we need monitor struct
 
+	type monitor struct {
+		sourceHost string
+		externalLink string
+		count int
+		externalHost string
+		created string
+	}
 }
 

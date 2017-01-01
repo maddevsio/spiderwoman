@@ -52,16 +52,21 @@ func SaveRecordToMonitor(dbFilepath string, source_host string, external_link st
 	}
 	return true
 
-	//query := fmt.Sprintf("insert into monitor(source_host, external_link, count, external_host, created) values('%v', '%v', %v, '%v', DateTime('now'))",
-	//	source_host,
-	//	external_link,
-	//	count,
-	//	external_host,
-	//)
-
 }
 
 func GetAllDataFromMonitor(dbFilepath string) {
+	//db, err := sql.Open("sqlite3", dbFilepath)
+	//if err != nil {
+	//	log.Fatal(err)
+	//	return false
+	//}
+	//defer db.Close()
+	//
+	//rows, err := db.Query("SELECT source_host, created FROM monitor;")
+	//defer rows.Close()
+	//
+	//
+
 
 }
 
