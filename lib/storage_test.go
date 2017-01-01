@@ -122,18 +122,31 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 	assert.Equal(t, nil, err)
 	defer db.Close()
 
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+
+
+	for i := int(0); i < 10; i++ {
+		sourceHost := "http://a"
+		externalLink := "http://b/1?" + strconv.Itoa(i)
+		count := 800+i
+		externalHost := "b"
+		_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+	}
 
 	rows, err := db.Query("SELECT source_host, external_link, count, external_host, created FROM monitor;")
 	assert.Equal(t, nil, err)
 	defer rows.Close()
 
+	k := 0
 	for rows.Next() {
+		k++
 		m := monitor{}
 		err = rows.Scan(&m.sourceHost, &m.externalLink, &m.count, &m.externalHost, &m.created)
 		log.Print("Structure output")
 		spew.Dump(m)
 	}
-
+	assert.Equal(t, 10, k)
 }
 
 func TestParseSqliteDate(t *testing.T) {
