@@ -70,7 +70,7 @@ func GetAllDataFromMonitor(dbFilepath string) ([]Monitor, error) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT source_host, external_link, count, external_host, created FROM monitor;")
+	rows, err := db.Query("SELECT source_host, external_link, count, external_host, created FROM monitor WHERE count > 5;")
 	defer rows.Close()
 
 	var data []Monitor
