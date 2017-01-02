@@ -79,7 +79,7 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 	CreateDBIfNotExists(DBFilepath)
 
 	sourceHost := "http://a"
-	externalLink := "http://themonitors.net/hyip/'.show_site_name($line['url'],100).'/"
+	externalLink := "http://somebaddomain.com/'.show_site_name($line['url'],100).'/"
 	count := 800
 	externalHost := "b"
 	res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
