@@ -10,14 +10,23 @@ func GetAPIEngine(dbPath string) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(gzip.Gzip(gzip.BestCompression))
+	r.LoadHTMLGlob("templates/*")
+
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(200, "index.html", gin.H{
+			"title": "Spiderwoman",
+		})
+	})
+
+	r.GET("/all", func(c *gin.Context) {
+		m, _ := lib.GetAllDataFromMonitor(dbPath)
+		c.JSON(200, m)
+	})
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
-	})
-	r.GET("/all", func(c *gin.Context) {
-		m, _ := lib.GetAllDataFromMonitor(dbPath)
-		c.JSON(200, m)
 	})
 
 	return r

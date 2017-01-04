@@ -9,11 +9,33 @@ import (
 	"strconv"
 	"github.com/maddevsio/spiderwoman/lib"
 	"encoding/json"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
 	DBFilepath = "/tmp/spiderwoman.db"
 )
+
+func TestIndex(t *testing.T) {
+	ts := httptest.NewServer(GetAPIEngine(DBFilepath))
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if resp.StatusCode != 200 {
+		t.Fatalf("Received non-200 response: %d\n", resp.StatusCode)
+	}
+
+	actual, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Contains(t, string(actual), "Spiderwoman")
+}
 
 func TestPing200(t *testing.T) {
 	ts := httptest.NewServer(GetAPIEngine(DBFilepath))
