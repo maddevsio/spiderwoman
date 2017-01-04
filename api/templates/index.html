@@ -5,7 +5,20 @@
     <script type="text/javascript" charset="utf8" src="/assets/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready( function () {
-            $('#table_id').DataTable();
+            $('#table_id').DataTable({
+                pageLength: 200,
+                ajax: {
+                    url: '/all',
+                    dataSrc: ''
+                },
+                columns: [
+                    { data: "SourceHost" },
+                    { data: "ExternalLink" },
+                    { data: "Count" },
+                    { data: "ExternalHost" },
+                    { data: "Created" }
+                ]
+            });
         } )
     </script>
 </head>
@@ -14,18 +27,20 @@
 <table id="table_id" class="display">
     <thead>
     <tr>
-        <th>Column 1</th>
-        <th>Column 2</th>
+        <th>SourceHost</th>
+        <th>ExternalLink</th>
+        <th>Count</th>
+        <th>ExternalHost</th>
+        <th>Created</th>
     </tr>
     </thead>
     <tbody>
     <tr>
-        <td>Row 1 Data 1</td>
-        <td>Row 1 Data 2</td>
-    </tr>
-    <tr>
-        <td>Row 2 Data 1</td>
-        <td>Row 2 Data 2</td>
+        <td>SourceHost</td>
+        <td>ExternalLink</td>
+        <td>Count</td>
+        <td>ExternalHost</td>
+        <td>Created</td>
     </tr>
     </tbody>
 </table>
