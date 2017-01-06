@@ -130,3 +130,10 @@ func TestParseSqliteDate(t *testing.T) {
 	assert.Equal(t, "13", strconv.Itoa(parsedTime.Day()))
 }
 
+func TestCrawlStatus(t *testing.T) {
+	//SetCrawlStatus(DBFilepath, "Crawling...")
+	//GetCrawlStatus(DBFilepath)
+	//SetCrawlStatus(DBFilepath, "Crawl done")
+	//GetCrawlStatus(DBFilepath)
+}
+
