@@ -3,8 +3,10 @@
     <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css">
     <script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.12.4.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
     <script>
         $(document).ready( function () {
             $('#table_id').DataTable({
@@ -15,11 +17,15 @@
                 },
                 columns: [
                     { data: "SourceHost" },
+                    { data: "ExternalHost" },
                     { data: "ExternalLink" },
                     { data: "Count" },
-                    { data: "ExternalHost" },
                     { data: "Created" }
-                ]
+                ],
+                columnDefs: [ {
+                    targets: 4,
+                    render: $.fn.dataTable.render.moment( '', 'Do MMM YYYY' )
+                } ]
             });
         } )
     </script>
