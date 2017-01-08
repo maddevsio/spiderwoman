@@ -25,10 +25,16 @@
                 columnDefs: [ {
                     targets: 4,
                     render: $.fn.dataTable.render.moment( '', 'Do MMM YYYY' )
-                } ]
+                }, { sClass: "nwDate", aTargets: [ 4 ] }
+                ]
             });
         } )
     </script>
+    <style>
+        .nwDate {
+            white-space: nowrap;
+        }
+    </style>
 </head>
 <body style="padding: 15px 15px 15px 15px;">
 <h1 style="text-align:center;">{{ .title }}</h1>
@@ -48,7 +54,7 @@
         <td>ExternalLink</td>
         <td>Count</td>
         <td>ExternalHost</td>
-        <td>Created</td>
+        <td class="nwDate">Created</td>
     </tr>
     </tbody>
 </table>
