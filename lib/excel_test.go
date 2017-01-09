@@ -2,13 +2,17 @@ package lib
 
 import (
 	"testing"
-	"github.com/stretchr/testify/assert"
 	"os"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateExcel(t *testing.T) {
-	os.Remove("./MyXLSXFile.xlsx")
-	CreateDummySheet()
+	dbFilePath := "/tmp/spiderwoman.db"
+	excelFilePath := "/tmp/spiderwoman.xls"
+
+	os.Remove(excelFilePath)
+	CreateExcelFromDB(dbFilePath, excelFilePath)
 	_, err := os.Stat("./MyXLSXFile.xlsx");
+
 	assert.Equal(t, nil, err)
 }

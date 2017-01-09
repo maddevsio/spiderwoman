@@ -4,13 +4,12 @@ package lib
 import (
 	"fmt"
 	"github.com/tealeg/xlsx"
+	"strconv"
 )
 
-func CreateDummySheet() {
+func CreateExcelFromDB(dbFilepath string, excelFilePath string) {
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
-	var row *xlsx.Row
-	var cell *xlsx.Cell
 	var err error
 
 	file = xlsx.NewFile()
@@ -18,10 +17,28 @@ func CreateDummySheet() {
 	if err != nil {
 		fmt.Printf(err.Error())
 	}
-	row = sheet.AddRow()
-	cell = row.AddCell()
-	cell.Value = "I am a cell!"
-	err = file.Save("MyXLSXFile.xlsx")
+
+	monitors, _ := GetAllDataFromMonitor(dbFilepath)
+	for _, monitor := range monitors {
+		row := sheet.AddRow()
+
+		cell1 := row.AddCell()
+		cell1.Value = monitor.SourceHost
+
+		cell2 := row.AddCell()
+		cell2.Value = monitor.ExternalHost
+
+		cell3 := row.AddCell()
+		cell3.Value = monitor.ExternalLink
+
+		cell4 := row.AddCell()
+		cell4.Value = strconv.Itoa(monitor.Count)
+
+		cell5 := row.AddCell()
+		cell5.Value = monitor.Created
+	}
+
+	err = file.Save(excelFilePath)
 	if err != nil {
 		fmt.Printf(err.Error())
 	}
