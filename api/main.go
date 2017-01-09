@@ -37,5 +37,5 @@ func GetAPIEngine(dbPath string) *gin.Engine {
 
 func main() {
 	GetAPIEngine("../res.db").Run(":8080")
-	// TODO: extract res.db in var or const and use in from lib package
+	// TODO: extract res.db and port to config
 }
