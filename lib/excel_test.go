@@ -12,7 +12,7 @@ func TestCreateExcel(t *testing.T) {
 
 	os.Remove(excelFilePath)
 	CreateExcelFromDB(dbFilePath, excelFilePath)
-	_, err := os.Stat("./MyXLSXFile.xlsx");
+	_, err := os.Stat(excelFilePath);
 
 	assert.Equal(t, nil, err)
 }
