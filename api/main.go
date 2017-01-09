@@ -13,6 +13,7 @@ func GetAPIEngine(dbPath string) *gin.Engine {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 	r.Static("/images", "./images")
+	r.StaticFile("/spiderwoman.xls", "/tmp/spiderwoman.xls")
 
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(200, "index.html", gin.H{

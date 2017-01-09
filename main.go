@@ -32,6 +32,7 @@ var (
 	maxVisits             int                       = 10
 	resolveTimeout        int                       = 30
 	sqliteDBPath          string                    = "./res.db"
+	excelFilePath         string                    = "/tmp/spiderwoman.xls"
 	internalOutPatterns   []string                  = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
 	badSuffixes           []string                  = []string{".png", ".jpg", ".pdf"}
 )
@@ -88,6 +89,7 @@ func main() {
 	fmt.Println("Saving the list")
 	lib.CreateDBIfNotExists(sqliteDBPath)
 	lib.SaveDataToSqlite(sqliteDBPath, externalLinksResolved, verbose)
+	lib.CreateExcelFromDB(sqliteDBPath, excelFilePath)
 }
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
