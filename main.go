@@ -10,6 +10,7 @@ import (
 	"github.com/PuerkitoBio/gocrawl"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/maddevsio/spiderwoman/lib"
+	"github.com/jasonlvhit/gocron"
 )
 
 type Ext struct {
@@ -38,6 +39,11 @@ var (
 )
 
 func main() {
+	gocron.Every(1).Day().At("00:00").Do(crawl)
+	<- gocron.Start()
+}
+
+func crawl() {
 	lib.CreateDBIfNotExists(sqliteDBPath)
 
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl started and crawling")
