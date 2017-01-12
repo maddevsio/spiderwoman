@@ -16,8 +16,10 @@ func GetAPIEngine(dbPath string) *gin.Engine {
 	r.StaticFile("/spiderwoman.xls", "/tmp/spiderwoman.xls")
 
 	r.GET("/", func(c *gin.Context) {
+		s, _ := lib.GetCrawlStatus("../res.db")
 		c.HTML(200, "index.html", gin.H{
 			"title": "Spiderwoman",
+			"status": s, // TODO extract res.db to the config!!11
 		})
 	})
 

@@ -38,6 +38,9 @@ var (
 )
 
 func main() {
+	lib.CreateDBIfNotExists(sqliteDBPath)
+
+	lib.SetCrawlStatus(sqliteDBPath, "Crawl started and crawling")
 	hosts, err = lib.GetHostsFromFile()
 	if err != nil {
 		fmt.Println("Error opening or parsing config file: " + err.Error())
@@ -62,6 +65,7 @@ func main() {
 		c.Run(host)
 	}
 
+	lib.SetCrawlStatus(sqliteDBPath, "Resolving URLS")
 	fmt.Println("Going to resolve URLs...")
 	for host := range externalLinks {
 		for url, times := range externalLinks[host] {
@@ -86,10 +90,11 @@ func main() {
 	}
 	syncResolve.Wait()
 
+	lib.SetCrawlStatus(sqliteDBPath, "Saving the list")
 	fmt.Println("Saving the list")
-	lib.CreateDBIfNotExists(sqliteDBPath)
 	lib.SaveDataToSqlite(sqliteDBPath, externalLinksResolved, verbose)
 	lib.CreateExcelFromDB(sqliteDBPath, excelFilePath)
+	lib.SetCrawlStatus(sqliteDBPath, "Crawl done")
 }
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
