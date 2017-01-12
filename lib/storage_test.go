@@ -131,9 +131,20 @@ func TestParseSqliteDate(t *testing.T) {
 }
 
 func TestCrawlStatus(t *testing.T) {
-	//SetCrawlStatus(DBFilepath, "Crawling...")
-	//GetCrawlStatus(DBFilepath)
-	//SetCrawlStatus(DBFilepath, "Crawl done")
-	//GetCrawlStatus(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+
+	SetCrawlStatus(DBFilepath, "Crawling...")
+	s1, _ := GetCrawlStatus(DBFilepath)
+	assert.Equal(t, "Crawling...", s1)
+
+	SetCrawlStatus(DBFilepath, "Crawl done")
+	GetCrawlStatus(DBFilepath)
+	s2, _ := GetCrawlStatus(DBFilepath)
+	assert.Equal(t, "Crawl done", s2)
+
+	CreateDBIfNotExists(DBFilepath)
+	SetCrawlStatus(DBFilepath, "Crawling...")
+	s3, _ := GetCrawlStatus(DBFilepath)
+	assert.Equal(t, "Crawling...", s3)
 }
 

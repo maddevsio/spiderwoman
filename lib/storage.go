@@ -32,6 +32,12 @@ func CreateDBIfNotExists(dbFilepath string) {
 		external_host text,
 		created date
 	);
+	create table if not exists status (
+		id integer not null primary key,
+		status_key text,
+		status_value text
+	);
+	insert into status(status_key, status_value) values('crawl', 'Crawl done')
 	`
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
@@ -81,6 +87,46 @@ func GetAllDataFromMonitor(dbFilepath string) ([]Monitor, error) {
 		data = append(data, m)
 	}
 	return data, nil
+}
+
+func SetCrawlStatus(dbFilepath string, status string) bool {
+	db, err := sql.Open("sqlite3", dbFilepath)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare("UPDATE status SET status_value=? WHERE status_key=?")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = stmt.Exec(status, "crawl")
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	return true
+}
+
+func GetCrawlStatus(dbFilepath string) (string, error) {
+	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	if err != nil {
+		log.Fatal(err)
+		return "", err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT status_value FROM status WHERE status_key='crawl';")
+	defer rows.Close()
+
+	var status string
+
+	for rows.Next() {
+		err = rows.Scan(&status)
+	}
+	return status, nil
 }
 
 func ParseSqliteDate(sqliteDate string) (time.Time, error) {
