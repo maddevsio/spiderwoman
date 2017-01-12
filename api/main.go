@@ -38,6 +38,7 @@ func GetAPIEngine(dbPath string) *gin.Engine {
 }
 
 func main() {
+	lib.CreateDBIfNotExists("../res.db")
 	GetAPIEngine("../res.db").Run(":8080")
 	// TODO: extract res.db and port to config
 }
