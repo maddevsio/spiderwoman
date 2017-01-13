@@ -28,7 +28,7 @@ func TestCheckMonitorTable(t *testing.T) {
 	assert.Equal(t, nil, err)
 	defer db.Close()
 
-	rows, err := db.Query("SELECT name FROM sqlite_master;")
+	rows, err := db.Query("SELECT name FROM sqlite_master WHERE name='monitor';")
 	assert.Equal(t, nil, err)
 	defer rows.Close()
 
@@ -37,6 +37,29 @@ func TestCheckMonitorTable(t *testing.T) {
 		err = rows.Scan(&name)
 		assert.Equal(t, nil, err)
 		assert.Equal(t, "monitor", name)
+	}
+
+	err = rows.Err()
+	assert.Equal(t, nil, err)
+}
+
+func TestCheckStatusTable(t *testing.T) {
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+
+	db, err := sql.Open("sqlite3", DBFilepath)
+	assert.Equal(t, nil, err)
+	defer db.Close()
+
+	rows, err := db.Query("SELECT name FROM sqlite_master WHERE name='status';")
+	assert.Equal(t, nil, err)
+	defer rows.Close()
+
+	for rows.Next() {
+		var name string
+		err = rows.Scan(&name)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, "status", name)
 	}
 
 	err = rows.Err()

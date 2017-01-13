@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"os/exec"
 )
 
 const (
@@ -159,4 +160,11 @@ func HasBadSuffixes(href string, badSuffixes []string) bool {
 		}
 	}
 	return false
+}
+
+func BackupDatabase(dbPath string) error {
+	srcFolder := dbPath
+	destFolder := "/tmp/res.db"
+	cpCmd := exec.Command("cp", "-r", srcFolder, destFolder)
+	return cpCmd.Run()
 }

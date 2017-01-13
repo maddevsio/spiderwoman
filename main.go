@@ -39,13 +39,13 @@ var (
 )
 
 func main() {
+	//gocron.Every(1).Minute().Do(crawl) // this is for testing on dev box
 	gocron.Every(1).Day().At("00:00").Do(crawl)
 	<- gocron.Start()
 }
 
 func crawl() {
 	lib.CreateDBIfNotExists(sqliteDBPath)
-
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl started and crawling")
 	hosts, err = lib.GetHostsFromFile()
 	if err != nil {
@@ -101,6 +101,13 @@ func crawl() {
 	lib.SaveDataToSqlite(sqliteDBPath, externalLinksResolved, verbose)
 	lib.CreateExcelFromDB(sqliteDBPath, excelFilePath)
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl done")
+
+	err := lib.BackupDatabase(sqliteDBPath)
+	if (err != nil) {
+		fmt.Println("Backup error: " + err.Error())
+	} else {
+		fmt.Println("Database has been copied to /tmp/res.db")
+	}
 }
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
