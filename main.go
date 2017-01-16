@@ -11,6 +11,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/maddevsio/spiderwoman/lib"
 	"github.com/jasonlvhit/gocron"
+	"github.com/maddevsio/simple-config"
 )
 
 type Ext struct {
@@ -25,15 +26,17 @@ var (
 	err                   error
 	externalLinksIterator int
 
-	externalLinks         map[string]map[string]int = make(map[string]map[string]int)
-	externalLinksResolved map[string]map[string]int = make(map[string]map[string]int)
+	externalLinks         map[string]map[string]int  = make(map[string]map[string]int)
+	externalLinksResolved map[string]map[string]int  = make(map[string]map[string]int)
+	config 		      simple_config.SimpleConfig = simple_config.NewSimpleConfig("../config", "yml")
+
 	userAgent             string                    = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 	resolveURLsPool       int                       = 100
 	verbose               bool                      = true
 	maxVisits             int                       = 10
 	resolveTimeout        int                       = 30
-	sqliteDBPath          string                    = "./res.db"
-	excelFilePath         string                    = "/tmp/spiderwoman.xls"
+	sqliteDBPath          string                    = config.GetString("db-path")
+	excelFilePath         string                    = config.GetString("xls-path")
 	internalOutPatterns   []string                  = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
 	badSuffixes           []string                  = []string{".png", ".jpg", ".pdf"}
 )

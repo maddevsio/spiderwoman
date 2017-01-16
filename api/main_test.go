@@ -10,14 +10,15 @@ import (
 	"github.com/maddevsio/spiderwoman/lib"
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
+	"github.com/maddevsio/simple-config"
 )
 
-const (
-	DBFilepath = "/tmp/spiderwoman.db"
+var (
+	config = simple_config.NewSimpleConfig("../config.test", "yml")
 )
 
 func TestIndex(t *testing.T) {
-	ts := httptest.NewServer(GetAPIEngine(DBFilepath))
+	ts := httptest.NewServer(GetAPIEngine(config))
 	defer ts.Close()
 
 	resp, err := http.Get(ts.URL + "/")
@@ -38,7 +39,7 @@ func TestIndex(t *testing.T) {
 }
 
 func TestPing200(t *testing.T) {
-	ts := httptest.NewServer(GetAPIEngine(DBFilepath))
+	ts := httptest.NewServer(GetAPIEngine(config))
 	defer ts.Close()
 
 	resp, err := http.Get(ts.URL + "/ping")
@@ -52,7 +53,7 @@ func TestPing200(t *testing.T) {
 }
 
 func TestPing404(t *testing.T) {
-	ts := httptest.NewServer(GetAPIEngine(DBFilepath))
+	ts := httptest.NewServer(GetAPIEngine(config))
 	defer ts.Close()
 
 	resp, err := http.Get(ts.URL + "/pong")
@@ -66,18 +67,18 @@ func TestPing404(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	os.Remove(DBFilepath)
-	lib.CreateDBIfNotExists(DBFilepath)
+	os.Remove(config.GetString("db-path"))
+	lib.CreateDBIfNotExists(config.GetString("db-path"))
 
 	for i := int(0); i < 2; i++ {
 		sourceHost := "http://a"
 		externalLink := "http://b/1?" + strconv.Itoa(i)
 		count := 800+i
 		externalHost := "b"
-		_ = lib.SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+		_ = lib.SaveRecordToMonitor(config.GetString("db-path"), sourceHost, externalLink, count, externalHost)
 	}
 
-	ts := httptest.NewServer(GetAPIEngine(DBFilepath))
+	ts := httptest.NewServer(GetAPIEngine(config))
 	defer ts.Close()
 
 	resp, err := http.Get(ts.URL + "/all")

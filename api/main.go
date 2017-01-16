@@ -4,27 +4,29 @@ import (
 	"gopkg.in/gin-gonic/gin.v1"
 	"github.com/maddevsio/spiderwoman/lib"
 	"github.com/gin-contrib/gzip"
+	"github.com/maddevsio/simple-config"
 )
 
-func GetAPIEngine(dbPath string) *gin.Engine {
+func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
+	lib.CreateDBIfNotExists(config.GetString("db-path"))
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(gzip.Gzip(gzip.BestCompression))
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 	r.Static("/images", "./images")
-	r.StaticFile("/spiderwoman.xls", "/tmp/spiderwoman.xls")
+	r.StaticFile("/spiderwoman.xls", config.GetString("xls-path"))
 
 	r.GET("/", func(c *gin.Context) {
-		s, _ := lib.GetCrawlStatus("../res.db")
+		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		c.HTML(200, "index.html", gin.H{
 			"title": "Spiderwoman",
-			"status": s, // TODO extract res.db to the config!!11
+			"status": s,
 		})
 	})
 
 	r.GET("/all", func(c *gin.Context) {
-		m, _ := lib.GetAllDataFromMonitor(dbPath)
+		m, _ := lib.GetAllDataFromMonitor(config.GetString("db-path"))
 		c.JSON(200, m)
 	})
 
@@ -38,7 +40,6 @@ func GetAPIEngine(dbPath string) *gin.Engine {
 }
 
 func main() {
-	lib.CreateDBIfNotExists("../res.db")
-	GetAPIEngine("../res.db").Run(":8080")
-	// TODO: extract res.db and port to config
+	config := simple_config.NewSimpleConfig("../config", "yml")
+	GetAPIEngine(config).Run(config.GetString("api-port"))
 }
