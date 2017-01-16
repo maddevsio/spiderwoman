@@ -28,7 +28,7 @@ var (
 
 	externalLinks         map[string]map[string]int  = make(map[string]map[string]int)
 	externalLinksResolved map[string]map[string]int  = make(map[string]map[string]int)
-	config 		      simple_config.SimpleConfig = simple_config.NewSimpleConfig("../config", "yml")
+	config 		      simple_config.SimpleConfig = simple_config.NewSimpleConfig("./config", "yml")
 
 	userAgent             string                    = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 	resolveURLsPool       int                       = 100
