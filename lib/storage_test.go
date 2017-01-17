@@ -139,7 +139,8 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 		_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 	}
 
-	monitors, _ := GetAllDataFromMonitor(DBFilepath)
+	monitors, err := GetAllDataFromMonitor(DBFilepath, 9)
+	assert.NoError(t, err)
 	assert.Equal(t, 10, len(monitors))
 	assert.Equal(t, "http://b/1?0", monitors[0].ExternalLink)
 	assert.Equal(t, "http://b/1?9", monitors[9].ExternalLink)

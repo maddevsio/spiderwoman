@@ -42,8 +42,8 @@ var (
 )
 
 func main() {
-	//gocron.Every(1).Minute().Do(crawl) // this is for testing on dev box
-	gocron.Every(1).Day().At("00:00").Do(crawl)
+	gocron.Every(1).Minute().Do(crawl) // this is for testing on dev box
+	//gocron.Every(1).Day().At("00:00").Do(crawl)
 	<- gocron.Start()
 }
 

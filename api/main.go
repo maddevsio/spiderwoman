@@ -26,7 +26,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	})
 
 	r.GET("/all", func(c *gin.Context) {
-		m, _ := lib.GetAllDataFromMonitor(config.GetString("db-path"))
+		m, _ := lib.GetAllDataFromMonitor(config.GetString("db-path"), 9)
 		c.JSON(200, m)
 	})
 

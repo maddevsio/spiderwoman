@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"fmt"
 )
 
 type Monitor struct {
@@ -68,7 +69,7 @@ func SaveRecordToMonitor(dbFilepath string, source_host string, external_link st
 
 }
 
-func GetAllDataFromMonitor(dbFilepath string) ([]Monitor, error) {
+func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
 	if err != nil {
 		log.Fatal(err)
@@ -76,7 +77,7 @@ func GetAllDataFromMonitor(dbFilepath string) ([]Monitor, error) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT source_host, external_link, count, external_host, created FROM monitor WHERE count > 9;")
+	rows, err := db.Query(fmt.Sprintf("SELECT source_host, external_link, count, external_host, created FROM monitor WHERE count > %d;", count))
 	if err != nil {
 		log.Printf("Error getting data from monitor: %v", err)
 		return nil, err

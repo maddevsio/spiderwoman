@@ -18,7 +18,7 @@ func CreateExcelFromDB(dbFilepath string, excelFilePath string) {
 		fmt.Printf(err.Error())
 	}
 
-	monitors, _ := GetAllDataFromMonitor(dbFilepath)
+	monitors, _ := GetAllDataFromMonitor(dbFilepath, 0)
 	for _, monitor := range monitors {
 		row := sheet.AddRow()
 
