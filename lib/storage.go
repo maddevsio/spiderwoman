@@ -77,15 +77,19 @@ func GetAllDataFromMonitor(dbFilepath string) ([]Monitor, error) {
 	defer db.Close()
 
 	rows, err := db.Query("SELECT source_host, external_link, count, external_host, created FROM monitor WHERE count > 9;")
+	if err != nil {
+		log.Printf("Error getting data from monitor: %v", err)
+		return nil, err
+	}
 	defer rows.Close()
 
 	var data []Monitor
-
 	for rows.Next() {
 		m := Monitor{}
 		err = rows.Scan(&m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created)
 		data = append(data, m)
 	}
+
 	return data, nil
 }
 
