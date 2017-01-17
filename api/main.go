@@ -5,6 +5,7 @@ import (
 	"github.com/maddevsio/spiderwoman/lib"
 	"github.com/gin-contrib/gzip"
 	"github.com/maddevsio/simple-config"
+	"log"
 )
 
 func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
@@ -41,5 +42,6 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 
 func main() {
 	config := simple_config.NewSimpleConfig("../config", "yml")
+	log.Printf("Server started on %v", config.GetString("api-port"))
 	GetAPIEngine(config).Run(config.GetString("api-port"))
 }
