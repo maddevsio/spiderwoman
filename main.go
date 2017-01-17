@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -12,6 +11,7 @@ import (
 	"github.com/maddevsio/spiderwoman/lib"
 	"github.com/jasonlvhit/gocron"
 	"github.com/maddevsio/simple-config"
+	"log"
 )
 
 type Ext struct {
@@ -42,8 +42,14 @@ var (
 )
 
 func main() {
-	//gocron.Every(1).Minute().Do(crawl) // this is for testing on dev box
-	gocron.Every(1).Day().At("00:00").Do(crawl)
+	log.Print("All is OK. Starting cron job...")
+	if config.GetString("box") == "dev" {
+		log.Print("This is a dev box")
+		gocron.Every(1).Minute().Do(crawl) // this is for testing on dev box
+	} else {
+		log.Print("This is production")
+		gocron.Every(1).Day().At("00:00").Do(crawl)
+	}
 	<- gocron.Start()
 }
 
@@ -52,7 +58,7 @@ func crawl() {
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl started and crawling")
 	hosts, err = lib.GetHostsFromFile()
 	if err != nil {
-		fmt.Println("Error opening or parsing config file: " + err.Error())
+		log.Printf("Error opening or parsing config file: %v", err)
 		return
 	}
 
@@ -75,7 +81,7 @@ func crawl() {
 	}
 
 	lib.SetCrawlStatus(sqliteDBPath, "Resolving URLS")
-	fmt.Println("Going to resolve URLs...")
+	log.Print("Going to resolve URLs...")
 	for host := range externalLinks {
 		for url, times := range externalLinks[host] {
 			externalLinksIterator++
@@ -100,21 +106,21 @@ func crawl() {
 	syncResolve.Wait()
 
 	lib.SetCrawlStatus(sqliteDBPath, "Saving the list")
-	fmt.Println("Saving the list")
+	log.Print("Saving the list")
 	lib.SaveDataToSqlite(sqliteDBPath, externalLinksResolved, verbose)
 	lib.CreateExcelFromDB(sqliteDBPath, excelFilePath)
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl done")
 
 	err := lib.BackupDatabase(sqliteDBPath)
 	if (err != nil) {
-		fmt.Println("Backup error: " + err.Error())
+		log.Printf("Backup error: %v", err)
 	} else {
-		fmt.Println("Database has been copied to /tmp/res.db")
+		log.Print("Database has been copied to /tmp/res.db")
 	}
 }
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
-	fmt.Printf("Visit: %s\n", ctx.URL())
+	log.Printf("Visit: %s\n", ctx.URL())
 	if doc == nil {
 		return nil, true
 	}
@@ -127,7 +133,7 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 				return
 			} else {
 				if verbose {
-					fmt.Println(href)
+					log.Print(href)
 				}
 			}
 
@@ -140,7 +146,7 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 			} else {
 				href = ctx.URL().Scheme + "://" + ctx.URL().Host + href
 				if verbose {
-					fmt.Println(href)
+					log.Print(href)
 				}
 			}
 		}

@@ -3,7 +3,6 @@ package lib
 import (
 	"bufio"
 	"crypto/tls"
-	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -11,6 +10,7 @@ import (
 	"strings"
 	"time"
 	"os/exec"
+	"log"
 )
 
 const (
@@ -22,23 +22,10 @@ const (
 
 func Debug(data []byte, err error) {
 	if err == nil {
-		fmt.Printf("%s\n\n", data)
+		log.Printf("%s\n\n", data)
 	} else {
-		fmt.Printf("%s\n\n", err)
+		log.Printf("%s\n\n", err)
 	}
-}
-
-func SaveFile(data []string, filename string) {
-	file, err := os.Create(filename)
-	if err != nil {
-		fmt.Printf("%s %s\n", "Cannot create the file", err)
-		return
-	}
-	defer file.Close()
-	for _, line := range data {
-		fmt.Fprintf(file, line)
-	}
-	fmt.Printf("File %s created", filename)
 }
 
 func GetSliceFromFile(realFile string, defaultFile string) ([]string, error) {
@@ -70,11 +57,11 @@ func SaveDataToSqlite(DBFilepath string, externalLinksResolved map[string]map[st
 				externalHost = u.Host
 			}
 			if verbose {
-				fmt.Printf("Saving result of %s is: ", externalLink)
+				log.Printf("Saving result of %s: ", externalLink)
 			}
 			res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 			if verbose {
-				fmt.Printf("%t\n", res)
+				log.Printf("The result of saving is: %t", res)
 			}
 		}
 	}
@@ -92,14 +79,14 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 	}
 
 	if verbose {
-		fmt.Println("Initial URL " + url)
+		log.Println("Initial URL " + url)
 	}
 
 	request, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
 		if verbose {
-			fmt.Println("Bad URL: " + url + " Err:" + err.Error())
+			log.Println("Bad URL: " + url + " Err:" + err.Error())
 		}
 		return url
 	}
@@ -117,12 +104,12 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 	response, err := client.Do(request)
 	if err == nil {
 		if verbose {
-			fmt.Println("Resolved URL " + response.Request.URL.String())
+			log.Printf("Resolved URL %v", response.Request.URL.String())
 		}
 		defer response.Body.Close()
 		return response.Request.URL.String()
 	} else {
-		fmt.Println("Error client.Do" + err.Error())
+		log.Printf("Error client.Do %v", err)
 		return url
 	}
 }
