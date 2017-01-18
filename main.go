@@ -54,6 +54,7 @@ func main() {
 }
 
 func crawl() {
+	lib.ClearResolveCache()
 	lib.CreateDBIfNotExists(sqliteDBPath)
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl started and crawling")
 	hosts, err = lib.GetHostsFromFile()
