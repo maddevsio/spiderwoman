@@ -42,6 +42,7 @@ var (
 )
 
 func main() {
+	lib.ClearResolveCache()
 	log.Print("All is OK. Starting cron job...")
 	if config.GetString("box") == "dev" {
 		log.Print("This is a dev box")
@@ -54,7 +55,6 @@ func main() {
 }
 
 func crawl() {
-	lib.ClearResolveCache()
 	lib.CreateDBIfNotExists(sqliteDBPath)
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl started and crawling")
 	hosts, err = lib.GetHostsFromFile()
