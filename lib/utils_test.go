@@ -6,6 +6,11 @@ import (
 	"os"
 )
 
+func TestMain(m *testing.M) {
+	ClearResolveCache()
+	os.Exit(m.Run())
+}
+
 func TestResolveOneRedirect(t *testing.T) {
 	res := Resolve("http://bit.ly/2hcXx5Z", "http://bit.ly/", 10, false, "Googlebot")
 	assert.Equal(t, "https://maddevs.io/", res)
@@ -25,7 +30,6 @@ func TestResolveSSL(t *testing.T) {
 }
 
 func TestResolveCache(t *testing.T) {
-	ClearResolveCache()
 	res := Resolve("http://bit.ly/ItaROu", "http://bit.ly/", 10, false, "Googlebot")
 	assert.Equal(t, "https://duckduckgo.com/", res)
 	assert.Equal(t, lastCachedReturn, false)
