@@ -20,6 +20,15 @@ const (
 	StopsDefaultFilepath = "./stops.default.txt"
 )
 
+var (
+	resolveCache map[string]string
+	lastCachedReturn = false
+)
+
+func ClearResolveCache() {
+	resolveCache = make(map[string]string)
+}
+
 func Debug(data []byte, err error) {
 	if err == nil {
 		log.Printf("%s\n\n", data)
@@ -70,6 +79,13 @@ func SaveDataToSqlite(DBFilepath string, externalLinksResolved map[string]map[st
 
 // TODO: need to use cache, do not resolve same URLs
 func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgent string) string {
+	lastCachedReturn = false
+	if resolveCache[url] != "" {
+		log.Printf("URL %v is in cache, return the resolved value %v", url, resolveCache[url])
+		lastCachedReturn = true
+		return resolveCache[url]
+	}
+
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -107,6 +123,7 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 			log.Printf("Resolved URL %v", response.Request.URL.String())
 		}
 		defer response.Body.Close()
+		resolveCache[url] = response.Request.URL.String()
 		return response.Request.URL.String()
 	} else {
 		log.Printf("Error client.Do %v", err)

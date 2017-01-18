@@ -24,6 +24,18 @@ func TestResolveSSL(t *testing.T) {
 	assert.Equal(t, "https://www.youtube.com/", res)
 }
 
+func TestResolveCache(t *testing.T) {
+	ClearResolveCache()
+	res := Resolve("http://bit.ly/ItaROu", "http://bit.ly/", 10, false, "Googlebot")
+	assert.Equal(t, "https://duckduckgo.com/", res)
+	assert.Equal(t, lastCachedReturn, false)
+	assert.Equal(t, resolveCache["http://bit.ly/ItaROu"], "https://duckduckgo.com/")
+
+	res = Resolve("http://bit.ly/ItaROu", "http://bit.ly/", 10, false, "Googlebot")
+	assert.Equal(t, "https://duckduckgo.com/", res)
+	assert.Equal(t, lastCachedReturn, true)
+}
+
 func TestBackup(t *testing.T) {
 	os.Remove("/tmp/res.db")
 	err := BackupDatabase(DBFilepath)
