@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"log"
 )
 
 const (
@@ -159,7 +158,7 @@ func TestGetDataFromMonitor__ByDays(t *testing.T) {
 	os.Remove(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
-	for i := int(0); i < 10000; i++ {
+	for i := int(0); i < 100; i++ {
 		sourceHost := "http://a"
 		externalLink := "http://b/1?" + strconv.Itoa(i)
 		count := 800+i
@@ -169,9 +168,7 @@ func TestGetDataFromMonitor__ByDays(t *testing.T) {
 
 	dates, err := GetAllDaysFromMonitor(DBFilepath)
 	assert.NoError(t, err)
-	for _, date := range dates {
-		log.Printf("%v\n", date)
-	}
+	assert.Equal(t, len(dates), 1)
 }
 
 func TestCrawlStatus(t *testing.T) {
