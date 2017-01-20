@@ -50,7 +50,7 @@ func main() {
 	} else {
 		log.Print("This is production")
 		if config.GetString("start-time") == "" {
-			log.Panic("You need to set start-time value in config.yaml")
+			log.Fatal("You need to set start-time value in config.yaml")
 		}
 		gocron.Every(1).Day().At(config.GetString("start-time")).Do(crawl)
 	}
