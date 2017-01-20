@@ -49,7 +49,10 @@ func main() {
 		gocron.Every(1).Minute().Do(crawl) // this is for testing on dev box
 	} else {
 		log.Print("This is production")
-		gocron.Every(1).Day().At("00:00").Do(crawl)
+		if config.GetString("start-time") == "" {
+			log.Panic("You need to set start-time value in config.yaml")
+		}
+		gocron.Every(1).Day().At(config.GetString("start-time")).Do(crawl)
 	}
 	<- gocron.Start()
 }
