@@ -11,6 +11,7 @@ import (
 	"time"
 	"os/exec"
 	"log"
+	"sync"
 )
 
 const (
@@ -78,7 +79,7 @@ func SaveDataToSqlite(DBFilepath string, externalLinksResolved map[string]map[st
 }
 
 // TODO: need to use cache, do not resolve same URLs
-func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgent string) string {
+func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgent string, mutex *sync.Mutex) string {
 	lastCachedReturn = false
 	if resolveCache[url] != "" {
 		log.Printf("URL %v is in cache, return the resolved value %v", url, resolveCache[url])
@@ -123,7 +124,17 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 			log.Printf("Resolved URL %v", response.Request.URL.String())
 		}
 		defer response.Body.Close()
+
+		if mutex != nil {
+			mutex.Lock()
+		}
+
 		resolveCache[url] = response.Request.URL.String()
+
+		if mutex != nil {
+			mutex.Unlock()
+		}
+
 		return response.Request.URL.String()
 	} else {
 		log.Printf("Error client.Do %v", err)

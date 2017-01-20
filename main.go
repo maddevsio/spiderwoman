@@ -92,8 +92,8 @@ func crawl() {
 		for url, times := range externalLinks[host] {
 			externalLinksIterator++
 			syncResolve.Add(1)
-			go func(url string, times int, host string, wg *sync.WaitGroup) {
-				resolvedUrl := lib.Resolve(url, host, resolveTimeout, verbose, userAgent)
+			go func(url string, times int, host string, wg *sync.WaitGroup, mutex *sync.Mutex) {
+				resolvedUrl := lib.Resolve(url, host, resolveTimeout, verbose, userAgent, mutex)
 
 				mutex.Lock()
 				if externalLinksResolved[host] == nil {
@@ -103,7 +103,7 @@ func crawl() {
 				mutex.Unlock()
 
 				wg.Done()
-			}(url, times, host, &syncResolve)
+			}(url, times, host, &syncResolve, &mutex)
 			if externalLinksIterator%resolveURLsPool == 0 {
 				syncResolve.Wait()
 			}
