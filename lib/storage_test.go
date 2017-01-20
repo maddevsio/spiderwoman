@@ -169,6 +169,18 @@ func TestGetDataFromMonitor__ByDays(t *testing.T) {
 	dates, err := GetAllDaysFromMonitor(DBFilepath)
 	assert.NoError(t, err)
 	assert.Equal(t, len(dates), 1)
+
+	monitors, err := GetAllDataFromMonitorByDay(DBFilepath, dates[0])
+	assert.NoError(t, err)
+	assert.Equal(t, len(monitors), 100)
+
+	monitors, err = GetAllDataFromMonitorByDay(DBFilepath, "2122-01-01")
+	assert.NoError(t, err)
+	assert.Equal(t, len(monitors), 0)
+
+	monitors, err = GetAllDataFromMonitorByDay(DBFilepath, "1812-01-01")
+	assert.NoError(t, err)
+	assert.Equal(t, len(monitors), 0)
 }
 
 func TestCrawlStatus(t *testing.T) {

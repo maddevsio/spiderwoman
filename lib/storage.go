@@ -94,6 +94,31 @@ func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 	return data, nil
 }
 
+func GetAllDataFromMonitorByDay(dbFilepath string, day string) ([]Monitor, error) {
+	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer db.Close()
+
+	rows, err := db.Query(fmt.Sprintf("SELECT source_host, external_link, count, external_host, created FROM monitor WHERE created >= '%s' AND created <= date('%s', '+1 day');", day, day))
+	if err != nil {
+		log.Printf("Error getting data from monitor: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []Monitor
+	for rows.Next() {
+		m := Monitor{}
+		err = rows.Scan(&m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created)
+		data = append(data, m)
+	}
+
+	return data, nil
+}
+
 func SetCrawlStatus(dbFilepath string, status string) bool {
 	db, err := sql.Open("sqlite3", dbFilepath)
 	if err != nil {
