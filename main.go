@@ -114,9 +114,10 @@ func crawl() {
 	lib.SetCrawlStatus(sqliteDBPath, "Saving the list")
 	log.Print("Saving the list")
 	lib.SaveDataToSqlite(sqliteDBPath, externalLinksResolved, verbose)
+	log.Print("Creating XLS file")
 	lib.CreateExcelFromDB(sqliteDBPath, excelFilePath)
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl done")
-
+	log.Print("Backuping database")
 	err := lib.BackupDatabase(sqliteDBPath)
 	if (err != nil) {
 		log.Printf("Backup error: %v", err)
