@@ -124,6 +124,10 @@ func crawl() {
 	} else {
 		log.Print("Database has been copied to /tmp/res.db")
 	}
+	days, _ := lib.GetAllDaysFromMonitor(sqliteDBPath)
+	for _, day := range days {
+		log.Printf("%v \n", day)
+	}
 }
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {

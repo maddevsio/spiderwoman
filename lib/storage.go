@@ -134,6 +134,35 @@ func GetCrawlStatus(dbFilepath string) (string, error) {
 	return status, nil
 }
 
+func GetAllDaysFromMonitor(dbFilepath string) ([]string, error) {
+	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT DISTINCT strftime('%Y-%m-%d', created) as mon FROM monitor ORDER BY created DESC;")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var dates []string
+
+	for rows.Next() {
+		var date string
+		err = rows.Scan(&date)
+		if err == nil {
+			dates = append(dates, date)
+		} else {
+			log.Printf("Error getting dates: %v", err)
+		}
+	}
+	return dates, nil
+}
+
+
 func ParseSqliteDate(sqliteDate string) (time.Time, error) {
 	return time.Parse("2006-01-02T15:04:05Z", sqliteDate)
 }

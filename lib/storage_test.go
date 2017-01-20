@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"log"
 )
 
 const (
@@ -152,6 +153,25 @@ func TestParseSqliteDate(t *testing.T) {
 	assert.Equal(t, "2016", strconv.Itoa(parsedTime.Year()))
 	assert.Equal(t, "12", strconv.Itoa(int(parsedTime.Month())))
 	assert.Equal(t, "13", strconv.Itoa(parsedTime.Day()))
+}
+
+func TestGetDataFromMonitor__ByDays(t *testing.T) {
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+
+	for i := int(0); i < 10000; i++ {
+		sourceHost := "http://a"
+		externalLink := "http://b/1?" + strconv.Itoa(i)
+		count := 800+i
+		externalHost := "b"
+		_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+	}
+
+	dates, err := GetAllDaysFromMonitor(DBFilepath)
+	assert.NoError(t, err)
+	for _, date := range dates {
+		log.Printf("%v\n", date)
+	}
 }
 
 func TestCrawlStatus(t *testing.T) {
