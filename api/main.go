@@ -20,9 +20,11 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 
 	r.GET("/", func(c *gin.Context) {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
+		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
 		c.HTML(200, "index.html", gin.H{
 			"title": "Spiderwoman",
 			"status": s,
+			"dates" : dates,
 		})
 	})
 
