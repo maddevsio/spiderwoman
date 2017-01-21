@@ -9,11 +9,15 @@
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
     <script>
         $(document).ready( function () {
-            $('.date-'+qs('date')).css('color', 'red');
+            var dateQS = "";
+            if (qs('date') != null) {
+                dateQS = qs('date');
+            }
+            $('.date-'+dateQS).css('color', 'red');
             $('#table_id').DataTable({
                 pageLength: 200,
                 ajax: {
-                    url: '/all?date='+qs('date'),
+                    url: '/all?date='+dateQS,
                     dataSrc: ''
                 },
                 columns: [
@@ -52,6 +56,7 @@
 <p style="text-align: right;"><a href="/spiderwoman.xls">Скачать эксель</a></p>
 <h1 style="text-align:center;">{{ .title }}</h1>
 <div style="text-align: center; font-size: 10px;">
+    <a href="/" class="date-">all</a>&nbsp;&nbsp;
     {{ range $date := .dates }}
         <a href="/?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>
         &nbsp;&nbsp;
