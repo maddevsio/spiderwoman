@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/tealeg/xlsx"
 	"strconv"
+	"log"
 )
 
 func CreateExcelFromDB(dbFilepath string, excelFilePath string) {
@@ -20,7 +21,7 @@ func CreateExcelFromDB(dbFilepath string, excelFilePath string) {
 
 	monitors, _ := GetAllDataFromMonitor(dbFilepath, 0)
 	for _, monitor := range monitors {
-		row := sheet.AddRow()
+		row := sheet.AddRow() // TODO: need to extract this
 
 		cell1 := row.AddCell()
 		cell1.Value = monitor.SourceHost
@@ -40,7 +41,7 @@ func CreateExcelFromDB(dbFilepath string, excelFilePath string) {
 
 	err = file.Save(excelFilePath)
 	if err != nil {
-		fmt.Printf(err.Error())
+		log.Printf(err.Error())
 	}
 }
 
@@ -51,14 +52,14 @@ func AppendExcelFromDB(dbFilepath string, excelFilePath string, date string) {
 
 	file, err = xlsx.OpenFile(excelFilePath)
 	if err != nil {
-		fmt.Printf(err.Error())
+		log.Printf(err.Error())
 	}
 	sheet, err = file.AddSheet(date)
 	if err != nil {
-		fmt.Printf(err.Error())
+		log.Printf(err.Error())
 	}
 
-	monitors, _ := GetAllDataFromMonitor(dbFilepath, 0)
+	monitors, _ := GetAllDataFromMonitorByDay(dbFilepath, date)
 	for _, monitor := range monitors {
 		row := sheet.AddRow()
 
@@ -80,6 +81,6 @@ func AppendExcelFromDB(dbFilepath string, excelFilePath string, date string) {
 
 	err = file.Save(excelFilePath)
 	if err != nil {
-		fmt.Printf(err.Error())
+		log.Printf(err.Error())
 	}
 }

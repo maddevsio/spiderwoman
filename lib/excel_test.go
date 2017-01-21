@@ -21,7 +21,6 @@ func TestAppendExcel(t *testing.T) {
 	dbFilePath := "/tmp/spiderwoman.db"
 	excelFilePath := "/tmp/spiderwoman.xls"
 
-	//os.Remove(excelFilePath)
 	AppendExcelFromDB(dbFilePath, excelFilePath, "2017-01-20")
 	_, err := os.Stat(excelFilePath);
 

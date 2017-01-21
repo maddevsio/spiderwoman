@@ -114,9 +114,15 @@ func crawl() {
 	lib.SetCrawlStatus(sqliteDBPath, "Saving the list")
 	log.Print("Saving the list")
 	lib.SaveDataToSqlite(sqliteDBPath, externalLinksResolved, verbose)
-	log.Print("Creating XLS file")
-	lib.CreateExcelFromDB(sqliteDBPath, excelFilePath)
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl done")
+
+	//log.Print("Creating XLS file")
+	//lib.CreateExcelFromDB(sqliteDBPath, excelFilePath)
+
+	days, _ := lib.GetAllDaysFromMonitor(sqliteDBPath)
+	log.Printf("Appendig XLS file with sheet %v", days[len(days)-1])
+	lib.AppendExcelFromDB(sqliteDBPath, excelFilePath, days[len(days)-1])
+
 	log.Print("Backuping database")
 	err := lib.BackupDatabase(sqliteDBPath)
 	if (err != nil) {
@@ -124,10 +130,6 @@ func crawl() {
 	} else {
 		log.Print("Database has been copied to /tmp/res.db")
 	}
-	//days, _ := lib.GetAllDaysFromMonitor(sqliteDBPath)
-	//for _, day := range days {
-	//	log.Printf("%v \n", day)
-	//}
 }
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
