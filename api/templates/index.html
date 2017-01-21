@@ -9,10 +9,11 @@
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
     <script>
         $(document).ready( function () {
+            $('.date-'+qs('date')).css('color', 'red');
             $('#table_id').DataTable({
                 pageLength: 200,
                 ajax: {
-                    url: '/all',
+                    url: '/all?date='+qs('date'),
                     dataSrc: ''
                 },
                 columns: [
@@ -31,7 +32,14 @@
                 ],
                 order: [[ 4, "desc" ]]
             });
-        } )
+        } );
+
+        function qs(key) {
+            key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+            var match = location.search.match(new RegExp("[?&]"+key+"=([^&]+)(&|$)"));
+            return match && decodeURIComponent(match[1].replace(/\+/g, " "));
+        }
+
     </script>
     <style>
         .nwDate {
@@ -45,7 +53,8 @@
 <h1 style="text-align:center;">{{ .title }}</h1>
 <div style="text-align: center; font-size: 10px;">
     {{ range $date := .dates }}
-        {{ $date }}&nbsp;&nbsp;
+        <a href="/?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>
+        &nbsp;&nbsp;
     {{ end }}
 </div>
 <table id="table_id" class="table table-striped table-bordered" style="font-family:Arial; font-size:12px;">

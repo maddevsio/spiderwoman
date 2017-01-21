@@ -25,11 +25,17 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 			"title": "Spiderwoman",
 			"status": s,
 			"dates" : dates,
+			"dateQS" : c.Query("date"),
 		})
 	})
 
 	r.GET("/all", func(c *gin.Context) {
-		m, _ := lib.GetAllDataFromMonitor(config.GetString("db-path"), 9)
+		var m []lib.Monitor
+		if c.Query("date") != "" {
+			m, _ = lib.GetAllDataFromMonitorByDay(config.GetString("db-path"), c.Query("date"))
+		} else {
+			m, _ = lib.GetAllDataFromMonitor(config.GetString("db-path"), 9)
+		}
 		c.JSON(200, m)
 	})
 
