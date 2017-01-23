@@ -35,6 +35,13 @@ func TestAppendExcelNoFile(t *testing.T) {
 	err := AppendExcelFromDB(dbFilePath, excelFilePath, "2017-01-20")
 
 	assert.Error(t, err)
+
+	CreateEmptyExcel(excelFilePath)
+	err = AppendExcelFromDB(dbFilePath, excelFilePath, "2017-01-20")
+	assert.NoError(t, err)
+
+	_, err = os.Stat(excelFilePath);
+	assert.NoError(t, err)
 }
 
 

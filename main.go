@@ -116,15 +116,19 @@ func crawl() {
 	lib.SaveDataToSqlite(sqliteDBPath, externalLinksResolved, verbose)
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl done")
 
-	//log.Print("Creating XLS file")
-	//lib.CreateExcelFromDB(sqliteDBPath, excelFilePath)
-
 	days, _ := lib.GetAllDaysFromMonitor(sqliteDBPath)
 	log.Printf("Appendig XLS file with sheet %v", days[len(days)-1])
-	lib.AppendExcelFromDB(sqliteDBPath, excelFilePath, days[len(days)-1])
+	err = lib.AppendExcelFromDB(sqliteDBPath, excelFilePath, days[len(days)-1])
+	if (err != nil) {
+		log.Print("Trying to create all sheets in excel file")
+		for _, day := range days {
+			log.Printf("Appendig XLS file with sheet %v", day)
+			lib.AppendExcelFromDB(sqliteDBPath, excelFilePath, day)
+		}
+	}
 
 	log.Print("Backuping database")
-	err := lib.BackupDatabase(sqliteDBPath)
+	err = lib.BackupDatabase(sqliteDBPath)
 	if (err != nil) {
 		log.Printf("Backup error: %v", err)
 	} else {
