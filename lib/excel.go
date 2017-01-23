@@ -14,54 +14,49 @@ func CreateExcelFromDB(dbFilepath string, excelFilePath string) {
 	var err error
 
 	file = xlsx.NewFile()
-	sheet, err = file.AddSheet("Sheet1")
+	sheet, err = file.AddSheet("Full Data")
 	if err != nil {
-		fmt.Printf(err.Error())
+		fmt.Print(err)
 	}
 
 	monitors, _ := GetAllDataFromMonitor(dbFilepath, 0)
-	for _, monitor := range monitors {
-		row := sheet.AddRow() // TODO: need to extract this
-
-		cell1 := row.AddCell()
-		cell1.Value = monitor.SourceHost
-
-		cell2 := row.AddCell()
-		cell2.Value = monitor.ExternalHost
-
-		cell3 := row.AddCell()
-		cell3.Value = monitor.ExternalLink
-
-		cell4 := row.AddCell()
-		cell4.Value = strconv.Itoa(monitor.Count)
-
-		cell5 := row.AddCell()
-		cell5.Value = monitor.Created
-	}
+	fillTheSheet(sheet, monitors)
 
 	err = file.Save(excelFilePath)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err)
 	}
 }
 
-func AppendExcelFromDB(dbFilepath string, excelFilePath string, date string) {
+func AppendExcelFromDB(dbFilepath string, excelFilePath string, date string) error {
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
 	var err error
 
 	file, err = xlsx.OpenFile(excelFilePath)
 	if err != nil {
-		log.Printf(err.Error())
-		log.Print("Trying to create new file")
-		file = xlsx.NewFile()
+		log.Print(err)
+		return err
+
 	}
 	sheet, err = file.AddSheet(date)
 	if err != nil {
-		log.Printf(err.Error())
+		log.Print(err)
+		return err
 	}
 
 	monitors, _ := GetAllDataFromMonitorByDay(dbFilepath, date)
+	fillTheSheet(sheet, monitors)
+
+	err = file.Save(excelFilePath)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	return nil
+}
+
+func fillTheSheet(sheet *xlsx.Sheet, monitors []Monitor) {
 	for _, monitor := range monitors {
 		row := sheet.AddRow()
 
@@ -79,10 +74,5 @@ func AppendExcelFromDB(dbFilepath string, excelFilePath string, date string) {
 
 		cell5 := row.AddCell()
 		cell5.Value = monitor.Created
-	}
-
-	err = file.Save(excelFilePath)
-	if err != nil {
-		log.Printf(err.Error())
 	}
 }

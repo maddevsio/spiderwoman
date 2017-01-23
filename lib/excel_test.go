@@ -32,9 +32,10 @@ func TestAppendExcelNoFile(t *testing.T) {
 	excelFilePath := "/tmp/spiderwoman.xls"
 
 	os.Remove(excelFilePath)
-	AppendExcelFromDB(dbFilePath, excelFilePath, "2017-01-20")
-	_, err := os.Stat(excelFilePath);
+	err := AppendExcelFromDB(dbFilePath, excelFilePath, "2017-01-20")
 
-	assert.Equal(t, nil, err)
+	assert.Error(t, err)
 }
+
+
 
