@@ -53,6 +53,8 @@ func AppendExcelFromDB(dbFilepath string, excelFilePath string, date string) {
 	file, err = xlsx.OpenFile(excelFilePath)
 	if err != nil {
 		log.Printf(err.Error())
+		log.Print("Trying to create new file")
+		file = xlsx.NewFile()
 	}
 	sheet, err = file.AddSheet(date)
 	if err != nil {
