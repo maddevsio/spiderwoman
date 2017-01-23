@@ -119,7 +119,8 @@ func crawl() {
 	days, _ := lib.GetAllDaysFromMonitor(sqliteDBPath)
 	log.Printf("Appendig XLS file with sheet %v", days[len(days)-1])
 	err = lib.AppendExcelFromDB(sqliteDBPath, excelFilePath, days[len(days)-1])
-	if (err != nil) {
+	if (err != nil && strings.Contains(err.Error(), "no such file or directory")) {
+		lib.CreateEmptyExcel(excelFilePath)
 		log.Print("Trying to create all sheets in excel file")
 		for _, day := range days {
 			log.Printf("Appendig XLS file with sheet %v", day)
