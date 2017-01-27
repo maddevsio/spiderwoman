@@ -1,3 +1,4 @@
 db-path: /tmp/spiderwoman.db
 api-port: :8080
 xls-path: /tmp/spiderwoman.xls
+zip-xls-path: /tmp/spiderwoman.xls.zip

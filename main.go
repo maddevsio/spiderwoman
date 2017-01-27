@@ -37,6 +37,7 @@ var (
 	resolveTimeout        int                       = 30
 	sqliteDBPath          string                    = config.GetString("db-path")
 	excelFilePath         string                    = config.GetString("xls-path")
+	excelZipFilePath      string                    = config.GetString("zip-xls-path")
 	internalOutPatterns   []string                  = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
 	badSuffixes           []string                  = []string{".png", ".jpg", ".pdf"}
 )
@@ -117,14 +118,17 @@ func crawl() {
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl done")
 
 	days, _ := lib.GetAllDaysFromMonitor(sqliteDBPath)
-	log.Printf("Appendig XLS file with sheet %v", days[len(days)-1])
-	err = lib.AppendExcelFromDB(sqliteDBPath, excelFilePath, days[len(days)-1])
+	log.Printf("Appendig XLS file with sheet %v", days[0])
+	err = lib.AppendExcelFromDB(sqliteDBPath, excelFilePath, days[0])
 	if (err != nil && strings.Contains(err.Error(), "no such file or directory")) {
 		lib.CreateEmptyExcel(excelFilePath)
 		log.Print("Trying to create all sheets in excel file")
 		for _, day := range days {
 			log.Printf("Appendig XLS file with sheet %v", day)
-			lib.AppendExcelFromDB(sqliteDBPath, excelFilePath, day)
+			err = lib.AppendExcelFromDB(sqliteDBPath, excelFilePath, day)
+			if err != nil {
+				log.Print(err)
+			}
 		}
 	}
 
@@ -134,6 +138,14 @@ func crawl() {
 		log.Printf("Backup error: %v", err)
 	} else {
 		log.Print("Database has been copied to /tmp/res.db")
+	}
+
+	log.Print("Zip XLS File")
+	err = lib.ZipFile(excelFilePath, excelZipFilePath)
+	if (err != nil) {
+		log.Printf("Zip error: %v", err)
+	} else {
+		log.Printf("Zipped xls file was saved in %v", excelZipFilePath)
 	}
 }
 

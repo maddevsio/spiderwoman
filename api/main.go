@@ -16,7 +16,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 	r.Static("/images", "./images")
-	r.StaticFile("/spiderwoman.xls", config.GetString("xls-path"))
+	r.StaticFile("/spiderwoman.zip", config.GetString("zip-xls-path"))
 
 	r.GET("/", func(c *gin.Context) {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))

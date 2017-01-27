@@ -183,3 +183,8 @@ func BackupDatabase(dbPath string) error {
 	cpCmd := exec.Command("cp", "-r", srcFolder, destFolder)
 	return cpCmd.Run()
 }
+
+func ZipFile(excelFilePath string, zipFilePath string) error {
+	cpCmd := exec.Command("zip", zipFilePath, excelFilePath)
+	return cpCmd.Run()
+}
