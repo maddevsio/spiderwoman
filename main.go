@@ -12,6 +12,8 @@ import (
 	"github.com/jasonlvhit/gocron"
 	"github.com/maddevsio/simple-config"
 	"log"
+	"github.com/urfave/cli"
+	"os"
 )
 
 type Ext struct {
@@ -43,6 +45,35 @@ var (
 )
 
 func main() {
+	app := cli.NewApp()
+	app.Name = "Spiderwoman"
+	app.Usage = "Vertical crawler, which main target is to count links (resolved, e.g. from bit.ly) to external domains from all pages of given resources"
+
+	app.Commands = []cli.Command{
+		{
+			Name:    "once",
+			Aliases: []string{"o"},
+			Usage:   "run the crawl and stop",
+			Action:  actionOnce,
+		},
+		{
+			Name:    "forever",
+			Aliases: []string{"f"},
+			Usage:   "start crawl forever using cron feature",
+			Action:  actionForever,
+		},
+	}
+
+	app.Run(os.Args)
+}
+
+func actionOnce(c *cli.Context) error {
+	lib.ClearResolveCache()
+	crawl()
+	return nil
+}
+
+func actionForever(c *cli.Context) error {
 	lib.ClearResolveCache()
 	log.Print("All is OK. Starting cron job...")
 	if config.GetString("box") == "dev" {
@@ -56,6 +87,7 @@ func main() {
 		gocron.Every(1).Day().At(config.GetString("start-time")).Do(crawl)
 	}
 	<- gocron.Start()
+	return nil
 }
 
 func crawl() {
