@@ -2,8 +2,8 @@ test:
 	go test -v ./...
 
 run:
-	go run main.go
+	go run main.go forever
 
 runlog:
-	go run main.go > log 2>&1
+	go run main.go forever > log 2>&1
 
