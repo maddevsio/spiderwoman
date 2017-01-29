@@ -116,7 +116,7 @@ func crawl() {
 		opts.UserAgent = userAgent
 		opts.RobotUserAgent = userAgent
 		c := gocrawl.NewCrawlerWithOptions(opts)
-		c.Run(host)
+		c.Run("http://" + host)
 	}
 
 	lib.SetCrawlStatus(sqliteDBPath, "Resolving URLS")
