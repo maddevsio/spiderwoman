@@ -95,6 +95,12 @@ func crawl() {
 			syncResolve.Add(1)
 			go func(url string, times int, host string, wg *sync.WaitGroup, mutex *sync.Mutex) {
 				resolvedUrl := lib.Resolve(url, host, resolveTimeout, verbose, userAgent, mutex)
+				defer wg.Done()
+
+				if lib.HasStopHost(resolvedUrl, stopHosts) {
+					log.Printf("Url %v is in stoplist, not saving in map", resolvedUrl)
+					return
+				}
 
 				mutex.Lock()
 				if externalLinksResolved[host] == nil {
@@ -102,8 +108,6 @@ func crawl() {
 				}
 				externalLinksResolved[host][resolvedUrl] = times
 				mutex.Unlock()
-
-				wg.Done()
 			}(url, times, host, &syncResolve, &mutex)
 			if externalLinksIterator%resolveURLsPool == 0 {
 				syncResolve.Wait()
