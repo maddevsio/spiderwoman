@@ -47,3 +47,11 @@ func TestBackup(t *testing.T) {
 	_, err = os.Stat("/tmp/res.db")
 	assert.Equal(t, false, os.IsNotExist(err))
 }
+
+func TestGetHostsFromFile(t *testing.T) {
+	hosts, err := GetHostsFromFile("", "../sites.default.txt")
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(hosts))
+	assert.Equal(t, "nambataxi.kg", hosts[0])
+	assert.Equal(t, "nambafood.kg", hosts[1])
+}

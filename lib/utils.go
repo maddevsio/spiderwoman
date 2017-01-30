@@ -142,8 +142,16 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 	}
 }
 
-func GetHostsFromFile() ([]string, error) {
-	return GetSliceFromFile(SitesFilepath, SitesDefaultFilepath)
+func GetHostsFromFile(sitesFilepath string, sitesDefaultFilepath string) ([]string, error) {
+	var hosts []string
+	lines, err := GetSliceFromFile(sitesFilepath, sitesDefaultFilepath)
+	if err != nil {
+		return []string{}, err
+	}
+	for _, line := range lines {
+		hosts = append(hosts, strings.Split(line, " ")[0])
+	}
+	return hosts, nil
 }
 
 func HasStopHost(href string, stopHosts []string) bool {

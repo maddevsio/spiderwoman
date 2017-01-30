@@ -95,7 +95,7 @@ func crawl() {
 	externalLinksResolved = make(map[string]map[string]int)
 	lib.CreateDBIfNotExists(sqliteDBPath)
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl started and crawling")
-	hosts, err = lib.GetHostsFromFile()
+	hosts, err = lib.GetHostsFromFile(lib.SitesFilepath, lib.SitesDefaultFilepath)
 	if err != nil {
 		log.Printf("Error opening or parsing config file: %v", err)
 		return

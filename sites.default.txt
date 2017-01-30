@@ -1,2 +1,2 @@
-nambataxi.kg
-nambafood.kg
+nambataxi.kg B
+nambafood.kg M

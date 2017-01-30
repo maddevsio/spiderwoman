@@ -208,7 +208,6 @@ func TestPopulateHostsAndTypes(t *testing.T) {
 }
 
 func PopulateHostsAndTypes(filepath string) {
-	s, _ := GetHostsFromFile()
+	s, _ := GetSliceFromFile("", "../sites.default.txt")
 	log.Printf("%v", s)
 }
-
