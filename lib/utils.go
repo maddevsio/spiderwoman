@@ -196,3 +196,28 @@ func ZipFile(excelFilePath string, zipFilePath string) error {
 	cpCmd := exec.Command("zip", zipFilePath, excelFilePath)
 	return cpCmd.Run()
 }
+
+func PopulateHostsAndTypes(DBFilepath string, filepath string) error {
+	lines, err := GetSliceFromFile("", filepath)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	err = DeleteTypesTable(DBFilepath)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	for _, line := range lines {
+		hostName := strings.TrimSpace(strings.Split(line, " ")[0])
+		hostType := strings.TrimSpace(strings.Split(line, " ")[1])
+		err := SaveHostType(DBFilepath, hostName, hostType)
+		if err != nil {
+			log.Print(err)
+			return err
+		} else {
+			log.Printf("Host %v and type %v saved", hostName, hostType)
+		}
+	}
+	return nil
+}

@@ -38,7 +38,13 @@ func CreateDBIfNotExists(dbFilepath string) {
 		status_key text,
 		status_value text
 	);
-	insert into status(status_key, status_value) values('crawl', 'Crawl done')
+	insert into status(status_key, status_value) values('crawl', 'Crawl done');
+	create table if not exists types (
+		id integer not null primary key,
+		hostname text,
+		hosttype text,
+		CONSTRAINT hostname_uniq UNIQUE (hostname)
+	);
 	`
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
@@ -187,6 +193,44 @@ func GetAllDaysFromMonitor(dbFilepath string) ([]string, error) {
 	return dates, nil
 }
 
+func DeleteTypesTable(dbFilepath string) error{
+	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("DELETE FROM types;")
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	defer rows.Close()
+	return nil
+}
+
+func SaveHostType(dbFilepath string, hostName string, hostType string) error {
+	db, err := sql.Open("sqlite3", dbFilepath)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare("insert into types(hostname, hosttype) values(?, ?)")
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	_, err = stmt.Exec(hostName, hostType)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	return nil
+}
 
 func ParseSqliteDate(sqliteDate string) (time.Time, error) {
 	return time.Parse("2006-01-02T15:04:05Z", sqliteDate)

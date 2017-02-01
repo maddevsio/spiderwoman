@@ -55,3 +55,10 @@ func TestGetHostsFromFile(t *testing.T) {
 	assert.Equal(t, "nambataxi.kg", hosts[0])
 	assert.Equal(t, "nambafood.kg", hosts[1])
 }
+
+func TestPopulateHostsAndTypes(t *testing.T) {
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	err := PopulateHostsAndTypes(DBFilepath, "../sites.default.txt")
+	assert.NoError(t, err)
+}

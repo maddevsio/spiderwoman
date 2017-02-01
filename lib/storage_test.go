@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"log"
 )
 
 const (
@@ -202,12 +201,6 @@ func TestCrawlStatus(t *testing.T) {
 	assert.Equal(t, "Crawling...", s3)
 }
 
-func TestPopulateHostsAndTypes(t *testing.T) {
-	CreateDBIfNotExists(DBFilepath)
-	PopulateHostsAndTypes("../sites.default.txt")
-}
+func TestSaveHostType(t *testing.T) {
 
-func PopulateHostsAndTypes(filepath string) {
-	s, _ := GetSliceFromFile("", "../sites.default.txt")
-	log.Printf("%v", s)
 }
