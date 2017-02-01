@@ -202,5 +202,14 @@ func TestCrawlStatus(t *testing.T) {
 }
 
 func TestSaveHostType(t *testing.T) {
-
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	err := SaveHostType(DBFilepath, "host1", "type1")
+	assert.NoError(t, err)
+	err = SaveHostType(DBFilepath, "host1", "type1")
+	assert.Error(t, err)
+	err = SaveHostType(DBFilepath, "host1", "type2")
+	assert.Error(t, err)
+	err = SaveHostType(DBFilepath, "host2", "type1")
+	assert.NoError(t, err)
 }
