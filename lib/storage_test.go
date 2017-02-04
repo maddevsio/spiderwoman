@@ -130,20 +130,36 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 	os.Remove(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
+	err := SaveHostType(DBFilepath, "host1", "type1")
+	assert.NoError(t, err)
+
 
 	for i := int(0); i < 10; i++ {
-		sourceHost := "http://a"
+		sourceHost := "host1"
 		externalLink := "http://b/1?" + strconv.Itoa(i)
 		count := 800+i
 		externalHost := "b"
 		_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 	}
 
+	sourceHost := "host2"
+	externalLink := "http://b/1?10"
+	count := 810
+	externalHost := "host1"
+	_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+
 	monitors, err := GetAllDataFromMonitor(DBFilepath, 9)
 	assert.NoError(t, err)
-	assert.Equal(t, 10, len(monitors))
+	assert.Equal(t, 11, len(monitors))
 	assert.Equal(t, "http://b/1?0", monitors[0].ExternalLink)
 	assert.Equal(t, "http://b/1?9", monitors[9].ExternalLink)
+
+	assert.Equal(t, "type1", monitors[0].SourceHostType)
+	assert.Equal(t, "H", monitors[10].SourceHostType)
+
+	//for _, m := range monitors {
+	//	log.Printf("[%v] [%v] %v %v %v", m.SourceHostType, m.ExternalHostType, m.Created, m.ExternalHost, m.SourceHost)
+	//}
 }
 
 func TestParseSqliteDate(t *testing.T) {

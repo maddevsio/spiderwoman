@@ -15,7 +15,8 @@ type Monitor struct {
 	Count int
 	ExternalHost string
 	Created string
-	Type string
+	SourceHostType string
+	ExternalHostType string
 }
 
 func CreateDBIfNotExists(dbFilepath string) {
@@ -83,8 +84,11 @@ func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 		return nil, err
 	}
 	defer db.Close()
-
-	rows, err := db.Query(fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created FROM monitor as m WHERE m.count > %d;", count))
+	rows, err := db.Query(fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, " +
+		"(CASE WHEN t.hostname != m.source_host THEN 'H' ELSE t.hosttype END) as 'source_host_type'," +
+		"(CASE WHEN t.hostname != m.external_host THEN 'H' ELSE t.hosttype END) as 'external_host_type'" +
+		"FROM monitor as m, types as t " +
+		"WHERE m.count > %d;", count))
 	if err != nil {
 		log.Printf("Error getting data from monitor: %v", err)
 		return nil, err
@@ -94,7 +98,7 @@ func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 	var data []Monitor
 	for rows.Next() {
 		m := Monitor{}
-		err = rows.Scan(&m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created)
+		err = rows.Scan(&m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created, &m.SourceHostType, &m.ExternalHostType)
 		data = append(data, m)
 	}
 
