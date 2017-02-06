@@ -85,9 +85,11 @@ func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 	}
 	defer db.Close()
 	rows, err := db.Query(fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, " +
-		"(CASE WHEN t.hostname != m.source_host THEN 'H' ELSE t.hosttype END) as 'source_host_type'," +
-		"(CASE WHEN t.hostname != m.external_host THEN 'H' ELSE t.hosttype END) as 'external_host_type'" +
-		"FROM monitor as m, types as t " +
+		"coalesce(t1.hosttype,'H') as 'source_host_type', " +
+		"coalesce(t2.hosttype,'H') as 'external_host_type' " +
+		"FROM monitor as m " +
+		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host " +
+		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host " +
 		"WHERE m.count > %d;", count))
 	if err != nil {
 		log.Printf("Error getting data from monitor: %v", err)
@@ -114,9 +116,11 @@ func GetAllDataFromMonitorByDay(dbFilepath string, day string) ([]Monitor, error
 	defer db.Close()
 
 	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, " +
-		"(CASE WHEN t.hostname != m.source_host THEN 'H' ELSE t.hosttype END) as 'source_host_type'," +
-		"(CASE WHEN t.hostname != m.external_host THEN 'H' ELSE t.hosttype END) as 'external_host_type' " +
-		"FROM monitor as m, types as t " +
+		"coalesce(t1.hosttype,'H') as 'source_host_type', " +
+		"coalesce(t2.hosttype,'H') as 'external_host_type' " +
+		"FROM monitor as m " +
+		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host " +
+		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host " +
 		"WHERE m.created >= '%s' AND m.created <= date('%s', '+1 day');", day, day)
 
 	rows, err := db.Query(query)

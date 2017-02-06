@@ -132,6 +132,8 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 	CreateDBIfNotExists(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
+	err = SaveHostType(DBFilepath, "host2", "type2")
+	assert.NoError(t, err)
 
 	for i := int(0); i < 10; i++ {
 		sourceHost := "host1"
@@ -147,14 +149,24 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 	externalHost := "host1"
 	_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 
+	sourceHost = "host3"
+	externalLink = "http://b/1?10"
+	count = 810
+	externalHost = "host3"
+	_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+
 	monitors, err := GetAllDataFromMonitor(DBFilepath, 9)
 	assert.NoError(t, err)
-	assert.Equal(t, 11, len(monitors))
+	assert.Equal(t, 12, len(monitors))
 	assert.Equal(t, "http://b/1?0", monitors[0].ExternalLink)
 	assert.Equal(t, "http://b/1?9", monitors[9].ExternalLink)
 
 	assert.Equal(t, "type1", monitors[0].SourceHostType)
-	assert.Equal(t, "H", monitors[10].SourceHostType)
+	assert.Equal(t, "H", monitors[0].ExternalHostType)
+	assert.Equal(t, "type2", monitors[10].SourceHostType)
+	assert.Equal(t, "type1", monitors[10].ExternalHostType)
+	assert.Equal(t, "H", monitors[11].SourceHostType)
+	assert.Equal(t, "H", monitors[11].ExternalHostType)
 
 	//for _, m := range monitors {
 	//	log.Printf("[%v] [%v] %v %v %v", m.SourceHostType, m.ExternalHostType, m.Created, m.ExternalHost, m.SourceHost)
