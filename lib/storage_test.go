@@ -133,7 +133,6 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
 
-
 	for i := int(0); i < 10; i++ {
 		sourceHost := "host1"
 		externalLink := "http://b/1?" + strconv.Itoa(i)
@@ -173,6 +172,8 @@ func TestParseSqliteDate(t *testing.T) {
 func TestGetDataFromMonitor__ByDays(t *testing.T) {
 	os.Remove(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
+	err := SaveHostType(DBFilepath, "host1", "type1")
+	assert.NoError(t, err)
 
 	for i := int(0); i < 100; i++ {
 		sourceHost := "http://a"
