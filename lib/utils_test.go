@@ -59,6 +59,8 @@ func TestGetHostsFromFile(t *testing.T) {
 func TestPopulateHostsAndTypes(t *testing.T) {
 	os.Remove(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
-	err := PopulateHostsAndTypes(DBFilepath, "../sites.default.txt")
+	err := PopulateHostsAndTypes(DBFilepath, "", "../sites.default.txt")
+	assert.NoError(t, err)
+	err = PopulateHostsAndTypes(DBFilepath, "", "../sites.default.txt")
 	assert.NoError(t, err)
 }

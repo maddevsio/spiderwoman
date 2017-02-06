@@ -68,13 +68,13 @@ func main() {
 }
 
 func actionOnce(c *cli.Context) error {
-	lib.ClearResolveCache()
+	initialize()
 	crawl()
 	return nil
 }
 
 func actionForever(c *cli.Context) error {
-	lib.ClearResolveCache()
+	initialize()
 	log.Print("All is OK. Starting cron job...")
 	if config.GetString("box") == "dev" {
 		log.Print("This is a dev box")
@@ -88,6 +88,14 @@ func actionForever(c *cli.Context) error {
 	}
 	<- gocron.Start()
 	return nil
+}
+
+func initialize() {
+	lib.ClearResolveCache()
+	err = lib.PopulateHostsAndTypes(sqliteDBPath, lib.SitesFilepath, lib.SitesDefaultFilepath)
+	if err != nil {
+		log.Fatal("Types population error")
+	}
 }
 
 func crawl() {

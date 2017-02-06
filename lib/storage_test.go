@@ -230,3 +230,8 @@ func TestSaveHostType(t *testing.T) {
 	err = SaveHostType(DBFilepath, "host2", "type1")
 	assert.NoError(t, err)
 }
+
+func TestDeleteTypesTable(t *testing.T) {
+	err := DeleteTypesTable(DBFilepath)
+	assert.NoError(t, err)
+}

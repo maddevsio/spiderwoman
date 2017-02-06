@@ -213,12 +213,11 @@ func DeleteTypesTable(dbFilepath string) error{
 	}
 	defer db.Close()
 
-	rows, err := db.Query("DELETE FROM types;")
+	_, err = db.Exec("DELETE FROM types;")
 	if err != nil {
 		log.Print(err)
 		return err
 	}
-	defer rows.Close()
 	return nil
 }
 

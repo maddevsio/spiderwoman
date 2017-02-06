@@ -197,8 +197,8 @@ func ZipFile(excelFilePath string, zipFilePath string) error {
 	return cpCmd.Run()
 }
 
-func PopulateHostsAndTypes(DBFilepath string, filepath string) error {
-	lines, err := GetSliceFromFile("", filepath)
+func PopulateHostsAndTypes(DBFilepath string, realFilepath string, defaultFilepath string) error {
+	lines, err := GetSliceFromFile(realFilepath, defaultFilepath)
 	if err != nil {
 		log.Print(err)
 		return err
