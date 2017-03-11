@@ -6,5 +6,6 @@ res.db
 res.csv
 config.yaml
 log
-spiderwoman
+crawler
 deploy.sh
+api/api
