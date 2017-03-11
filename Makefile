@@ -7,3 +7,6 @@ run:
 runlog:
 	go run main.go forever > log 2>&1
 
+build:
+	env CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v
+
