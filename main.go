@@ -91,6 +91,7 @@ func actionForever(c *cli.Context) error {
 }
 
 func initialize() {
+	lib.CreateDBIfNotExists(sqliteDBPath)
 	lib.ClearResolveCache()
 	err = lib.PopulateHostsAndTypes(sqliteDBPath, lib.SitesFilepath, lib.SitesDefaultFilepath)
 	if err != nil {
@@ -101,7 +102,6 @@ func initialize() {
 func crawl() {
 	externalLinks = make(map[string]map[string]int)
 	externalLinksResolved = make(map[string]map[string]int)
-	lib.CreateDBIfNotExists(sqliteDBPath)
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl started and crawling")
 	hosts, err = lib.GetHostsFromFile(lib.SitesFilepath, lib.SitesDefaultFilepath)
 	if err != nil {
