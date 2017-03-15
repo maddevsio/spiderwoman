@@ -21,22 +21,22 @@
                     dataSrc: ''
                 },
                 columns: [
+                    { data: "Created" },
                     { data: "SourceHost" },
                     { data: "SourceHostType" },
                     { data: "ExternalHost" },
                     { data: "ExternalHostType" },
                     { data: "ExternalLink" },
-                    { data: "Count" },
-                    { data: "Created" }
+                    { data: "Count" }
                 ],
                 columnDefs: [ {
-                        targets: 6,
+                        targets: 0,
                         render: $.fn.dataTable.render.moment( '', 'Do MMM YYYY' )
                     }, {
-                        sClass: "nwDate", aTargets: [ 6 ]
+                        sClass: "nwDate", aTargets: [ 0 ]
                     }
                 ],
-                order: [[ 6, "desc" ]]
+                order: [[ 0, "desc" ]]
             });
         } );
 
@@ -67,24 +67,24 @@
 <table id="table_id" class="table table-striped table-bordered" style="font-family:Arial; font-size:12px;">
     <thead>
     <tr>
+        <th>Created</th>
         <th>SourceHost</th>
         <th>TypeSH</th>
         <th>ExternalHost</th>
         <th>TypeEH</th>
         <th>ExternalLink</th>
         <th>Count</th>
-        <th>Created</th>
     </tr>
     </thead>
     <tbody>
     <tr>
+        <td class="nwDate">Created</td>
         <td>SourceHost</td>
-        <td>Type</td>
+        <td>TypeSH</td>
         <th>ExternalHost</th>
-        <th>Type</th>
+        <th>TypeEH</th>
         <th>ExternalLink</th>
         <th>Count</th>
-        <td class="nwDate">Created</td>
     </tr>
     </tbody>
 </table>
