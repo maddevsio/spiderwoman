@@ -77,6 +77,28 @@ func AppendExcelFromDB(dbFilepath string, excelFilePath string, date string) err
 }
 
 func fillTheSheet(sheet *xlsx.Sheet, monitors []Monitor) {
+	row := sheet.AddRow()
+	cell1 := row.AddCell()
+ 	cell1.Value = "Date"
+
+	cell2 := row.AddCell()
+	cell2.Value = "Source Host"
+
+	cell3 := row.AddCell()
+	cell3.Value = "Type SH"
+
+	cell4 := row.AddCell()
+	cell4.Value = "External Host"
+
+	cell5 := row.AddCell()
+	cell5.Value = "Type EH"
+
+	cell6 := row.AddCell()
+	cell6.Value = "Count"
+
+	cell7 := row.AddCell()
+	cell7.Value = "External Link"
+
 	for _, monitor := range monitors {
 		row := sheet.AddRow()
 
