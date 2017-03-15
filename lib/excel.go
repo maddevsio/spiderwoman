@@ -81,18 +81,24 @@ func fillTheSheet(sheet *xlsx.Sheet, monitors []Monitor) {
 		row := sheet.AddRow()
 
 		cell1 := row.AddCell()
-		cell1.Value = monitor.SourceHost
+		cell1.Value = monitor.Created
 
 		cell2 := row.AddCell()
-		cell2.Value = monitor.ExternalHost
+		cell2.Value = monitor.SourceHost
 
 		cell3 := row.AddCell()
-		cell3.Value = monitor.ExternalLink
+		cell3.Value = monitor.SourceHostType
 
 		cell4 := row.AddCell()
-		cell4.Value = strconv.Itoa(monitor.Count)
+		cell4.Value = monitor.ExternalHost
 
 		cell5 := row.AddCell()
-		cell5.Value = monitor.Created
+		cell5.Value = monitor.ExternalHostType
+
+		cell6 := row.AddCell()
+		cell6.Value = strconv.Itoa(monitor.Count)
+
+		cell7 := row.AddCell()
+		cell7.Value = monitor.ExternalLink
 	}
 }
