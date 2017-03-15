@@ -5,6 +5,7 @@ import (
 	"github.com/tealeg/xlsx"
 	"log"
 	"strings"
+	"strconv"
 )
 
 func CreateExcelFromDB(dbFilepath string, excelFilePath string) {
@@ -118,7 +119,8 @@ func fillTheSheet(sheet *xlsx.Sheet, monitors []Monitor) {
 		cell5.Value = monitor.ExternalHostType
 
 		cell6 := row.AddCell()
-		cell6.SetInt(monitor.Count)
+		cell6.Value = strconv.Itoa(monitor.Count)
+		//cell6.SetInt(monitor.Count)
 
 		cell7 := row.AddCell()
 		cell7.Value = monitor.ExternalLink
