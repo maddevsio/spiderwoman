@@ -62,6 +62,12 @@ func main() {
 			Usage:   "start crawl forever using cron feature",
 			Action:  actionForever,
 		},
+		{
+			Name:    "excel",
+			Aliases: []string{"e"},
+			Usage:   "only create xls file",
+			Action:  actionExcel,
+		},
 	}
 
 	app.Run(os.Args)
@@ -87,6 +93,12 @@ func actionForever(c *cli.Context) error {
 		gocron.Every(1).Day().At(config.GetString("start-time")).Do(crawl)
 	}
 	<- gocron.Start()
+	return nil
+}
+
+func actionExcel(c *cli.Context) error {
+	initialize()
+	createXLS_BackupDB_Zip()
 	return nil
 }
 
@@ -161,6 +173,10 @@ func crawl() {
 	lib.SaveDataToSqlite(sqliteDBPath, externalLinksResolved, verbose)
 	lib.SetCrawlStatus(sqliteDBPath, "Crawl done")
 
+	createXLS_BackupDB_Zip()
+}
+
+func createXLS_BackupDB_Zip() {
 	days, _ := lib.GetAllDaysFromMonitor(sqliteDBPath)
 	log.Printf("Appendig XLS file with sheet %v", days[0])
 	err = lib.AppendExcelFromDB(sqliteDBPath, excelFilePath, days[0])
