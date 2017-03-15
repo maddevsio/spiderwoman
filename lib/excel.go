@@ -4,6 +4,7 @@ package lib
 import (
 	"github.com/tealeg/xlsx"
 	"log"
+	"strings"
 )
 
 func CreateExcelFromDB(dbFilepath string, excelFilePath string) {
@@ -102,7 +103,7 @@ func fillTheSheet(sheet *xlsx.Sheet, monitors []Monitor) {
 		row := sheet.AddRow()
 
 		cell1 := row.AddCell()
-		cell1.Value = monitor.Created
+		cell1.Value = strings.Split(monitor.Created, "T")[0]
 
 		cell2 := row.AddCell()
 		cell2.Value = monitor.SourceHost
