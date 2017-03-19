@@ -8,7 +8,10 @@ run-forever:
 	go run main.go callbacks.go forever
 
 run-once:
-	go run main.go callbacks.go forever
+	go run main.go callbacks.go once
+
+run-excel:
+	go run main.go callbacks.go excel
 
 run-forever-log:
 	go run main.go callbacks.go forever > log 2>&1
