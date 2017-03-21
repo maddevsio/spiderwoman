@@ -37,6 +37,12 @@ var (
 	badSuffixes           []string                  = []string{".png", ".jpg", ".pdf"}
 )
 
+type Path struct {
+	SqliteDBPath string
+	SitesFilepath string
+	SitesDefaultFilepath string
+}
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "Spiderwoman"
