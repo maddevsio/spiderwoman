@@ -5,10 +5,10 @@ import (
 	"github.com/maddevsio/spiderwoman/lib"
 )
 
-func initialize() {
-	lib.CreateDBIfNotExists(sqliteDBPath)
+func initialize(path Path) {
+	lib.CreateDBIfNotExists(path.SqliteDBPath)
 	lib.ClearResolveCache()
-	err = lib.PopulateHostsAndTypes(sqliteDBPath, lib.SitesFilepath, lib.SitesDefaultFilepath)
+	err = lib.PopulateHostsAndTypes(path.SqliteDBPath, path.SitesFilepath, path.SitesDefaultFilepath)
 	if err != nil {
 		log.Fatal("Types population error")
 	}

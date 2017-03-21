@@ -7,11 +7,11 @@ import (
 	"github.com/PuerkitoBio/gocrawl"
 )
 
-func crawl() {
+func crawl(path Path) {
 	externalLinks = make(map[string]map[string]int)
 	externalLinksResolved = make(map[string]map[string]int)
-	lib.SetCrawlStatus(sqliteDBPath, "Crawl started and crawling")
-	hosts, err = lib.GetHostsFromFile(lib.SitesFilepath, lib.SitesDefaultFilepath)
+	lib.SetCrawlStatus(path.SqliteDBPath, "Crawl started and crawling")
+	hosts, err = lib.GetHostsFromFile(path.SitesFilepath, path.SitesDefaultFilepath)
 	if err != nil {
 		log.Printf("Error opening or parsing config file: %v", err)
 		return
@@ -35,7 +35,7 @@ func crawl() {
 		c.Run("http://" + host)
 	}
 
-	lib.SetCrawlStatus(sqliteDBPath, "Resolving URLS")
+	lib.SetCrawlStatus(path.SqliteDBPath, "Resolving URLS")
 	log.Print("Going to resolve URLs...")
 	for host := range externalLinks {
 		for url, times := range externalLinks[host] {
@@ -64,10 +64,10 @@ func crawl() {
 	}
 	syncResolve.Wait()
 
-	lib.SetCrawlStatus(sqliteDBPath, "Saving the list")
+	lib.SetCrawlStatus(path.SqliteDBPath, "Saving the list")
 	log.Print("Saving the list")
-	lib.SaveDataToSqlite(sqliteDBPath, externalLinksResolved, verbose)
-	lib.SetCrawlStatus(sqliteDBPath, "Crawl done")
+	lib.SaveDataToSqlite(path.SqliteDBPath, externalLinksResolved, verbose)
+	lib.SetCrawlStatus(path.SqliteDBPath, "Crawl done")
 
 	createXLS_BackupDB_Zip()
 }
