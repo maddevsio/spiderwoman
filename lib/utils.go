@@ -65,6 +65,9 @@ func SaveDataToSqlite(DBFilepath string, externalLinksResolved map[string]map[st
 				externalHost = externalLink
 			} else {
 				externalHost = u.Host
+				if u.Host == "" {
+					continue
+				}
 			}
 			if verbose {
 				log.Printf("Saving result of %s: ", externalLink)
