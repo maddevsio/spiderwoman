@@ -8,14 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func initMockHTTPServer() {
-	// TODO: need to try
-	// https://github.com/h2non/gock
-	// http://www.mock-server.com/
-	// https://github.com/jarcoal/httpmock
-	// https://github.com/golang/mock
-}
-
 func TestCrawl(t *testing.T) {
 	defer gock.Off()
 
@@ -27,8 +19,8 @@ func TestCrawl(t *testing.T) {
 		Get("/").
 		Reply(200).
 		BodyString(
-		"<a href='http://lalka.com'>blah</a>" +
-		"<a href='http://'>blah</a>")
+		"<a href='http://lalka.com'>mamka</a>" +
+		"<a href='http://'>vse na mid!!</a>")
 
 	path := Path{dbPath, "./testdata/sites.txt", "./sites.default.txt"}
 	initialize(path)
@@ -37,4 +29,5 @@ func TestCrawl(t *testing.T) {
 	monitors, err := lib.GetAllDataFromMonitor(dbPath, 0)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(monitors))
+	assert.Equal(t, "www.lalka.com", monitors[0].ExternalHost)
 }
