@@ -1,6 +1,12 @@
 package main
 
-import "testing"
+import (
+	"testing"
+	"gopkg.in/h2non/gock.v1"
+	"os"
+	"github.com/maddevsio/spiderwoman/lib"
+	"github.com/stretchr/testify/assert"
+)
 
 func initMockHTTPServer() {
 	// TODO: need to try
@@ -11,7 +17,24 @@ func initMockHTTPServer() {
 }
 
 func TestCrawl(t *testing.T) {
-	path := Path{sqliteDBPath, "./testdata/sites.txt", "./sites.default.txt"}
+	defer gock.Off()
+
+	dbPath := "./testdata/spiderwoman.db"
+
+	os.Remove(dbPath)
+
+	gock.New("http://server.com").
+		Get("/").
+		Reply(200).
+		BodyString(
+		"<a href='http://lalka.com'>blah</a>" +
+		"<a href='http://'>blah</a>")
+
+	path := Path{dbPath, "./testdata/sites.txt", "./sites.default.txt"}
 	initialize(path)
 	crawl(path)
+
+	monitors, err := lib.GetAllDataFromMonitor(dbPath, 0)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(monitors))
 }
