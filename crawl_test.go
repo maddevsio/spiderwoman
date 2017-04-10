@@ -29,5 +29,5 @@ func TestCrawl(t *testing.T) {
 	monitors, err := lib.GetAllDataFromMonitor(dbPath, 0)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(monitors))
-	assert.Equal(t, "www.lalka.com", monitors[0].ExternalHost)
+	assert.Equal(t, "lalka.com", monitors[0].ExternalHost)
 }
