@@ -8,26 +8,6 @@ import (
 	"strconv"
 )
 
-func CreateExcelFromDB(dbFilepath string, excelFilePath string) {
-	var file *xlsx.File
-	var sheet *xlsx.Sheet
-	var err error
-
-	file = xlsx.NewFile()
-	sheet, err = file.AddSheet("Full Data")
-	if err != nil {
-		log.Print(err)
-	}
-
-	monitors, _ := GetAllDataFromMonitor(dbFilepath, 0)
-	fillTheSheet(sheet, monitors)
-
-	err = file.Save(excelFilePath)
-	if err != nil {
-		log.Print(err)
-	}
-}
-
 func CreateEmptyExcel(excelFilePath string) {
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
@@ -49,21 +29,15 @@ func CreateEmptyExcel(excelFilePath string) {
 	}
 }
 
-func AppendExcelFromDB(dbFilepath string, excelFilePath string, date string) error {
+func CreateExcelFromDB(dbFilepath string, excelFilePath string, date string) {
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
 	var err error
 
-	file, err = xlsx.OpenFile(excelFilePath)
+	file = xlsx.NewFile()
+	sheet, err = file.AddSheet("Full Data")
 	if err != nil {
 		log.Print(err)
-		return err
-
-	}
-	sheet, err = file.AddSheet(date)
-	if err != nil {
-		log.Print(err)
-		return err
 	}
 
 	monitors, _ := GetAllDataFromMonitorByDay(dbFilepath, date)
@@ -72,9 +46,7 @@ func AppendExcelFromDB(dbFilepath string, excelFilePath string, date string) err
 	err = file.Save(excelFilePath)
 	if err != nil {
 		log.Print(err)
-		return err
 	}
-	return nil
 }
 
 func fillTheSheet(sheet *xlsx.Sheet, monitors []Monitor) {
