@@ -17,14 +17,6 @@ func createXLS_BackupDB_Zip() {
 	} else {
 		log.Print("Database has been copied to /tmp/res.db")
 	}
-
-	log.Print("Zip XLS File")
-	err = lib.ZipFile(excelFilePath, excelZipFilePath)
-	if (err != nil) {
-		log.Printf("Zip error: %v", err)
-	} else {
-		log.Printf("Zipped xls file was saved in %v", excelZipFilePath)
-	}
 }
 
 func createAllXLSByDays() {
