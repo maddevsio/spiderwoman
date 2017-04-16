@@ -1,7 +1,6 @@
 package main
 
 import (
-	"strings"
 	"log"
 	"github.com/maddevsio/spiderwoman/lib"
 	"fmt"

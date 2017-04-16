@@ -69,6 +69,8 @@ func crawl(path Path) {
 	lib.SaveDataToSqlite(path.SqliteDBPath, externalLinksResolved, verbose)
 	lib.SetCrawlStatus(path.SqliteDBPath, "Crawl done")
 
+	// no worries, we can rewrite all xls files on every call, this is not critical
+	// when we will have more than 100 days of data, than we can think about optimization
 	createXLS_BackupDB_Zip()
 }
 
