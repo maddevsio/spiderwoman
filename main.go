@@ -32,7 +32,6 @@ var (
 	resolveTimeout        int                       = 30
 	sqliteDBPath          string                    = config.GetString("db-path")
 	excelFilePath         string                    = config.GetString("xls-path")
-	excelZipFilePath      string                    = config.GetString("zip-xls-path")
 	internalOutPatterns   []string                  = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
 	badSuffixes           []string                  = []string{".png", ".jpg", ".pdf"}
 )

@@ -55,7 +55,11 @@
 </head>
 <body style="padding: 15px 15px 15px 15px;">
 <p style="text-align: right; font-size: small; padding:0; margin:0;">Server status: {{ .status }}</p>
-<p style="text-align: right;"><a href="/spiderwoman.zip">Скачать эксель</a></p>
+
+{{if .dateQS}}
+    <p style="text-align: right;"><a href="/spiderwoman-{{.dateQS}}.zip">Скачать эксель за {{.dateQS}}</a></p>
+{{end}}
+
 <h1 style="text-align:center;">{{ .title }}</h1>
 <div style="text-align: center; font-size: 10px;">
     <a href="/" class="date-">all</a>&nbsp;&nbsp;
