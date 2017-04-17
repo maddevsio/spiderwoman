@@ -162,11 +162,11 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 	assert.Equal(t, "http://b/1?9", monitors[9].ExternalLink)
 
 	assert.Equal(t, "type1", monitors[0].SourceHostType)
-	assert.Equal(t, "H", monitors[0].ExternalHostType)
+	assert.Equal(t, "N", monitors[0].ExternalHostType)
 	assert.Equal(t, "type2", monitors[10].SourceHostType)
 	assert.Equal(t, "type1", monitors[10].ExternalHostType)
-	assert.Equal(t, "H", monitors[11].SourceHostType)
-	assert.Equal(t, "H", monitors[11].ExternalHostType)
+	assert.Equal(t, "N", monitors[11].SourceHostType)
+	assert.Equal(t, "N", monitors[11].ExternalHostType)
 
 	//for _, m := range monitors {
 	//	log.Printf("[%v] [%v] %v %v %v", m.SourceHostType, m.ExternalHostType, m.Created, m.ExternalHost, m.SourceHost)

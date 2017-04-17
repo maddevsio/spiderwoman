@@ -85,8 +85,8 @@ func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 	}
 	defer db.Close()
 	rows, err := db.Query(fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, " +
-		"coalesce(t1.hosttype,'H') as 'source_host_type', " +
-		"coalesce(t2.hosttype,'H') as 'external_host_type' " +
+		"coalesce(t1.hosttype,'N') as 'source_host_type', " +
+		"coalesce(t2.hosttype,'N') as 'external_host_type' " +
 		"FROM monitor as m " +
 		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host " +
 		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host " +
@@ -116,8 +116,8 @@ func GetAllDataFromMonitorByDay(dbFilepath string, day string) ([]Monitor, error
 	defer db.Close()
 
 	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, " +
-		"coalesce(t1.hosttype,'H') as 'source_host_type', " +
-		"coalesce(t2.hosttype,'H') as 'external_host_type' " +
+		"coalesce(t1.hosttype,'N') as 'source_host_type', " +
+		"coalesce(t2.hosttype,'N') as 'external_host_type' " +
 		"FROM monitor as m " +
 		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host " +
 		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host " +
