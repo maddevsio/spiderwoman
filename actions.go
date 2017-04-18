@@ -5,6 +5,7 @@ import (
 	"github.com/jasonlvhit/gocron"
 	"log"
 	"github.com/maddevsio/spiderwoman/lib"
+	"os"
 )
 
 func actionOnce(c *cli.Context) error {
@@ -33,9 +34,13 @@ func actionForever(c *cli.Context) error {
 }
 
 func actionExcel(c *cli.Context) error {
+	err := os.MkdirAll(config.GetString("xls-dir"), 0777)
+	if err != nil {
+		log.Fatalf("cannot create dir for excel files: %v", err)
+	}
 	path := Path{sqliteDBPath, lib.SitesFilepath, lib.SitesDefaultFilepath}
 	initialize(path)
-	createXLS_BackupDB_Zip()
+	createXLS_BackupDB()
 	return nil
 }
 

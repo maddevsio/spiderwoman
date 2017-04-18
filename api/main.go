@@ -6,7 +6,6 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/maddevsio/simple-config"
 	"log"
-	"fmt"
 )
 
 func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
@@ -17,15 +16,12 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 	r.Static("/images", "./images")
-	dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
-	// could not find a "mask" feature in static files mapping. so let's iterate all files we have for user
-	for _, day := range dates {
-		r.StaticFile("/spiderwoman-"+day+".xls", fmt.Sprintf(config.GetString("xls-path"), day))
-	}
+	r.Static("/xls", config.GetString("xls-dir"))
 
+	// main page
 	r.GET("/", func(c *gin.Context) {
+		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
-
 		c.HTML(200, "index.html", gin.H{
 			"title": "Spiderwoman",
 			"status": s,
@@ -34,6 +30,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		})
 	})
 
+	// get json with monitor data to show in html table
 	r.GET("/all", func(c *gin.Context) {
 		var m []lib.Monitor
 		if c.Query("date") != "" {
@@ -44,6 +41,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		c.JSON(200, m)
 	})
 
+	// this is test endpoint
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",

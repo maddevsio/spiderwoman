@@ -51,7 +51,7 @@ func TestBackup(t *testing.T) {
 func TestGetHostsFromFile(t *testing.T) {
 	hosts, err := GetHostsFromFile("", "../sites.default.txt")
 	assert.NoError(t, err)
-	assert.Equal(t, 2, len(hosts))
+	assert.Equal(t, 3, len(hosts))
 	assert.Equal(t, "nambataxi.kg", hosts[0])
 	assert.Equal(t, "nambafood.kg", hosts[1])
 }
@@ -62,5 +62,10 @@ func TestPopulateHostsAndTypes(t *testing.T) {
 	err := PopulateHostsAndTypes(DBFilepath, "", "../sites.default.txt")
 	assert.NoError(t, err)
 	err = PopulateHostsAndTypes(DBFilepath, "", "../sites.default.txt")
+	assert.NoError(t, err)
+}
+
+func TestMkdirAll(t *testing.T) {
+	err := os.MkdirAll("/tmp/xls", 0777)
 	assert.NoError(t, err)
 }
