@@ -22,7 +22,7 @@ func TestCrawl(t *testing.T) {
 		"<a href='http://lalka.com'>mamka</a>" +
 		"<a href='http://'>vse na mid!!</a>")
 
-	path := Path{dbPath, "./testdata/sites.txt", "./sites.default.txt"}
+	path := Path{dbPath, "./testdata/sites.txt", "./sites.default.txt", "", "./sites.default.h.txt"}
 	initialize(path)
 	crawl(path)
 

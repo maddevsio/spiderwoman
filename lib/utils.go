@@ -17,6 +17,8 @@ import (
 const (
 	SitesFilepath        = "./sites.txt"
 	SitesDefaultFilepath = "./sites.default.txt"
+	SitesHFilepath        = "./sites.h.txt"
+	SitesHDefaultFilepath = "./sites.default.h.txt"
 	StopsFilepath        = "./stops.txt"
 	StopsDefaultFilepath = "./stops.default.txt"
 )
@@ -200,12 +202,24 @@ func ZipFile(excelFilePath string, zipFilePath string) error {
 	return cpCmd.Run()
 }
 
-func PopulateHostsAndTypes(DBFilepath string, realFilepath string, defaultFilepath string) error {
-	lines, err := GetSliceFromFile(realFilepath, defaultFilepath)
+func PopulateHostsAndTypes(
+	DBFilepath string,
+	realFilepath string,
+	defaultFilepath string,
+	realHFilepath string,
+	defaultHFilepath string,) error {
+
+	linesMFB, err := GetSliceFromFile(realFilepath, defaultFilepath)
 	if err != nil {
 		log.Print(err)
 		return err
 	}
+	linesH, err := GetSliceFromFile(realHFilepath, defaultHFilepath)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	lines := append(linesMFB, linesH...)
 	err = DeleteTypesTable(DBFilepath)
 	if err != nil {
 		log.Print(err)

@@ -51,7 +51,7 @@ func TestBackup(t *testing.T) {
 func TestGetHostsFromFile(t *testing.T) {
 	hosts, err := GetHostsFromFile("", "../sites.default.txt")
 	assert.NoError(t, err)
-	assert.Equal(t, 3, len(hosts))
+	assert.Equal(t, 2, len(hosts))
 	assert.Equal(t, "nambataxi.kg", hosts[0])
 	assert.Equal(t, "nambafood.kg", hosts[1])
 }
@@ -59,9 +59,9 @@ func TestGetHostsFromFile(t *testing.T) {
 func TestPopulateHostsAndTypes(t *testing.T) {
 	os.Remove(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
-	err := PopulateHostsAndTypes(DBFilepath, "", "../sites.default.txt")
+	err := PopulateHostsAndTypes(DBFilepath, "", "../sites.default.txt", "", "../sites.default.h.txt")
 	assert.NoError(t, err)
-	err = PopulateHostsAndTypes(DBFilepath, "", "../sites.default.txt")
+	err = PopulateHostsAndTypes(DBFilepath, "", "../sites.default.txt", "", "../sites.default.h.txt")
 	assert.NoError(t, err)
 }
 

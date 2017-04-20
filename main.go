@@ -40,6 +40,8 @@ type Path struct {
 	SqliteDBPath string
 	SitesFilepath string
 	SitesDefaultFilepath string
+	SitesHFilepath string
+	SitesHDefaultFilepath string
 }
 
 func main() {

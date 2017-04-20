@@ -8,15 +8,15 @@ import (
 	"os"
 )
 
+var path = Path{sqliteDBPath, lib.SitesFilepath, lib.SitesDefaultFilepath, lib.SitesHFilepath, lib.SitesHDefaultFilepath}
+
 func actionOnce(c *cli.Context) error {
-	path := Path{sqliteDBPath, lib.SitesFilepath, lib.SitesDefaultFilepath}
 	initialize(path)
 	crawl(path)
 	return nil
 }
 
 func actionForever(c *cli.Context) error {
-	path := Path{sqliteDBPath, lib.SitesFilepath, lib.SitesDefaultFilepath}
 	initialize(path)
 	log.Print("All is OK. Starting cron job...")
 	if config.GetString("box") == "dev" {
@@ -38,7 +38,6 @@ func actionExcel(c *cli.Context) error {
 	if err != nil {
 		log.Fatalf("cannot create dir for excel files: %v", err)
 	}
-	path := Path{sqliteDBPath, lib.SitesFilepath, lib.SitesDefaultFilepath}
 	initialize(path)
 	createXLS_BackupDB()
 	return nil
