@@ -13,6 +13,9 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(gzip.Gzip(gzip.BestCompression))
+	accounts := gin.Accounts{config.GetString("admin-user"): config.GetString("admin-password")}
+
+	r.Use(gin.BasicAuth(accounts))
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 	r.Static("/images", "./images")
