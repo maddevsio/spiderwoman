@@ -38,7 +38,9 @@ func actionExcel(c *cli.Context) error {
 	if err != nil {
 		log.Fatalf("cannot create dir for excel files: %v", err)
 	}
-	initialize(path)
+	if c.Args().Get(0) != "noinit" {
+		initialize(path)
+	}
 	createXLS_BackupDB()
 	return nil
 }
