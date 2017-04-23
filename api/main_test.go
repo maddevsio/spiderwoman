@@ -21,7 +21,10 @@ func TestIndex(t *testing.T) {
 	ts := httptest.NewServer(GetAPIEngine(config))
 	defer ts.Close()
 
-	resp, err := http.Get(ts.URL + "/")
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", ts.URL + "/", nil)
+	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
+	resp, err := client.Do(req)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +45,11 @@ func TestPing200(t *testing.T) {
 	ts := httptest.NewServer(GetAPIEngine(config))
 	defer ts.Close()
 
-	resp, err := http.Get(ts.URL + "/ping")
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", ts.URL + "/ping", nil)
+	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
+	resp, err := client.Do(req)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,7 +63,11 @@ func TestPing404(t *testing.T) {
 	ts := httptest.NewServer(GetAPIEngine(config))
 	defer ts.Close()
 
-	resp, err := http.Get(ts.URL + "/pong")
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", ts.URL + "/pong", nil)
+	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
+	resp, err := client.Do(req)
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +92,11 @@ func TestAll(t *testing.T) {
 	ts := httptest.NewServer(GetAPIEngine(config))
 	defer ts.Close()
 
-	resp, err := http.Get(ts.URL + "/all")
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", ts.URL + "/all", nil)
+	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
+	resp, err := client.Do(req)
+
 	if err != nil {
 		t.Fatal(err)
 	}
