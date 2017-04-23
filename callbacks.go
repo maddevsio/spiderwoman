@@ -17,6 +17,7 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 	}
 	doc.Find("a").Each(func(i int, s *goquery.Selection) {
 		href, _ := s.Attr("href")
+		href = strings.ToLower(href)
 
 		// analyze absolute urls, e.g. http://bla.com/lolz
 		if strings.Contains(href, ctx.URL().Host) {
