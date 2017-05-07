@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"log"
+	"time"
 )
 
 const (
@@ -258,6 +260,42 @@ func TestSaveHostType(t *testing.T) {
 func TestGetNewDataForDate(t *testing.T) {
 	// fixture for different days
 	// change SaveRecordToMonitor func to use date as a param, or create new method
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+
+	monitorNoDate := Monitor{}
+	monitorNoDate.SourceHost = "host2"
+	monitorNoDate.ExternalLink = "http://b/1?10"
+	monitorNoDate.Count = 810
+	monitorNoDate.ExternalHost = "host1"
+	_ = SaveRecordToMonitorStruct(DBFilepath, monitorNoDate)
+
+	monitorWithDate := Monitor{}
+	monitorWithDate.SourceHost = "host2"
+	monitorWithDate.ExternalLink = "http://b/1?10"
+	monitorWithDate.Count = 810
+	monitorWithDate.ExternalHost = "host1"
+	monitorWithDate.Created = "2016-12-13T07:17:23Z"
+	_ = SaveRecordToMonitorStruct(DBFilepath, monitorWithDate)
+
+	monitors, err := GetAllDataFromMonitor(DBFilepath, 0)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(monitors))
+	assert.Equal(t, "host2", monitors[0].SourceHost)
+	assert.Equal(t, "http://b/1?10", monitors[0].ExternalLink)
+	assert.Equal(t, 810, monitors[0].Count)
+	assert.Equal(t, "host1", monitors[0].ExternalHost)
+
+	log.Printf("Date is %v", monitors[0].Created)
+
+	// lets parse the time to compare dates
+	t1, _ := ParseSqliteDate(monitors[0].Created)
+	t2 := time.Now()
+	assert.True(t, (t1.Year() == t2.Year() && t1.YearDay() == t2.YearDay()))
+
+	t1, _ = ParseSqliteDate(monitors[1].Created)
+	t2 = time.Now()
+	assert.False(t, (t1.Year() == t2.Year() && t1.YearDay() == t2.YearDay()))
 
 }
 

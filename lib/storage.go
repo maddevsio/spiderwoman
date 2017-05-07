@@ -74,7 +74,27 @@ func SaveRecordToMonitor(dbFilepath string, source_host string, external_link st
 		return false
 	}
 	return true
+}
 
+func SaveRecordToMonitorStruct(dbFilepath string, monitor Monitor) bool {
+	db, err := sql.Open("sqlite3", dbFilepath)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare("insert into monitor(source_host, external_link, count, external_host, created) values(?, ?, ?, ?, DateTime('now'))")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = stmt.Exec(monitor.SourceHost, monitor.ExternalLink, monitor.Count, monitor.ExternalHost)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	return true
 }
 
 func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
