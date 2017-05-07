@@ -255,6 +255,11 @@ func TestSaveHostType(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestGetNewDataForDate(t * testing.T) {
+	// fixture for different days
+	// change SaveRecordToMonitor func to use date as a param, or create new method
+}
+
 func TestDeleteTypesTable(t *testing.T) {
 	err := DeleteTypesTable(DBFilepath)
 	assert.NoError(t, err)
