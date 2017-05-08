@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"log"
 	"time"
 )
 
@@ -275,7 +274,7 @@ func TestGetNewDataForDate(t *testing.T) {
 	monitorWithDate.ExternalLink = "http://b/1?10"
 	monitorWithDate.Count = 810
 	monitorWithDate.ExternalHost = "host1"
-	monitorWithDate.Created = "2016-12-13T07:17:23Z"
+	monitorWithDate.Created = "2016-12-13T00:00:00Z"
 	_ = SaveRecordToMonitorStruct(DBFilepath, monitorWithDate)
 
 	monitors, err := GetAllDataFromMonitor(DBFilepath, 0)
@@ -285,8 +284,6 @@ func TestGetNewDataForDate(t *testing.T) {
 	assert.Equal(t, "http://b/1?10", monitors[0].ExternalLink)
 	assert.Equal(t, 810, monitors[0].Count)
 	assert.Equal(t, "host1", monitors[0].ExternalHost)
-
-	log.Printf("Date is %v", monitors[0].Created)
 
 	// lets parse the time to compare dates
 	t1, _ := ParseSqliteDate(monitors[0].Created)

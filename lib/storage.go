@@ -85,11 +85,17 @@ func SaveRecordToMonitorStruct(dbFilepath string, monitor Monitor) bool {
 	defer db.Close()
 
 	stmt, err := db.Prepare("insert into monitor(source_host, external_link, count, external_host, created) values(?, ?, ?, ?, DateTime('now'))")
+	if monitor.Created != "" {
+		stmt, err = db.Prepare("insert into monitor(source_host, external_link, count, external_host, created) values(?, ?, ?, ?, ?)")
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	_, err = stmt.Exec(monitor.SourceHost, monitor.ExternalLink, monitor.Count, monitor.ExternalHost)
+	if monitor.Created != "" {
+		_, err = stmt.Exec(monitor.SourceHost, monitor.ExternalLink, monitor.Count, monitor.ExternalHost, monitor.Created)
+	}
 	if err != nil {
 		log.Fatal(err)
 		return false
