@@ -167,6 +167,40 @@ func GetAllDataFromMonitorByDay(dbFilepath string, day string) ([]Monitor, error
 	return data, nil
 }
 
+func GetNewExtractedHostsForDay(dbFilepath string, day string) ([]Monitor, error) {
+	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, " +
+		"coalesce(t1.hosttype,'N') as 'source_host_type', " +
+		"coalesce(t2.hosttype,'N') as 'external_host_type' " +
+		"FROM monitor as m " +
+		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host " +
+		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host " +
+		"WHERE (m.created >= '%s' AND m.created <= date('%s', '+1 day')) AND (m.external_host != SELECT()) ;", day, day)
+
+	rows, err := db.Query(query)
+
+	if err != nil {
+		log.Printf("Error getting data from monitor: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []Monitor
+	for rows.Next() {
+		m := Monitor{}
+		err = rows.Scan(&m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created, &m.SourceHostType, &m.ExternalHostType)
+		data = append(data, m)
+	}
+
+	return data, nil
+}
+
 func SetCrawlStatus(dbFilepath string, status string) bool {
 	db, err := sql.Open("sqlite3", dbFilepath)
 	if err != nil {

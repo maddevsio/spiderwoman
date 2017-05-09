@@ -294,6 +294,11 @@ func TestGetNewDataForDate(t *testing.T) {
 	t2 = time.Now()
 	assert.False(t, (t1.Year() == t2.Year() && t1.YearDay() == t2.YearDay()))
 
+	monitors, err = GetNewExtractedHostsForDay(DBFilepath, "2016-12-20")
+	assert.NoError(t, err)
+	assert.Equal(t, len(monitors), 0)
+
+
 }
 
 func TestDeleteTypesTable(t *testing.T) {
