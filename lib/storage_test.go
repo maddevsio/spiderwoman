@@ -287,18 +287,17 @@ func TestGetNewDataForDate(t *testing.T) {
 
 	// lets parse the time to compare dates
 	t1, _ := ParseSqliteDate(monitors[0].Created)
-	t2 := time.Now()
+	t2 := time.Now().UTC()
+
 	assert.True(t, (t1.Year() == t2.Year() && t1.YearDay() == t2.YearDay()))
 
 	t1, _ = ParseSqliteDate(monitors[1].Created)
 	t2 = time.Now()
 	assert.False(t, (t1.Year() == t2.Year() && t1.YearDay() == t2.YearDay()))
 
-	monitors, err = GetNewExtractedHostsForDay(DBFilepath, "2016-12-20")
+	monitors, err = GetNewExtractedHostsForDay(DBFilepath, "2016-12-14")
 	assert.NoError(t, err)
 	assert.Equal(t, len(monitors), 0)
-
-
 }
 
 func TestDeleteTypesTable(t *testing.T) {
