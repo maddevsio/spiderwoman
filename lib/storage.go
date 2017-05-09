@@ -177,7 +177,8 @@ func GetNewExtractedHostsForDay(dbFilepath string, day string) ([]Monitor, error
 
 	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created " +
 		"FROM monitor as m " +
-		"WHERE (m.created >= '%s' AND m.created <= date('%s', '+1 day'));", day, day)
+		"WHERE (m.created >= '%s' AND m.created <= date('%s', '+1 day')) AND " +
+		"m.external_host NOT IN (SELECT external_host FROM monitor WHERE m.created < '%s');", day, day, day)
 
 	rows, err := db.Query(query)
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"time"
+	"log"
 )
 
 const (
@@ -283,11 +284,12 @@ func TestGetNewDataForDate(t *testing.T) {
 	assert.Equal(t, "host2", monitors[0].SourceHost)
 	assert.Equal(t, "http://b/1?10", monitors[0].ExternalLink)
 	assert.Equal(t, 810, monitors[0].Count)
-	assert.Equal(t, "host1", monitors[0].ExternalHost)
 
 	// lets parse the time to compare dates
 	t1, _ := ParseSqliteDate(monitors[0].Created)
 	t2 := time.Now().UTC()
+
+	log.Printf("%v", t1)
 
 	assert.True(t, (t1.Year() == t2.Year() && t1.YearDay() == t2.YearDay()))
 
@@ -295,9 +297,9 @@ func TestGetNewDataForDate(t *testing.T) {
 	t2 = time.Now()
 	assert.False(t, (t1.Year() == t2.Year() && t1.YearDay() == t2.YearDay()))
 
-	monitors, err = GetNewExtractedHostsForDay(DBFilepath, "2016-12-14")
+	monitors, err = GetNewExtractedHostsForDay(DBFilepath, "2017-05-09")
 	assert.NoError(t, err)
-	assert.Equal(t, len(monitors), 0)
+	assert.Equal(t, len(monitors), 1)
 }
 
 func TestDeleteTypesTable(t *testing.T) {
