@@ -175,10 +175,14 @@ func GetNewExtractedHostsForDay(dbFilepath string, day string) ([]Monitor, error
 	}
 	defer db.Close()
 
-	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created " +
+	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, " +
+		"coalesce(t1.hosttype,'N') as 'source_host_type', " +
+		"coalesce(t2.hosttype,'N') as 'external_host_type' " +
 		"FROM monitor as m " +
-		"WHERE (m.created >= '%s' AND m.created <= date('%s', '+1 day')) AND " +
-		"m.external_host NOT IN (SELECT external_host FROM monitor WHERE m.created < '%s');", day, day, day)
+		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host " +
+		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host " +
+		"WHERE m.external_host not in (select distinct external_host from monitor where created < '%s') and " +
+		"m.created >= '%s' AND m.created <= date('%s', '+1 day');", day, day, day)
 
 	rows, err := db.Query(query)
 

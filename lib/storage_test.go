@@ -267,7 +267,7 @@ func TestGetNewDataForDate(t *testing.T) {
 	monitorNoDate.SourceHost = "host2"
 	monitorNoDate.ExternalLink = "http://b/1?10"
 	monitorNoDate.Count = 810
-	monitorNoDate.ExternalHost = "host1"
+	monitorNoDate.ExternalHost = "host0"
 	_ = SaveRecordToMonitorStruct(DBFilepath, monitorNoDate)
 
 	monitorWithDate := Monitor{}
@@ -297,7 +297,7 @@ func TestGetNewDataForDate(t *testing.T) {
 	t2 = time.Now()
 	assert.False(t, (t1.Year() == t2.Year() && t1.YearDay() == t2.YearDay()))
 
-	monitors, err = GetNewExtractedHostsForDay(DBFilepath, "2017-05-09")
+	monitors, err = GetNewExtractedHostsForDay(DBFilepath, t2.Format("2006-01-02"))
 	assert.NoError(t, err)
 	assert.Equal(t, len(monitors), 1)
 }
