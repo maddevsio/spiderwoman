@@ -64,8 +64,8 @@
 <div style="text-align: center; font-size: 10px;">
     <a href="/" class="date-">all</a>&nbsp;&nbsp;
     {{ range $date := .dates }}
-        <a href="/?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>
-        &nbsp;&nbsp;
+        <a href="/?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>:<a href="/?date={{ $date }}&new=1" class="date-{{ $date }}">new</a>
+        &nbsp;|&nbsp;&nbsp;
     {{ end }}
 </div>
 <table id="table_id" class="table table-striped table-bordered" style="font-family:Arial; font-size:12px;">
