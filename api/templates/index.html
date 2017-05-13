@@ -10,14 +10,19 @@
     <script>
         $(document).ready( function () {
             var dateQS = "";
+            var newQS = "";
             if (qs('date') != null) {
                 dateQS = qs('date');
             }
+            if (qs('new') != null) {
+                newQS = qs('new');
+            }
+
             $('.date-'+dateQS).css('color', 'red');
             $('#table_id').DataTable({
                 pageLength: 200,
                 ajax: {
-                    url: '/all?date='+dateQS,
+                    url: '/all?date='+dateQS+'&new='+newQS,
                     dataSrc: ''
                 },
                 columns: [

@@ -26,10 +26,11 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		c.HTML(200, "index.html", gin.H{
-			"title": "Spiderwoman",
-			"status": s,
-			"dates" : dates,
+			"title"  : "Spiderwoman",
+			"status" : s,
+			"dates"  : dates,
 			"dateQS" : c.Query("date"),
+			"newQS"  : c.Query("new"),
 		})
 	})
 
@@ -37,7 +38,11 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.GET("/all", func(c *gin.Context) {
 		var m []lib.Monitor
 		if c.Query("date") != "" {
-			m, _ = lib.GetAllDataFromMonitorByDay(config.GetString("db-path"), c.Query("date"))
+			if c.Query("new") == "1" {
+				m, _ = lib.GetNewExtractedHostsForDay(config.GetString("db-path"), c.Query("date"))
+			} else {
+				m, _ = lib.GetAllDataFromMonitorByDay(config.GetString("db-path"), c.Query("date"))
+			}
 		} else {
 			m, _ = lib.GetAllDataFromMonitor(config.GetString("db-path"), 9)
 		}
