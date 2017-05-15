@@ -1,11 +1,12 @@
 package main
 
 import (
-	"gopkg.in/gin-gonic/gin.v1"
-	"github.com/maddevsio/spiderwoman/lib"
+	"log"
+
 	"github.com/gin-contrib/gzip"
 	"github.com/maddevsio/simple-config"
-	"log"
+	"github.com/maddevsio/spiderwoman/lib"
+	"gopkg.in/gin-gonic/gin.v1"
 )
 
 func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
@@ -26,11 +27,11 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		c.HTML(200, "index.html", gin.H{
-			"title"  : "Spiderwoman",
-			"status" : s,
-			"dates"  : dates,
-			"dateQS" : c.Query("date"),
-			"newQS"  : c.Query("new"),
+			"title":  "Spiderwoman",
+			"status": s,
+			"dates":  dates,
+			"dateQS": c.Query("date"), // pass this param to the "index.html" template
+			"newQS":  c.Query("new"),
 		})
 	})
 
@@ -39,11 +40,19 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		var m []lib.Monitor
 		if c.Query("date") != "" {
 			if c.Query("new") == "1" {
+				// this call is for new findings by a diven date
+				// e.g /?date=2006-12-04&new=1
 				m, _ = lib.GetNewExtractedHostsForDay(config.GetString("db-path"), c.Query("date"))
 			} else {
+				// if we do not have "new" parameter, that just get all crawled
+				// data for a given date
 				m, _ = lib.GetAllDataFromMonitorByDay(config.GetString("db-path"), c.Query("date"))
 			}
 		} else {
+			// in this case, when we do not have "date" parameter
+			// we return all data from DB
+			// TODO: for now this is useless and need to be deleted
+			// and removed from the web interface
 			m, _ = lib.GetAllDataFromMonitor(config.GetString("db-path"), 9)
 		}
 		c.JSON(200, m)
