@@ -5,17 +5,18 @@ import (
 	"log"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	"fmt"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Monitor struct {
-	SourceHost string
-	ExternalLink string
-	Count int
-	ExternalHost string
-	Created string
-	SourceHostType string
+	SourceHost       string
+	ExternalLink     string
+	Count            int
+	ExternalHost     string
+	Created          string
+	SourceHostType   string
 	ExternalHostType string
 }
 
@@ -110,13 +111,47 @@ func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 		return nil, err
 	}
 	defer db.Close()
-	rows, err := db.Query(fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, " +
-		"coalesce(t1.hosttype,'N') as 'source_host_type', " +
-		"coalesce(t2.hosttype,'N') as 'external_host_type' " +
-		"FROM monitor as m " +
-		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host " +
-		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host " +
+	rows, err := db.Query(fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, "+
+		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
+		"coalesce(t2.hosttype,'N') as 'external_host_type' "+
+		"FROM monitor as m "+
+		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host "+
+		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host "+
 		"WHERE m.count > %d;", count))
+	if err != nil {
+		log.Printf("Error getting data from monitor: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []Monitor
+	for rows.Next() {
+		m := Monitor{}
+		err = rows.Scan(&m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created, &m.SourceHostType, &m.ExternalHostType)
+		data = append(data, m)
+	}
+
+	return data, nil
+}
+
+func GetAllDataFromMonitorByExternalHost(dbFilepath string, host string) ([]Monitor, error) {
+	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, "+
+		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
+		"coalesce(t2.hosttype,'N') as 'external_host_type' "+
+		"FROM monitor as m "+
+		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host "+
+		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host "+
+		"WHERE m.external_host = '%s';", host)
+
+	rows, err := db.Query(query)
+
 	if err != nil {
 		log.Printf("Error getting data from monitor: %v", err)
 		return nil, err
@@ -141,12 +176,12 @@ func GetAllDataFromMonitorByDay(dbFilepath string, day string) ([]Monitor, error
 	}
 	defer db.Close()
 
-	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, " +
-		"coalesce(t1.hosttype,'N') as 'source_host_type', " +
-		"coalesce(t2.hosttype,'N') as 'external_host_type' " +
-		"FROM monitor as m " +
-		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host " +
-		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host " +
+	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, "+
+		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
+		"coalesce(t2.hosttype,'N') as 'external_host_type' "+
+		"FROM monitor as m "+
+		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host "+
+		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host "+
 		"WHERE m.created >= '%s' AND m.created <= date('%s', '+1 day');", day, day)
 
 	rows, err := db.Query(query)
@@ -175,13 +210,13 @@ func GetNewExtractedHostsForDay(dbFilepath string, day string) ([]Monitor, error
 	}
 	defer db.Close()
 
-	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, " +
-		"coalesce(t1.hosttype,'N') as 'source_host_type', " +
-		"coalesce(t2.hosttype,'N') as 'external_host_type' " +
-		"FROM monitor as m " +
-		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host " +
-		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host " +
-		"WHERE m.external_host not in (select distinct external_host from monitor where created < '%s') and " +
+	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, "+
+		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
+		"coalesce(t2.hosttype,'N') as 'external_host_type' "+
+		"FROM monitor as m "+
+		"LEFT OUTER JOIN types as t1 ON t1.hostname=m.source_host "+
+		"LEFT OUTER JOIN types as t2 ON t2.hostname=m.external_host "+
+		"WHERE m.external_host not in (select distinct external_host from monitor where created < '%s') and "+
 		"m.created >= '%s' AND m.created <= date('%s', '+1 day');", day, day, day)
 
 	rows, err := db.Query(query)
@@ -270,7 +305,7 @@ func GetAllDaysFromMonitor(dbFilepath string) ([]string, error) {
 	return dates, nil
 }
 
-func DeleteTypesTable(dbFilepath string) error{
+func DeleteTypesTable(dbFilepath string) error {
 	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
 	if err != nil {
 		log.Print(err)

@@ -58,6 +58,14 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		c.JSON(200, m)
 	})
 
+	r.GET("/all-for-host", func(c *gin.Context) {
+		var m []lib.Monitor
+		if c.Query("host") != "" {
+			m, _ = lib.GetAllDataFromMonitorByExternalHost(config.GetString("db-path"), c.Query("host"))
+		}
+		c.JSON(200, m)
+	})
+
 	// this is test endpoint
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -69,6 +77,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 }
 
 func main() {
+	// read the config and run gin
 	config := simple_config.NewSimpleConfig("../config", "yml")
 	log.Printf("Server started on %v", config.GetString("api-port"))
 	GetAPIEngine(config).Run(config.GetString("api-port"))

@@ -6,9 +6,10 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"time"
 	"log"
+	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -145,7 +146,7 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 	for i := int(0); i < 10; i++ {
 		sourceHost := "host1"
 		externalLink := "http://b/1?" + strconv.Itoa(i)
-		count := 800+i
+		count := 800 + i
 		externalHost := "b"
 		_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 	}
@@ -204,7 +205,7 @@ func TestGetDataFromMonitor__ByDays(t *testing.T) {
 	for i := int(0); i < 100; i++ {
 		sourceHost := "http://a"
 		externalLink := "http://b/1?" + strconv.Itoa(i)
-		count := 800+i
+		count := 800 + i
 		externalHost := "b"
 		_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 	}
@@ -300,6 +301,33 @@ func TestGetNewDataForDate(t *testing.T) {
 	monitors, err = GetNewExtractedHostsForDay(DBFilepath, t2.Format("2006-01-02"))
 	assert.NoError(t, err)
 	assert.Equal(t, len(monitors), 1)
+}
+
+func TestGetNewDataByExternalHost(t *testing.T) {
+	// fixture for different days
+	// change SaveRecordToMonitor func to use date as a param, or create new method
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+
+	monitorNoDate := Monitor{}
+	monitorNoDate.SourceHost = "host2"
+	monitorNoDate.ExternalLink = "http://b/1?10"
+	monitorNoDate.Count = 810
+	monitorNoDate.ExternalHost = "host0"
+	_ = SaveRecordToMonitorStruct(DBFilepath, monitorNoDate)
+
+	monitorWithDate := Monitor{}
+	monitorWithDate.SourceHost = "host2"
+	monitorWithDate.ExternalLink = "http://b/1?10"
+	monitorWithDate.Count = 811
+	monitorWithDate.ExternalHost = "host1"
+	monitorWithDate.Created = "2016-12-13T00:00:00Z"
+	_ = SaveRecordToMonitorStruct(DBFilepath, monitorWithDate)
+
+	monitors, err := GetAllDataFromMonitorByExternalHost(DBFilepath, "host1")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(monitors))
+	assert.Equal(t, 811, monitors[0].Count)
 }
 
 func TestDeleteTypesTable(t *testing.T) {
