@@ -35,12 +35,18 @@
                     { data: "Count" },
                     { data: "ExternalLink" }
                 ],
-                columnDefs: [ {
+                columnDefs: [
+                    {
                         targets: 0,
                         render: $.fn.dataTable.render.moment( '', 'Do MMM YYYY' )
-                    }, {
-                        sClass: "nwDate", aTargets: [ 0 ]
-                    }
+                    },
+                    {
+                        targets: 3,
+                        render: function ( data, type, row ) {
+                            return '<a target="blank" href="http://' + data + '">' + data + '</a>';
+                        },
+                    },
+                    { sClass: "nwDate", aTargets: [ 0 ] }
                 ],
                 order: [[ 0, "desc" ]]
             });
