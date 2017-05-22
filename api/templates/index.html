@@ -12,18 +12,24 @@
         $(document).ready( function () {
             var dateQS = "";
             var newQS = "";
+            var hostQS = "";
             if (qs('date') != null) {
                 dateQS = qs('date');
             }
             if (qs('new') != null) {
                 newQS = qs('new');
             }
+            var apiUrl = '/all?date='+dateQS+'&new='+newQS
+            if (qs('host') != null) {
+                hostQS = qs('host');
+                apiUrl = '/all-for-host?host='+hostQS
+            }
 
             $('.date-'+dateQS).css('color', 'red');
             $('#table_id').DataTable({
                 pageLength: 200,
                 ajax: {
-                    url: '/all?date='+dateQS+'&new='+newQS,
+                    url: apiUrl,
                     dataSrc: ''
                 },
                 columns: [
