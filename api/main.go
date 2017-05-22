@@ -77,7 +77,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 }
 
 func main() {
-	// read the config and run gin
+	// read the  config and run gin
 	config := simple_config.NewSimpleConfig("../config", "yml")
 	log.Printf("Server started on %v", config.GetString("api-port"))
 	GetAPIEngine(config).Run(config.GetString("api-port"))

@@ -43,7 +43,9 @@
                     {
                         targets: 3,
                         render: function ( data, type, row ) {
-                            return '<a target="blank" href="http://' + data + '">' + data + '</a>';
+                            var info = '[<a href="?host=' + data + '">info</a>] '
+                            var href = '<a target="blank" href="http://' + data + '">' + data + '</a>';
+                            return info + href;
                         },
                     },
                     { sClass: "nwDate", aTargets: [ 0 ] }
