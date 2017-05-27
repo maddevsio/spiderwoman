@@ -37,11 +37,11 @@ var (
 )
 
 type Path struct {
-	SqliteDBPath string
-	SitesFilepath string
-	SitesDefaultFilepath string
-	SitesHFilepath string
-	SitesHDefaultFilepath string
+	SqliteDBPath           string
+	SourcesFilePath        string
+	SourcesDefaultFilePath string
+	TypesFilePath          string
+	TypesDefaultFilePath   string
 }
 
 func main() {

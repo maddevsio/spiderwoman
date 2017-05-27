@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-var path = Path{sqliteDBPath, lib.SitesFilepath, lib.SitesDefaultFilepath, lib.SitesHFilepath, lib.SitesHDefaultFilepath}
+var path = Path{sqliteDBPath, lib.SourcesFilePath, lib.SourcesDefaultFilePath, lib.TypesFilePath, lib.TypesHDefaultFilePath}
 
 func actionOnce(c *cli.Context) error {
 	initialize(path)

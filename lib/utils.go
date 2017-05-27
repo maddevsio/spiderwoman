@@ -15,12 +15,12 @@ import (
 )
 
 const (
-	SitesFilepath        = "./sites.txt"
-	SitesDefaultFilepath = "./sites.default.txt"
-	SitesHFilepath        = "./sites.h.txt"
-	SitesHDefaultFilepath = "./sites.default.h.txt"
-	StopsFilepath        = "./stops.txt"
-	StopsDefaultFilepath = "./stops.default.txt"
+	SourcesFilePath        = "./sources.txt"
+	SourcesDefaultFilePath = "./sources.default.txt"
+	TypesFilePath          = "./types.txt"
+	TypesHDefaultFilePath  = "./types.default.txt"
+	StopsFilePath          = "./stops.txt"
+	StopsDefaultFilePath   = "./stops.default.txt"
 )
 
 var (
@@ -147,21 +147,17 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 	}
 }
 
-func GetHostsFromFile(sitesFilepath string, sitesDefaultFilepath string) ([]string, error) {
-	var hosts []string
-	lines, err := GetSliceFromFile(sitesFilepath, sitesDefaultFilepath)
+func GetHostsFromFile(sourcesFilePath string, sourcesDefaultFilePath string) ([]string, error) {
+	hosts, err := GetSliceFromFile(sourcesFilePath, sourcesDefaultFilePath)
 	if err != nil {
 		return []string{}, err
-	}
-	for _, line := range lines {
-		hosts = append(hosts, strings.Split(line, " ")[0])
 	}
 	return hosts, nil
 }
 
 func HasStopHost(href string, stopHosts []string) bool {
 	if len(stopHosts) == 0 {
-		stopHosts, _ = GetSliceFromFile(StopsFilepath, StopsDefaultFilepath)
+		stopHosts, _ = GetSliceFromFile(StopsFilePath, StopsDefaultFilePath)
 	}
 
 	for i := range stopHosts {
@@ -202,25 +198,13 @@ func ZipFile(excelFilePath string, zipFilePath string) error {
 	return cpCmd.Run()
 }
 
-func PopulateHostsAndTypes(
-	DBFilepath string,
-	realFilepath string,
-	defaultFilepath string,
-	realHFilepath string,
-	defaultHFilepath string,) error {
-
-	linesMFB, err := GetSliceFromFile(realFilepath, defaultFilepath)
+func PopulateHostsAndTypes(DBFilePath string, typesFilePath string, typesDefaultFilePath string) error {
+	lines, err := GetSliceFromFile(typesFilePath, typesDefaultFilePath)
 	if err != nil {
 		log.Print(err)
 		return err
 	}
-	linesH, err := GetSliceFromFile(realHFilepath, defaultHFilepath)
-	if err != nil {
-		log.Print(err)
-		return err
-	}
-	lines := append(linesMFB, linesH...)
-	err = DeleteTypesTable(DBFilepath)
+	err = DeleteTypesTable(DBFilePath)
 	if err != nil {
 		log.Print(err)
 		return err
@@ -228,7 +212,7 @@ func PopulateHostsAndTypes(
 	for _, line := range lines {
 		hostName := strings.TrimSpace(strings.Split(line, " ")[0])
 		hostType := strings.TrimSpace(strings.Split(line, " ")[1])
-		err := SaveHostType(DBFilepath, hostName, hostType)
+		err := SaveHostType(DBFilePath, hostName, hostType)
 		if err != nil {
 			log.Print(err)
 			return err

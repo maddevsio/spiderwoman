@@ -22,7 +22,7 @@ func TestCrawl(t *testing.T) {
 		"<a href='http://lalka.com'>mamka</a>" +
 		"<a href='http://'>vse na mid!!</a>")
 
-	path := Path{dbPath, "./testdata/sites.txt", "./sites.default.txt", "", "./sites.default.h.txt"}
+	path := Path{dbPath, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
@@ -52,7 +52,7 @@ func TestCrawlCaseInsensitive(t *testing.T) {
 		Reply(200).
 		BodyString("<a href='http://laLka.com'>maMka</a>")
 
-	path := Path{dbPath, "./testdata/sites.txt", "./sites.default.txt", "", "./sites.default.h.txt"}
+	path := Path{dbPath, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
