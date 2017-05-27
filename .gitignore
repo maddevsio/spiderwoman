@@ -10,3 +10,5 @@ crawler
 deploy.sh
 api/api
 testdata
+types.txt
+sources.txt

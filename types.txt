@@ -1,1 +1,0 @@
-# all hosts with types to see this in reports
