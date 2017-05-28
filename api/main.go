@@ -40,7 +40,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		var m []lib.Monitor
 		if c.Query("date") != "" {
 			if c.Query("new") == "1" {
-				// this call is for new findings by a diven date
+				// this call is for new findings by a given date
 				// e.g /?date=2006-12-04&new=1
 				m, _ = lib.GetNewExtractedHostsForDay(config.GetString("db-path"), c.Query("date"))
 			} else {
