@@ -6,7 +6,7 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/maddevsio/simple-config"
 	"github.com/maddevsio/spiderwoman/lib"
-	"gopkg.in/gin-gonic/gin.v1"
+	"github.com/gin-gonic/gin"
 )
 
 func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
