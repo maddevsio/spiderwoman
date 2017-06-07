@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 
-func createXLS_BackupDB() {
-	createAllXLSByDays()
+func createXLS_BackupDB(sqliteDBPath string) {
+	createAllXLSByDays(sqliteDBPath)
 
 	log.Print("Backuping database")
 	err = lib.BackupDatabase(sqliteDBPath)
@@ -18,7 +18,7 @@ func createXLS_BackupDB() {
 	}
 }
 
-func createAllXLSByDays() {
+func createAllXLSByDays(sqliteDBPath string) {
 	
 	days, _ := lib.GetAllDaysFromMonitor(sqliteDBPath)
 	for _, day := range days {

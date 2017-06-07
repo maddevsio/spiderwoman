@@ -71,6 +71,6 @@ func crawl(path Path) {
 
 	// no worries, we can rewrite all xls files on every call, this is not critical
 	// when we will have more than 100 days of data, than we can think about optimization
-	createXLS_BackupDB()
+	createXLS_BackupDB(path.SqliteDBPath)
 }
 

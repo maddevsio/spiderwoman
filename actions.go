@@ -41,7 +41,7 @@ func actionExcel(c *cli.Context) error {
 	if c.Args().Get(0) != "noinit" {
 		initialize(path)
 	}
-	createXLS_BackupDB()
+	createXLS_BackupDB(path.SqliteDBPath)
 	return nil
 }
 
