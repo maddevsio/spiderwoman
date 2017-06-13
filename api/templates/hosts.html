@@ -10,8 +10,9 @@
     <script type="text/javascript" charset="utf8" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
     <script>
+        var table;
         $(document).ready( function () {
-            $('#table_id').DataTable({
+            table = $('#table_id').DataTable({
                 pageLength: 200,
                 data: {{ .hosts }},
                 columns: [
@@ -21,16 +22,34 @@
                 ],
                 aoColumnDefs: [{
                   aTargets: [3],
-                  data: "ID",
+                  data: {},
                   mRender: function(data, type, full) {
-                    return "<button onClick=deleteHost("+data+")>delete</a>";
+                    if(data['Action']=="add"){
+                      return "<button onClick=addHost()>add</button>";
+                    }
+                    return "<button onClick=deleteHost("+data['ID']+")>delete</button>";
                   }
                 }],
-                order: [[ 0, "desc" ]]
+                order: [[ 0, "asc" ]],
+            });
+
+            $('#addNew').on('click', function(){
+              table.row.add({
+                "ID": "-",
+                "HostName": "<input type='text' name='host_name' placeholder='Name'>",
+                "HostType": "<input type='text' name='host_type' placeholder='Type'>",
+                "Action": "add"
+              }).draw(false);
             });
         } );
         function deleteHost(host){
           $.get( "/hosts/delete?host=" + host, function() {
+            window.location.reload();
+          });
+        }
+        function addHost(){
+          var data = table.$('input').serialize();
+          $.post( "/hosts/create", data, function() {
             window.location.reload();
           });
         }
@@ -55,5 +74,6 @@
     </tr>
     </tbody>
 </table>
+<button id="addNew">Add New</button>
 </body>
 </html>
