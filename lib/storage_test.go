@@ -334,3 +334,29 @@ func TestDeleteTypesTable(t *testing.T) {
 	err := DeleteTypesTable(DBFilepath)
 	assert.NoError(t, err)
 }
+
+func TestGetAllHosts(t *testing.T) {
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	err := SaveHostType(DBFilepath, "host1", "type1")
+	assert.NoError(t, err)
+	err = SaveHostType(DBFilepath, "host2", "type2")
+	assert.NoError(t, err)
+	hosts, err := GetAllHosts(DBFilepath)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(hosts))
+}
+
+func TestDeleteHost(t *testing.T) {
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	err := SaveHostType(DBFilepath, "host1", "type1")
+	assert.NoError(t, err)
+	err = SaveHostType(DBFilepath, "host2", "type2")
+	assert.NoError(t, err)
+	err = DeleteHost(DBFilepath, "1")
+	assert.NoError(t, err)
+	hosts, err := GetAllHosts(DBFilepath)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(hosts))
+}
