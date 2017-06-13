@@ -4,9 +4,9 @@ import (
 	"log"
 
 	"github.com/gin-contrib/gzip"
+	"github.com/gin-gonic/gin"
 	"github.com/maddevsio/simple-config"
 	"github.com/maddevsio/spiderwoman/lib"
-	"github.com/gin-gonic/gin"
 )
 
 func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
@@ -71,6 +71,24 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
+	})
+
+	r.GET("/hosts", func(c *gin.Context) {
+		var t []lib.HostItem
+		t, _ = lib.GetAllHosts(config.GetString("db-path"))
+		c.HTML(200, "hosts.html", gin.H{
+			"title": "Spiderwoman HOSTS",
+			"hosts": t,
+		})
+	})
+
+	r.GET("/hosts/delete", func(c *gin.Context) {
+		err := lib.DeleteHost(config.GetString("db-path"), c.Query("host"))
+		if err != nil {
+			log.Fatal(err)
+			c.JSON(500, nil)
+		}
+		c.JSON(200, nil)
 	})
 
 	return r

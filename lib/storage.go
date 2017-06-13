@@ -20,6 +20,16 @@ type Monitor struct {
 	ExternalHostType string
 }
 
+type HostItem struct {
+	ID       int64
+	HostName string
+	HostType string
+}
+
+type Hosts struct {
+	Host []HostItem
+}
+
 func CreateDBIfNotExists(dbFilepath string) {
 	db, err := sql.Open("sqlite3", dbFilepath)
 	if err != nil {
@@ -345,4 +355,53 @@ func SaveHostType(dbFilepath string, hostName string, hostType string) error {
 
 func ParseSqliteDate(sqliteDate string) (time.Time, error) {
 	return time.Parse("2006-01-02T15:04:05Z", sqliteDate)
+}
+
+func GetAllHosts(dbFilepath string) ([]HostItem, error) {
+	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT t.id, t.hostname, t.hosttype FROM types as t")
+
+	rows, err := db.Query(query)
+
+	if err != nil {
+		log.Printf("Error getting data from types: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []HostItem
+	for rows.Next() {
+		t := HostItem{}
+		err = rows.Scan(&t.ID, &t.HostName, &t.HostType)
+		data = append(data, t)
+	}
+
+	return data, nil
+}
+
+func DeleteHost(dbFilepath string, hostID string) error {
+	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare("DELETE FROM types WHERE id = ?")
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	_, err = stmt.Exec(hostID)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	return nil
 }
