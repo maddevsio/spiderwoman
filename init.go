@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"github.com/maddevsio/spiderwoman/lib"
 )
 
