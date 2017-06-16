@@ -96,7 +96,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		host_type := c.PostForm("host_type")
 		err := lib.SaveHostType(config.GetString("db-path"), name, host_type)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 			c.JSON(500, nil)
 		}
 		c.JSON(200, nil)

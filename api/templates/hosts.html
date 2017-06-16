@@ -51,6 +51,8 @@
           var data = table.$('input').serialize();
           $.post( "/hosts/create", data, function() {
             window.location.reload();
+          }).fail(function() {
+            alert( "Such host already exists!" );
           });
         }
     </script>
