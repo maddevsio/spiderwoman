@@ -73,16 +73,16 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		})
 	})
 
-	r.GET("/hosts", func(c *gin.Context) {
+	r.GET("/types", func(c *gin.Context) {
 		var t []lib.HostItem
 		t, _ = lib.GetAllHosts(config.GetString("db-path"))
-		c.HTML(200, "hosts.html", gin.H{
-			"title": "Spiderwoman HOSTS",
+		c.HTML(200, "types.html", gin.H{
+			"title": "Spiderwoman Hosts Types",
 			"hosts": t,
 		})
 	})
 
-	r.GET("/hosts/delete", func(c *gin.Context) {
+	r.GET("/types/delete", func(c *gin.Context) {
 		err := lib.DeleteHost(config.GetString("db-path"), c.Query("host"))
 		if err != nil {
 			log.Fatal(err)
@@ -91,7 +91,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		c.JSON(200, nil)
 	})
 
-	r.POST("/hosts/create", func(c *gin.Context) {
+	r.POST("/types/create", func(c *gin.Context) {
 		name := c.PostForm("host_name")
 		host_type := c.PostForm("host_type")
 		err := lib.SaveHostType(config.GetString("db-path"), name, host_type)

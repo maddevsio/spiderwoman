@@ -43,13 +43,13 @@
             });
         } );
         function deleteHost(host){
-          $.get( "/hosts/delete?host=" + host, function() {
+          $.get( "/types/delete?host=" + host, function() {
             window.location.reload();
           });
         }
         function addHost(){
           var data = table.$('input').serialize();
-          $.post( "/hosts/create", data, function() {
+          $.post( "/types/create", data, function() {
             window.location.reload();
           }).fail(function() {
             alert( "Such host already exists!" );
@@ -76,6 +76,6 @@
     </tr>
     </tbody>
 </table>
-<button id="addNew">Add New</button>
+<button id="addNew">Add New Host/Type</button>
 </body>
 </html>
