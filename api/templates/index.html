@@ -54,18 +54,57 @@
                             return info + href;
                         },
                     },
+                    {
+                      targets: 4,
+                      render: function ( data, type, row ) {
+                        var host = '"'+row.SourceHost+'"';
+                        var type = '"'+row.ExternalHostType+'"';
+                        return "<span id='type"+row.ID+"'>"+ data + "</span>" + " <button id='changeType"+row.ID+"' onClick='changeType("+row.ID + "," +host+","+type+")'>C</button>";
+                      },
+                    },
                     { sClass: "nwDate", aTargets: [ 0 ] }
                 ],
                 order: [[ 0, "desc" ]]
             });
         } );
 
+        function changeType(id, hostName, hostType){
+          var types = {{ .hosts }};
+          var sel = document.createElement('select');
+          sel.name = "host_type";
+          sel.className = "changeType"
+          var fragment = document.createDocumentFragment();
+          types.forEach(function(type, index) {
+              var opt = document.createElement('option');
+              opt.innerHTML = type['HostType'];
+              opt.value = type['HostType'];
+              if (opt.value == hostType) {
+                opt.selected = true;
+              }
+              fragment.appendChild(opt);
+          });
+          sel.appendChild(fragment);
+          $('#changeType'+id).hide();
+          $('#type'+id).hide();
+          $('#changeType'+id).after(sel);
+          sel.addEventListener(
+             'change',
+             function() { updateType(hostName,this.value); },
+             false
+          );
+        }
+
+        function updateType(host_name, host_type){
+          $.post( "/types/update", {"host_type": host_type, "host_name": host_name }, function() {
+            window.location.reload();
+          });
+        }
+
         function qs(key) {
             key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
             var match = location.search.match(new RegExp("[?&]"+key+"=([^&]+)(&|$)"));
             return match && decodeURIComponent(match[1].replace(/\+/g, " "));
         }
-
     </script>
     <style>
         .nwDate {

@@ -11,6 +11,7 @@ import (
 )
 
 type Monitor struct {
+	ID               int
 	SourceHost       string
 	ExternalLink     string
 	Count            int
@@ -121,7 +122,7 @@ func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 		return nil, err
 	}
 	defer db.Close()
-	rows, err := db.Query(fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, "+
+	rows, err := db.Query(fmt.Sprintf("SELECT m.id, m.source_host, m.external_link, m.count, m.external_host, m.created, "+
 		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
 		"coalesce(t2.hosttype,'N') as 'external_host_type' "+
 		"FROM monitor as m "+
@@ -137,11 +138,32 @@ func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 	var data []Monitor
 	for rows.Next() {
 		m := Monitor{}
-		err = rows.Scan(&m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created, &m.SourceHostType, &m.ExternalHostType)
+		err = rows.Scan(&m.ID, &m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created, &m.SourceHostType, &m.ExternalHostType)
 		data = append(data, m)
 	}
 
 	return data, nil
+}
+
+func UpdateHostType(dbFilepath string, hostName string, hostType string) error {
+	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare("UPDATE types SET hosttype = ? WHERE hostname = ?")
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	_, err = stmt.Exec(hostType, hostName)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	return nil
 }
 
 func GetAllDataFromMonitorByExternalHost(dbFilepath string, host string) ([]Monitor, error) {
@@ -186,7 +208,7 @@ func GetAllDataFromMonitorByDay(dbFilepath string, day string) ([]Monitor, error
 	}
 	defer db.Close()
 
-	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, "+
+	query := fmt.Sprintf("SELECT m.id, m.source_host, m.external_link, m.count, m.external_host, m.created, "+
 		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
 		"coalesce(t2.hosttype,'N') as 'external_host_type' "+
 		"FROM monitor as m "+
@@ -205,7 +227,7 @@ func GetAllDataFromMonitorByDay(dbFilepath string, day string) ([]Monitor, error
 	var data []Monitor
 	for rows.Next() {
 		m := Monitor{}
-		err = rows.Scan(&m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created, &m.SourceHostType, &m.ExternalHostType)
+		err = rows.Scan(&m.ID, &m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created, &m.SourceHostType, &m.ExternalHostType)
 		data = append(data, m)
 	}
 

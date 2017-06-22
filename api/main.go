@@ -26,12 +26,15 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.GET("/", func(c *gin.Context) {
 		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
+		var t []lib.HostItem
+		t, _ = lib.GetAllHosts(config.GetString("db-path"))
 		c.HTML(200, "index.html", gin.H{
 			"title":  "Spiderwoman",
 			"status": s,
 			"dates":  dates,
 			"dateQS": c.Query("date"), // pass this param to the "index.html" template
 			"newQS":  c.Query("new"),
+			"hosts":  t,
 		})
 	})
 
@@ -82,6 +85,14 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		})
 	})
 
+	r.GET("/get_all_types", func(c *gin.Context) {
+		var t []lib.HostItem
+		t, _ = lib.GetAllHosts(config.GetString("db-path"))
+		c.JSON(200, gin.H{
+			"hosts": t,
+		})
+	})
+
 	r.GET("/types/delete", func(c *gin.Context) {
 		err := lib.DeleteHost(config.GetString("db-path"), c.Query("host"))
 		if err != nil {
@@ -102,6 +113,16 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		c.JSON(200, nil)
 	})
 
+	r.POST("/types/update/", func(c *gin.Context) {
+		hostName := c.PostForm("host_name")
+		hostType := c.PostForm("host_type")
+		err := lib.UpdateHostType(config.GetString("db-path"), hostName, hostType)
+		if err != nil {
+			log.Println(err)
+			c.JSON(500, nil)
+		}
+		c.JSON(200, nil)
+	})
 	return r
 }
 
