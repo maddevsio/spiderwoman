@@ -57,7 +57,7 @@
                     {
                       targets: 4,
                       render: function ( data, type, row ) {
-                        var host = '"'+row.SourceHost+'"';
+                        var host = '"'+row.ExternalHost+'"';
                         var type = '"'+row.ExternalHostType+'"';
                         return "<span id='type"+row.ID+"'>"+ data + "</span>" + " <button id='changeType"+row.ID+"' onClick='changeType("+row.ID + "," +host+","+type+")'>C</button>";
                       },
@@ -69,15 +69,15 @@
         } );
 
         function changeType(id, hostName, hostType){
-          var types = {{ .hosts }};
+          var types = {{ .types }};
           var sel = document.createElement('select');
           sel.name = "host_type";
           sel.className = "changeType"
           var fragment = document.createDocumentFragment();
           types.forEach(function(type, index) {
               var opt = document.createElement('option');
-              opt.innerHTML = type['HostType'];
-              opt.value = type['HostType'];
+              opt.innerHTML = type;
+              opt.value = type;
               if (opt.value == hostType) {
                 opt.selected = true;
               }

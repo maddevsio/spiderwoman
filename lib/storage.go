@@ -145,7 +145,7 @@ func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 	return data, nil
 }
 
-func UpdateHostType(dbFilepath string, hostName string, hostType string) error {
+func UpdateOrCreateHostType(dbFilepath string, hostName string, hostType string) error {
 	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
 	if err != nil {
 		log.Fatal(err)
@@ -153,12 +153,12 @@ func UpdateHostType(dbFilepath string, hostName string, hostType string) error {
 	}
 	defer db.Close()
 
-	stmt, err := db.Prepare("UPDATE types SET hosttype = ? WHERE hostname = ?")
+	stmt, err := db.Prepare("INSERT OR REPLACE INTO types VALUES (NULL, ?, ?);")
 	if err != nil {
 		log.Print(err)
 		return err
 	}
-	_, err = stmt.Exec(hostType, hostName)
+	_, err = stmt.Exec(hostName, hostType)
 	if err != nil {
 		log.Print(err)
 		return err
@@ -379,7 +379,7 @@ func ParseSqliteDate(sqliteDate string) (time.Time, error) {
 	return time.Parse("2006-01-02T15:04:05Z", sqliteDate)
 }
 
-func GetAllHosts(dbFilepath string) ([]HostItem, error) {
+func GetAllTypes(dbFilepath string) ([]HostItem, error) {
 	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
 	if err != nil {
 		log.Fatal(err)
@@ -405,6 +405,37 @@ func GetAllHosts(dbFilepath string) ([]HostItem, error) {
 	}
 
 	return data, nil
+}
+
+func GetUniqueTypes(dbFilepath string) ([]string, error) {
+	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT DISTINCT t.hosttype FROM types as t")
+
+	rows, err := db.Query(query)
+
+	if err != nil {
+		log.Printf("Error getting data from types: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var types []string
+	for rows.Next() {
+		var htype string
+		err = rows.Scan(&htype)
+		if err == nil {
+			types = append(types, htype)
+		} else {
+			log.Printf("Error getting types: %v", err)
+		}
+	}
+	return types, nil
 }
 
 func DeleteHost(dbFilepath string, hostID string) error {

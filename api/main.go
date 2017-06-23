@@ -26,15 +26,15 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.GET("/", func(c *gin.Context) {
 		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
-		var t []lib.HostItem
-		t, _ = lib.GetAllHosts(config.GetString("db-path"))
+		var types []string
+		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
 		c.HTML(200, "index.html", gin.H{
 			"title":  "Spiderwoman",
 			"status": s,
 			"dates":  dates,
 			"dateQS": c.Query("date"), // pass this param to the "index.html" template
 			"newQS":  c.Query("new"),
-			"hosts":  t,
+			"types":  types,
 		})
 	})
 
@@ -78,17 +78,9 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 
 	r.GET("/types", func(c *gin.Context) {
 		var t []lib.HostItem
-		t, _ = lib.GetAllHosts(config.GetString("db-path"))
+		t, _ = lib.GetAllTypes(config.GetString("db-path"))
 		c.HTML(200, "types.html", gin.H{
 			"title": "Spiderwoman Hosts Types",
-			"hosts": t,
-		})
-	})
-
-	r.GET("/get_all_types", func(c *gin.Context) {
-		var t []lib.HostItem
-		t, _ = lib.GetAllHosts(config.GetString("db-path"))
-		c.JSON(200, gin.H{
 			"hosts": t,
 		})
 	})
@@ -116,7 +108,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.POST("/types/update/", func(c *gin.Context) {
 		hostName := c.PostForm("host_name")
 		hostType := c.PostForm("host_type")
-		err := lib.UpdateHostType(config.GetString("db-path"), hostName, hostType)
+		err := lib.UpdateOrCreateHostType(config.GetString("db-path"), hostName, hostType)
 		if err != nil {
 			log.Println(err)
 			c.JSON(500, nil)
