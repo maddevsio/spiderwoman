@@ -174,7 +174,7 @@ func GetAllDataFromMonitorByExternalHost(dbFilepath string, host string) ([]Moni
 	}
 	defer db.Close()
 
-	query := fmt.Sprintf("SELECT m.source_host, m.external_link, m.count, m.external_host, m.created, "+
+	query := fmt.Sprintf("SELECT m.id, m.source_host, m.external_link, m.count, m.external_host, m.created, "+
 		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
 		"coalesce(t2.hosttype,'N') as 'external_host_type' "+
 		"FROM monitor as m "+
@@ -193,7 +193,7 @@ func GetAllDataFromMonitorByExternalHost(dbFilepath string, host string) ([]Moni
 	var data []Monitor
 	for rows.Next() {
 		m := Monitor{}
-		err = rows.Scan(&m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created, &m.SourceHostType, &m.ExternalHostType)
+		err = rows.Scan(&m.ID, &m.SourceHost, &m.ExternalLink, &m.Count, &m.ExternalHost, &m.Created, &m.SourceHostType, &m.ExternalHostType)
 		data = append(data, m)
 	}
 
