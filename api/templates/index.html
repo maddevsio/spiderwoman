@@ -59,7 +59,7 @@
                       render: function ( data, type, row ) {
                         var host = '"'+row.ExternalHost+'"';
                         var type = '"'+row.ExternalHostType+'"';
-                        return "<span data-host='"+row.ExternalHost+"' id='type"+row.ID+"'>"+ data + "</span>" + " <button id='changeType"+row.ID+"' onClick='changeType("+row.ID + "," +host+","+type+")'>C</button>";
+                        return "<span data-host='"+row.ExternalHost+"' id='type"+row.ID+"'>"+ data + "</span>" + " <button data-type='"+row.ExternalHostType+"' id='changeType"+row.ID+"' onClick='changeType("+row.ID + "," +host+","+type+")'>C</button>";
                       },
                     },
                     { sClass: "nwDate", aTargets: [ 0 ] }
@@ -75,11 +75,17 @@
           sel.className = "changeType"
           sel.setAttribute("id", "changeTypeSel"+id);
           var fragment = document.createDocumentFragment();
+          var empty_opt = document.createElement('option');
+          empty_opt.innerHTML = "-";
+          empty_opt.value = "";
+          empty_opt.selected = true;
+          fragment.appendChild(empty_opt);
+          var selected_type = $('#changeType'+id).attr('data-type')
           types.forEach(function(type, index) {
               var opt = document.createElement('option');
               opt.innerHTML = type;
               opt.value = type;
-              if (opt.value == hostType) {
+              if (opt.value == selected_type) {
                 opt.selected = true;
               }
               fragment.appendChild(opt);
@@ -96,15 +102,23 @@
         }
 
         function updateType(id, host_name, host_type){
-          $.post( "/types/update", {"host_type": host_type, "host_name": host_name }, function() {
+          if (host_type) {
+            $.post( "/types/update", {"host_type": host_type, "host_name": host_name }, function() {
+              $('#changeTypeSel'+id).hide();
+              $('#changeType'+id).show();
+              $("span[data-host='"+host_name+"']").each(function(i, obj) {
+                  $(this).text(host_type);
+              });
+              $('.'+host_name).text(host_type);
+              $('#type'+id).show();
+              $('#changeType'+id).attr("data-type", host_type);
+            });
+          } else {
+            console.log('heloo')
             $('#changeTypeSel'+id).hide();
             $('#changeType'+id).show();
-            $("span[data-host='"+host_name+"']").each(function(i, obj) {
-                $(this).text(host_type);
-            });
-            $('.'+host_name).text(host_type);
             $('#type'+id).show();
-          });
+          }
         }
 
         function qs(key) {
