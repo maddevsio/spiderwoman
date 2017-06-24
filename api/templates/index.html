@@ -59,7 +59,7 @@
                       render: function ( data, type, row ) {
                         var host = '"'+row.ExternalHost+'"';
                         var type = '"'+row.ExternalHostType+'"';
-                        return "<span id='type"+row.ID+"'>"+ data + "</span>" + " <button id='changeType"+row.ID+"' onClick='changeType("+row.ID + "," +host+","+type+")'>C</button>";
+                        return "<span data-host='"+row.ExternalHost+"' id='type"+row.ID+"'>"+ data + "</span>" + " <button id='changeType"+row.ID+"' onClick='changeType("+row.ID + "," +host+","+type+")'>C</button>";
                       },
                     },
                     { sClass: "nwDate", aTargets: [ 0 ] }
@@ -73,6 +73,7 @@
           var sel = document.createElement('select');
           sel.name = "host_type";
           sel.className = "changeType"
+          sel.setAttribute("id", "changeTypeSel"+id);
           var fragment = document.createDocumentFragment();
           types.forEach(function(type, index) {
               var opt = document.createElement('option');
@@ -89,14 +90,20 @@
           $('#changeType'+id).after(sel);
           sel.addEventListener(
              'change',
-             function() { updateType(hostName,this.value); },
+             function() { updateType(id, hostName,this.value); },
              false
           );
         }
 
-        function updateType(host_name, host_type){
+        function updateType(id, host_name, host_type){
           $.post( "/types/update", {"host_type": host_type, "host_name": host_name }, function() {
-            window.location.reload();
+            $('#changeTypeSel'+id).hide();
+            $('#changeType'+id).show();
+            $("span[data-host='"+host_name+"']").each(function(i, obj) {
+                $(this).text(host_type);
+            });
+            $('.'+host_name).text(host_type);
+            $('#type'+id).show();
           });
         }
 
