@@ -56,7 +56,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 			// we return all data from DB
 			// TODO: for now this is useless and need to be deleted
 			// and removed from the web interface
-			m, _ = lib.GetAllDataFromMonitor(config.GetString("db-path"), 9)
+			// m, _ = lib.GetAllDataFromMonitor(config.GetString("db-path"), 9)
 		}
 		c.JSON(200, m)
 	})
