@@ -29,6 +29,26 @@ func CreateEmptyExcel(excelFilePath string) {
 	}
 }
 
+func CreateExcelFromDB_NEW(dbFilepath string, excelFilePath string, date string) {
+	var file *xlsx.File
+	var sheet *xlsx.Sheet
+	var err error
+
+	file = xlsx.NewFile()
+	sheet, err = file.AddSheet("Full Data")
+	if err != nil {
+		log.Print(err)
+	}
+
+	monitors, _ := GetNewExtractedHostsForDay(dbFilepath, date)
+	fillTheSheet(sheet, monitors)
+
+	err = file.Save(excelFilePath)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
 func CreateExcelFromDB(dbFilepath string, excelFilePath string, date string) {
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
