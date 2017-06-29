@@ -88,7 +88,14 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 
 	// return xls on the fly
 	r.GET("/get-new-xls", func(c *gin.Context) {
-
+		xlsFileName := "new-" + c.Query("date") + ".xls"
+		xlsFilePath := "/tmp/" + xlsFileName
+		lib.CreateExcelFromDB_NEW(config.GetString("db-path"), xlsFilePath, c.Query("date"))
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.Header("Content-Disposition", "attachment; filename=" +xlsFileName)
+		c.Header("Content-Type", "application/octet-stream")
+		c.File(xlsFilePath)
 	})
 
 	// this is test endpoint
