@@ -20,7 +20,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 	r.Static("/images", "./images")
-	r.Static("/xls", config.GetString("xls-dir"))
+	r.Static("/xls", config.GetString("xls-dir")) // this is for all existent XLS files
 
 	// main page
 	r.GET("/", func(c *gin.Context) {
@@ -77,12 +77,18 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		c.JSON(200, m)
 	})
 
+	// get all monitors filtered by host
 	r.GET("/all-for-host", func(c *gin.Context) {
 		var m []lib.Monitor
 		if c.Query("host") != "" {
 			m, _ = lib.GetAllDataFromMonitorByExternalHost(config.GetString("db-path"), c.Query("host"))
 		}
 		c.JSON(200, m)
+	})
+
+	// return xls on the fly
+	r.GET("/get-new-xls", func(c *gin.Context) {
+
 	})
 
 	// this is test endpoint
