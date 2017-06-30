@@ -38,7 +38,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		})
 	})
 
-	// main page
+	// main page with metronic template
 	r.GET("/new_index", func(c *gin.Context) {
 		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
@@ -46,6 +46,22 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
 		c.HTML(200, "new_index.html", gin.H{
 			"title":  "Spiderwoman",
+			"status": s,
+			"dates":  dates,
+			"dateQS": c.Query("date"), // pass this param to the "index.html" template
+			"newQS":  c.Query("new"),
+			"types":  types,
+		})
+	})
+
+	// report page with metronic template
+	r.GET("/report", func(c *gin.Context) {
+		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
+		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
+		var types []string
+		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
+		c.HTML(200, "report.html", gin.H{
+			"title":  "Spiderwoman Report",
 			"status": s,
 			"dates":  dates,
 			"dateQS": c.Query("date"), // pass this param to the "index.html" template
