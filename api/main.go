@@ -101,6 +101,15 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		})
 	})
 
+	r.GET("/new_types", func(c *gin.Context) {
+		var t []lib.HostItem
+		t, _ = lib.GetAllTypes(config.GetString("db-path"))
+		c.HTML(200, "new_types.html", gin.H{
+			"title": "Spiderwoman Hosts Types",
+			"hosts": t,
+		})
+	})
+
 	r.GET("/types/delete", func(c *gin.Context) {
 		err := lib.DeleteHost(config.GetString("db-path"), c.Query("host"))
 		if err != nil {
