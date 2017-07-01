@@ -102,11 +102,23 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		c.JSON(200, m)
 	})
 
-	// return xls on the fly
+	// return xls on the fly for new data
 	r.GET("/get-new-xls", func(c *gin.Context) {
 		xlsFileName := "new-" + c.Query("date") + ".xls"
 		xlsFilePath := "/tmp/" + xlsFileName
 		lib.CreateExcelFromDB_NEW(config.GetString("db-path"), xlsFilePath, c.Query("date"))
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.Header("Content-Disposition", "attachment; filename=" +xlsFileName)
+		c.Header("Content-Type", "application/octet-stream")
+		c.File(xlsFilePath)
+	})
+
+	// return xls on the fly for all data by the day
+	r.GET("/get-new-xls", func(c *gin.Context) {
+		xlsFileName := "new-" + c.Query("date") + ".xls"
+		xlsFilePath := "/tmp/" + xlsFileName
+		//lib.CreateExcelFromDB_NEW(config.GetString("db-path"), xlsFilePath, c.Query("date"))
 		c.Header("Content-Description", "File Transfer")
 		c.Header("Content-Transfer-Encoding", "binary")
 		c.Header("Content-Disposition", "attachment; filename=" +xlsFileName)
