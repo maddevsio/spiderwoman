@@ -86,7 +86,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.GET("/get-day-xls", func(c *gin.Context) {
 		xlsFileName := "day-" + c.Query("date") + ".xls"
 		xlsFilePath := "/tmp/" + xlsFileName
-		//lib.CreateExcelFromDB_NEW(config.GetString("db-path"), xlsFilePath, c.Query("date"))
+		lib.CreateExcelFromDB(config.GetString("db-path"), xlsFilePath, c.Query("date"))
 		c.Header("Content-Description", "File Transfer")
 		c.Header("Content-Transfer-Encoding", "binary")
 		c.Header("Content-Disposition", "attachment; filename=" +xlsFileName)
