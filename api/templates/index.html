@@ -140,9 +140,9 @@
 
 {{if .dateQS}}
     {{if not .newQS}}
-        <p style="text-align: right;"><a href="/xls/spiderwoman-{{.dateQS}}.xls">Скачать эксель за {{.dateQS}}</a></p>
+        <p style="text-align: right;"><a href="/get-day-xls?date={{.dateQS}}">Скачать <b style="color:blue;">весь</b> эксель за {{.dateQS}}</a></p>
     {{else}}
-<p style="text-align: right;"><a href="/get-new-xls?date={{.dateQS}}">Скачать <b style="color:red;">new</b> эксель за {{.dateQS}}</a></p>
+        <p style="text-align: right;"><a href="/get-new-xls?date={{.dateQS}}">Скачать <b style="color:red;">new</b> эксель за {{.dateQS}}</a></p>
     {{end}}
 {{end}}
 
