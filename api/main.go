@@ -20,7 +20,6 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 	r.Static("/images", "./images")
-	//r.Static("/xls", config.GetString("xls-dir")) // this is for all existent XLS files
 
 	// main page
 	r.GET("/", func(c *gin.Context) {
