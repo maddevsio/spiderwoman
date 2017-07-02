@@ -11,7 +11,14 @@ import (
 
 func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	lib.CreateDBIfNotExists(config.GetString("db-path"))
-	gin.SetMode(gin.ReleaseMode)
+
+	// set the log level
+	if config.GetString("box") != "dev" {
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
+	}
+
 	r := gin.Default()
 	r.Use(gzip.Gzip(gzip.BestCompression))
 	accounts := gin.Accounts{config.GetString("admin-user"): config.GetString("admin-password")}
