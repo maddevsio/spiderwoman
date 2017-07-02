@@ -14,7 +14,7 @@
         var table;
         $(document).ready( function () {
             table = $('#table_id').DataTable({
-                pageLength: 20,
+                pageLength: 5,
                 data: {{ .hosts }},
                 columns: [
                     { data: "ID" },
