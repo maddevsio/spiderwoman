@@ -1,6 +1,7 @@
 db-path: /tmp/spiderwoman.db
 api-port: :8080
 xls-dir: /tmp/xls
+box: dev
 xls-path: /tmp/xls/spiderwoman-%s.xls
 admin-user: user # do not blame, this is for tests
 admin-password: user
