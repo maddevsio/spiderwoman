@@ -125,7 +125,7 @@ func TestXLS(t *testing.T) {
 	defer ts.Close()
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", ts.URL + "/all", nil)
+	req, err := http.NewRequest("GET", ts.URL + "/get-new-xls", nil)
 	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
 	resp, err := client.Do(req)
 
