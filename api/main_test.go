@@ -121,6 +121,27 @@ func TestXLS(t *testing.T) {
 	// download xls (can be empty)
 	// read xls via https://github.com/tealeg/xlsx
 	// check for errors
+	os.Remove("/tmp/test-excel.xsl")
+
+	ts := httptest.NewServer(GetAPIEngine(config))
+	defer ts.Close()
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", ts.URL + "/all", nil)
+	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
+	resp, err := client.Do(req)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = ioutil.WriteFile("/tmp/test-excel.xls", data, 0644)
+	assert.NoError(t, err)
 }
 
 func TestAllForHost(t *testing.T) {
