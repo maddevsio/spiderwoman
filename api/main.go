@@ -14,8 +14,10 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 
 	// set the log level
 	if config.GetString("box") != "dev" {
+		log.Print("This is production")
 		gin.SetMode(gin.ReleaseMode)
 	} else {
+		log.Print("This is development")
 		gin.SetMode(gin.DebugMode)
 	}
 
