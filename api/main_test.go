@@ -117,6 +117,12 @@ func TestAllForDate(t *testing.T) {
 
 }
 
+func TestXLS(t *testing.T) {
+	// download xls (can be empty)
+	// read xls via https://github.com/tealeg/xlsx
+	// check for errors
+}
+
 func TestAllForHost(t *testing.T) {
 	os.Remove(config.GetString("db-path"))
 	lib.CreateDBIfNotExists(config.GetString("db-path"))
