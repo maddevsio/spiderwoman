@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"github.com/maddevsio/simple-config"
+	"github.com/tealeg/xlsx"
 )
 
 var (
@@ -118,9 +119,6 @@ func TestAllForDate(t *testing.T) {
 }
 
 func TestXLS(t *testing.T) {
-	// download xls (can be empty)
-	// read xls via https://github.com/tealeg/xlsx
-	// check for errors
 	os.Remove("/tmp/test-excel.xsl")
 
 	ts := httptest.NewServer(GetAPIEngine(config))
@@ -142,7 +140,12 @@ func TestXLS(t *testing.T) {
 
 	err = ioutil.WriteFile("/tmp/test-excel.xls", data, 0644)
 	assert.NoError(t, err)
+
+	excelFileName := "/tmp/test-excel.xls"
+	_, err = xlsx.OpenFile(excelFileName)
+	assert.NoError(t, err)
 }
+
 
 func TestAllForHost(t *testing.T) {
 	os.Remove(config.GetString("db-path"))
