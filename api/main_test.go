@@ -119,31 +119,34 @@ func TestAllForDate(t *testing.T) {
 }
 
 func TestXLS(t *testing.T) {
-	os.Remove("/tmp/test-excel.xsl")
+	xlsTestFile := "/tmp/test-excel.xls"
+	uris := [2]string{"/get-new-xls", "/get-day-xls",}
+	for _, uri  := range uris {
+		os.Remove(xlsTestFile)
+		ts := httptest.NewServer(GetAPIEngine(config))
+		defer ts.Close()
 
-	ts := httptest.NewServer(GetAPIEngine(config))
-	defer ts.Close()
+		client := &http.Client{}
+		req, err := http.NewRequest("GET", ts.URL+uri, nil)
+		req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
+		resp, err := client.Do(req)
 
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", ts.URL + "/get-new-xls", nil)
-	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
-	resp, err := client.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	if err != nil {
-		t.Fatal(err)
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = ioutil.WriteFile(xlsTestFile, data, 0644)
+		assert.NoError(t, err)
+
+		excelFileName := xlsTestFile
+		_, err = xlsx.OpenFile(excelFileName)
+		assert.NoError(t, err)
 	}
-
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = ioutil.WriteFile("/tmp/test-excel.xls", data, 0644)
-	assert.NoError(t, err)
-
-	excelFileName := "/tmp/test-excel.xls"
-	_, err = xlsx.OpenFile(excelFileName)
-	assert.NoError(t, err)
 }
 
 
