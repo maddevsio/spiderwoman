@@ -118,7 +118,7 @@ func TestAllForDate(t *testing.T) {
 
 }
 
-func TestXLS(t *testing.T) {
+func TestXLSSimple(t *testing.T) {
 	xlsTestFile := "/tmp/test-excel.xls"
 	uris := [2]string{"/get-new-xls", "/get-day-xls",}
 	for _, uri  := range uris {
