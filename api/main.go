@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"log"
 
 	"github.com/gin-contrib/gzip"
@@ -29,6 +30,9 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 	r.Static("/images", "./images")
+	r.Static("/xls", config.GetString("xls-dir")) // this is for all existent XLS files
+
+	var baseTemplate = "templates/base.html"
 
 	// main page
 	r.GET("/", func(c *gin.Context) {
@@ -52,7 +56,8 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
-		c.HTML(200, "new_index.html", gin.H{
+		r.SetHTMLTemplate(template.Must(template.ParseFiles(baseTemplate, "templates/new_index.html")))
+		c.HTML(200, "base", gin.H{
 			"title":  "Spiderwoman",
 			"status": s,
 			"dates":  dates,
@@ -68,7 +73,8 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
-		c.HTML(200, "report.html", gin.H{
+		r.SetHTMLTemplate(template.Must(template.ParseFiles(baseTemplate, "templates/report.html")))
+		c.HTML(200, "base", gin.H{
 			"title":  "Spiderwoman Report",
 			"status": s,
 			"dates":  dates,
@@ -117,7 +123,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		lib.CreateExcelFromDB_NEW(config.GetString("db-path"), xlsFilePath, c.Query("date"))
 		c.Header("Content-Description", "File Transfer")
 		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", "attachment; filename=" +xlsFileName)
+		c.Header("Content-Disposition", "attachment; filename="+xlsFileName)
 		c.Header("Content-Type", "application/octet-stream")
 		c.File(xlsFilePath)
 	})
@@ -129,7 +135,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		lib.CreateExcelFromDB(config.GetString("db-path"), xlsFilePath, c.Query("date"))
 		c.Header("Content-Description", "File Transfer")
 		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", "attachment; filename=" +xlsFileName)
+		c.Header("Content-Disposition", "attachment; filename="+xlsFileName)
 		c.Header("Content-Type", "application/octet-stream")
 		c.File(xlsFilePath)
 	})
@@ -153,7 +159,8 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.GET("/new_types", func(c *gin.Context) {
 		var t []lib.HostItem
 		t, _ = lib.GetAllTypes(config.GetString("db-path"))
-		c.HTML(200, "new_types.html", gin.H{
+		r.SetHTMLTemplate(template.Must(template.ParseFiles(baseTemplate, "templates/new_types.html")))
+		c.HTML(200, "base", gin.H{
 			"title": "Spiderwoman Hosts Types",
 			"hosts": t,
 		})
