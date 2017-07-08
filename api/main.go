@@ -22,13 +22,14 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		gin.SetMode(gin.DebugMode)
 	}
 
+	// Define templates
 	templates := multitemplate.New()
 	templates.AddFromFiles("index", "templates/base.html", "templates/new_index.html")
 	templates.AddFromFiles("types", "templates/base.html", "templates/new_types.html")
 	templates.AddFromFiles("report", "templates/base.html", "templates/report.html")
 
 	r := gin.Default()
-	r.HTMLRender = templates // Comment this if you want to use metronic templates
+	r.HTMLRender = templates // Comment this if you want to use old templates
 	// r.LoadHTMLGlob("templates/*") // Uncomment this if you want to use old templates
 	r.Use(gzip.Gzip(gzip.BestCompression))
 	accounts := gin.Accounts{config.GetString("admin-user"): config.GetString("admin-password")}
