@@ -1,10 +1,10 @@
 package main
 
 import (
-	"html/template"
 	"log"
 
 	"github.com/gin-contrib/gzip"
+	"github.com/gin-gonic/contrib/renders/multitemplate"
 	"github.com/gin-gonic/gin"
 	"github.com/maddevsio/simple-config"
 	"github.com/maddevsio/spiderwoman/lib"
@@ -22,17 +22,23 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		gin.SetMode(gin.DebugMode)
 	}
 
+	templates := multitemplate.New()
+	templates.AddFromFiles("index", "templates/base.html", "templates/new_index.html")
+	templates.AddFromFiles("types", "templates/base.html", "templates/new_types.html")
+	templates.AddFromFiles("report", "templates/base.html", "templates/report.html")
+
 	r := gin.Default()
+	r.HTMLRender = templates // Comment this if you want to use metronic templates
+	// r.LoadHTMLGlob("templates/*") // Uncomment this if you want to use old templates
 	r.Use(gzip.Gzip(gzip.BestCompression))
 	accounts := gin.Accounts{config.GetString("admin-user"): config.GetString("admin-password")}
 
 	r.Use(gin.BasicAuth(accounts))
-	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 	r.Static("/images", "./images")
 	r.Static("/xls", config.GetString("xls-dir")) // this is for all existent XLS files
 
-	var baseTemplate = "templates/base.html"
+	// var baseTemplate = "templates/base.html"
 
 	// main page
 	r.GET("/", func(c *gin.Context) {
@@ -56,9 +62,9 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
-		r.SetHTMLTemplate(template.Must(template.ParseFiles(baseTemplate, "templates/new_index.html")))
-		c.HTML(200, "base", gin.H{
-			"title":  "Spiderwoman",
+		// r.SetHTMLTemplate(template.Must(template.ParseFiles(baseTemplate, "templates/new_index.html")))
+		c.HTML(200, "index", gin.H{
+			"title":  "Spiderwoman | Home",
 			"status": s,
 			"dates":  dates,
 			"dateQS": c.Query("date"), // pass this param to the "index.html" template
@@ -73,9 +79,8 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
-		r.SetHTMLTemplate(template.Must(template.ParseFiles(baseTemplate, "templates/report.html")))
-		c.HTML(200, "base", gin.H{
-			"title":  "Spiderwoman Report",
+		c.HTML(200, "report", gin.H{
+			"title":  "Spiderwoman | Report",
 			"status": s,
 			"dates":  dates,
 			"dateQS": c.Query("date"), // pass this param to the "index.html" template
@@ -159,9 +164,8 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.GET("/new_types", func(c *gin.Context) {
 		var t []lib.HostItem
 		t, _ = lib.GetAllTypes(config.GetString("db-path"))
-		r.SetHTMLTemplate(template.Must(template.ParseFiles(baseTemplate, "templates/new_types.html")))
-		c.HTML(200, "base", gin.H{
-			"title": "Spiderwoman Hosts Types",
+		c.HTML(200, "types", gin.H{
+			"title": "Spiderwoman | Hosts Types",
 			"hosts": t,
 		})
 	})
