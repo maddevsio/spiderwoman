@@ -1,17 +1,29 @@
-{{define "extrastyles"}}{{end}}
+{{define "extrastyles"}}
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/cal-heatmap/3.3.10/cal-heatmap.css" />
+  <link rel="stylesheet" href="../assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css">
+  <link rel="stylesheet" href="../assets/global/plugins/bootstrap-datepaginator/bootstrap-datepaginator.min.css">
+{{end}}
 {{define "content"}}
     <div class="page-bar">
-        <ul class="page-breadcrumb">
-            <li>
-              <h6><a href="/" class="date-">all</a>&nbsp;&nbsp;</h6>
-            </li>
-            {{ range $date := .dates }}
-              <li>
-                <h6><a href="/report?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>:<a href="/report?date={{ $date }}&new=1" class="date-{{ $date }}">new</a>&nbsp;|&nbsp;&nbsp;</h6>
-              </li>
-            {{ end }}
-        </ul>
+        <div id="paginator"></div>
     </div>
     <h1 class="page-title"> {{ .title }} </h1>
 {{end}}
-{{define "extrajs"}}{{end}}
+{{define "extrajs"}}
+  <script src="../assets/global/plugins/moment.min.js" type="text/javascript"></script>
+  <script src="../assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+  <script src="../assets/global/plugins/bootstrap-datepaginator/bootstrap-datepaginator.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+      var paginatorOptions = {
+        showOffDays: false,
+        showCalendar: false,
+        size: 'large',
+        startDate: {{ .startDate }},
+        onSelectedDateChanged: function(event, date) {
+          var dateString = date.format("YYYY-MM-DD");
+          window.location.href = "/report?date="+dateString+"&new=1";
+      	}
+      }
+      $('#paginator').datepaginator(paginatorOptions);
+  </script>
+{{end}}

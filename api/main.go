@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gin-contrib/gzip"
@@ -45,13 +46,16 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
+		fmt.Println(dates)
 		c.HTML(200, "index", gin.H{
-			"title":  "Spiderwoman | Home",
-			"status": s,
-			"dates":  dates,
-			"dateQS": c.Query("date"), // pass this param to the "index.html" template
-			"newQS":  c.Query("new"),
-			"types":  types,
+			"title":     "Spiderwoman | Home",
+			"status":    s,
+			"dates":     dates,
+			"endDate":   dates[0],
+			"startDate": dates[len(dates)-1],
+			"dateQS":    c.Query("date"), // pass this param to the "index.html" template
+			"newQS":     c.Query("new"),
+			"types":     types,
 		})
 	})
 
@@ -62,12 +66,14 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
 		c.HTML(200, "report", gin.H{
-			"title":  "Spiderwoman | Report",
-			"status": s,
-			"dates":  dates,
-			"dateQS": c.Query("date"), // pass this param to the "index.html" template
-			"newQS":  c.Query("new"),
-			"types":  types,
+			"title":     "Spiderwoman | Report",
+			"status":    s,
+			"dates":     dates,
+			"endDate":   dates[0],
+			"startDate": dates[len(dates)-1],
+			"dateQS":    c.Query("date"), // pass this param to the "index.html" template
+			"newQS":     c.Query("new"),
+			"types":     types,
 		})
 	})
 
