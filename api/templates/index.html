@@ -3,11 +3,11 @@
     <div class="page-bar">
         <ul class="page-breadcrumb">
             <li>
-              <a href="/" class="date-">all</a>&nbsp;&nbsp;
+              <h6><a href="/" class="date-">all</a>&nbsp;&nbsp;</h6>
             </li>
             {{ range $date := .dates }}
               <li>
-                <a href="/report?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>:<a href="/report?date={{ $date }}&new=1" class="date-{{ $date }}">new</a>&nbsp;|&nbsp;&nbsp;
+                <h6><a href="/report?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>:<a href="/report?date={{ $date }}&new=1" class="date-{{ $date }}">new</a>&nbsp;|&nbsp;&nbsp;</h6>
               </li>
             {{ end }}
         </ul>
