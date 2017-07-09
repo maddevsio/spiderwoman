@@ -24,8 +24,8 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 
 	// Define templates
 	templates := multitemplate.New()
-	templates.AddFromFiles("index", "templates/base.html", "templates/new_index.html")
-	templates.AddFromFiles("types", "templates/base.html", "templates/new_types.html")
+	templates.AddFromFiles("index", "templates/base.html", "templates/index.html")
+	templates.AddFromFiles("types", "templates/base.html", "templates/types.html")
 	templates.AddFromFiles("report", "templates/base.html", "templates/report.html")
 
 	r := gin.Default()
@@ -39,31 +39,12 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.Static("/images", "./images")
 	r.Static("/xls", config.GetString("xls-dir")) // this is for all existent XLS files
 
-	// var baseTemplate = "templates/base.html"
-
 	// main page
 	r.GET("/", func(c *gin.Context) {
 		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
-		c.HTML(200, "index.html", gin.H{
-			"title":  "Spiderwoman",
-			"status": s,
-			"dates":  dates,
-			"dateQS": c.Query("date"), // pass this param to the "index.html" template
-			"newQS":  c.Query("new"),
-			"types":  types,
-		})
-	})
-
-	// main page with metronic template
-	r.GET("/new_index", func(c *gin.Context) {
-		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
-		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
-		var types []string
-		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
-		// r.SetHTMLTemplate(template.Must(template.ParseFiles(baseTemplate, "templates/new_index.html")))
 		c.HTML(200, "index", gin.H{
 			"title":  "Spiderwoman | Home",
 			"status": s,
@@ -154,15 +135,6 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	})
 
 	r.GET("/types", func(c *gin.Context) {
-		var t []lib.HostItem
-		t, _ = lib.GetAllTypes(config.GetString("db-path"))
-		c.HTML(200, "types.html", gin.H{
-			"title": "Spiderwoman Hosts Types",
-			"hosts": t,
-		})
-	})
-
-	r.GET("/new_types", func(c *gin.Context) {
 		var t []lib.HostItem
 		t, _ = lib.GetAllTypes(config.GetString("db-path"))
 		c.HTML(200, "types", gin.H{
