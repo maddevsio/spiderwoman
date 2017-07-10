@@ -1,11 +1,27 @@
 {{define "extrastyles"}}
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css">
-  <link rel="stylesheet" href="../assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css">
-  <link rel="stylesheet" href="../assets/global/plugins/bootstrap-datepaginator/bootstrap-datepaginator.min.css">
+  <style>
+      .nwDate {
+          white-space: nowrap;
+      }
+      ul.page-breadcrumb li > h6 {
+        margin-bottom: 0;
+        margin-top: 0;
+      }
+  </style>
 {{end}}
 {{define "content"}}
   <div class="page-bar">
-      <div id="paginator"></div>
+      <ul class="page-breadcrumb">
+        <li>
+          <h6><a href="/" class="date-">all</a>&nbsp;&nbsp;</h6>
+        </li>
+        {{ range $date := .dates }}
+          <li>
+            <h6><a href="/report?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>:<a href="/report?date={{ $date }}&new=1" class="date-{{ $date }}">new</a>&nbsp;|&nbsp;&nbsp;</h6>
+          </li>
+        {{ end }}
+      </ul>
   </div>
   <h1 class="page-title"> {{ .title }} </h1>
   {{if .dateQS}}
@@ -49,21 +65,7 @@
   <script type="text/javascript" charset="utf8" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.15/api/row().show().js"></script>
-  <script type="text/javascript" src="../assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
-  <script type="text/javascript" src="../assets/global/plugins/bootstrap-datepaginator/bootstrap-datepaginator.min.js"></script>
   <script>
-      var paginatorOptions = {
-        showOffDays: false,
-        showCalendar: false,
-        size: 'large',
-        startDate: {{ .startDate }},
-        selectedDate: {{ .dateQS }},
-        onSelectedDateChanged: function(event, date) {
-          var dateString = date.format("YYYY-MM-DD");
-          window.location.href = "/report?date="+dateString+"&new=1";
-      	}
-      }
-      $('#paginator').datepaginator(paginatorOptions);
       $(document).ready( function () {
           var dateQS = "";
           var newQS = "";
@@ -182,9 +184,4 @@
           return match && decodeURIComponent(match[1].replace(/\+/g, " "));
       }
   </script>
-  <style>
-      .nwDate {
-          white-space: nowrap;
-      }
-  </style>
 {{end}}
