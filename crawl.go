@@ -8,7 +8,8 @@ import (
 )
 
 func crawl(path Path) {
-	externalLinks = make(map[string]map[string]int)
+	stopHosts = nil // clear this slice on every crawl, so we can change stops.txt file w/o restart the crawler
+ 	externalLinks = make(map[string]map[string]int)
 	externalLinksResolved = make(map[string]map[string]int)
 	lib.SetCrawlStatus(path.SqliteDBPath, "Crawl started and crawling")
 	hosts, err = lib.GetHostsFromFile(path.SourcesFilePath, path.SourcesDefaultFilePath)
