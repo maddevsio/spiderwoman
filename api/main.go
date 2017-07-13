@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/gin-contrib/gzip"
+	"github.com/gin-gonic/contrib/renders/multitemplate"
 	"github.com/gin-gonic/gin"
 	"github.com/maddevsio/simple-config"
 	"github.com/maddevsio/spiderwoman/lib"
@@ -21,14 +22,22 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		gin.SetMode(gin.DebugMode)
 	}
 
+	// Define templates
+	templates := multitemplate.New()
+	templates.AddFromFiles("index", "templates/base.html", "templates/index.html")
+	templates.AddFromFiles("types", "templates/base.html", "templates/types.html")
+	templates.AddFromFiles("report", "templates/base.html", "templates/report.html")
+
 	r := gin.Default()
+	r.HTMLRender = templates // Comment this if you want to use old templates
+	// r.LoadHTMLGlob("templates/*") // Uncomment this if you want to use old templates
 	r.Use(gzip.Gzip(gzip.BestCompression))
 	accounts := gin.Accounts{config.GetString("admin-user"): config.GetString("admin-password")}
 
 	r.Use(gin.BasicAuth(accounts))
-	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./assets")
 	r.Static("/images", "./images")
+	r.Static("/xls", config.GetString("xls-dir")) // this is for all existent XLS files
 
 	// main page
 	r.GET("/", func(c *gin.Context) {
@@ -36,8 +45,24 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
-		c.HTML(200, "index.html", gin.H{
-			"title":  "Spiderwoman",
+		c.HTML(200, "index", gin.H{
+			"title":  "Spiderwoman | Home",
+			"status": s,
+			"dates":  dates,
+			"dateQS": c.Query("date"), // pass this param to the "index.html" template
+			"newQS":  c.Query("new"),
+			"types":  types,
+		})
+	})
+
+	// report page with metronic template
+	r.GET("/report", func(c *gin.Context) {
+		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
+		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
+		var types []string
+		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
+		c.HTML(200, "report", gin.H{
+			"title":  "Spiderwoman | Report",
 			"status": s,
 			"dates":  dates,
 			"dateQS": c.Query("date"), // pass this param to the "index.html" template
@@ -85,7 +110,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		lib.CreateExcelFromDB_NEW(config.GetString("db-path"), xlsFilePath, c.Query("date"))
 		c.Header("Content-Description", "File Transfer")
 		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", "attachment; filename=" +xlsFileName)
+		c.Header("Content-Disposition", "attachment; filename="+xlsFileName)
 		c.Header("Content-Type", "application/octet-stream")
 		c.File(xlsFilePath)
 	})
@@ -97,7 +122,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		lib.CreateExcelFromDB(config.GetString("db-path"), xlsFilePath, c.Query("date"))
 		c.Header("Content-Description", "File Transfer")
 		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", "attachment; filename=" +xlsFileName)
+		c.Header("Content-Disposition", "attachment; filename="+xlsFileName)
 		c.Header("Content-Type", "application/octet-stream")
 		c.File(xlsFilePath)
 	})
@@ -112,8 +137,8 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.GET("/types", func(c *gin.Context) {
 		var t []lib.HostItem
 		t, _ = lib.GetAllTypes(config.GetString("db-path"))
-		c.HTML(200, "types.html", gin.H{
-			"title": "Spiderwoman Hosts Types",
+		c.HTML(200, "types", gin.H{
+			"title": "Spiderwoman | Hosts Types",
 			"hosts": t,
 		})
 	})
