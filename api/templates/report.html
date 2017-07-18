@@ -1,5 +1,6 @@
 {{define "extrastyles"}}
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../assets/global/css/bootstrap-year-calendar.min.css">
   <style>
       .nwDate {
           white-space: nowrap;
@@ -22,6 +23,7 @@
           </li>
         {{ end }}
       </ul>
+      <div id="calendar" data-provide="calendar"></div>
   </div>
   <h1 class="page-title"> {{ .title }} </h1>
   {{if .dateQS}}
@@ -65,64 +67,94 @@
   <script type="text/javascript" charset="utf8" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.15/api/row().show().js"></script>
+  <script type="text/javascript" charset="utf8" src="../assets/global/scripts/bootstrap-year-calendar.min.js"></script>
   <script>
+      function include(arr,obj) {
+          return (arr.indexOf(obj) != -1);
+      }
       $(document).ready( function () {
-          var dateQS = "";
-          var newQS = "";
-          var hostQS = "";
-          if (qs('date') != null) {
-              dateQS = qs('date');
-          }
-          if (qs('new') != null) {
-              newQS = qs('new');
-          }
-          var apiUrl = '/all?date='+dateQS+'&new='+newQS
-          if (qs('host') != null) {
-              hostQS = qs('host');
-              apiUrl = '/all-for-host?host='+hostQS
-          }
+        var activeDates = {{ .dates }};
+        var activeDatesSelection = [];
+        for (i = 0; i < activeDates.length; i++) {
+          var dt = moment(activeDates[i], 'YYYY-MM-DD').toDate();
+            activeDatesSelection.push({
+              id: i,
+              name: "helo"+i,
+              color: "#2C8FC9",
+              startDate: dt,
+              endDate: dt
+            });
+        }
+        var currentYear = new Date().getFullYear();
+        $('#calendar').calendar({
+          style:'background',
+          dataSource: activeDatesSelection,
+          clickDay: function(e) {
+            var dateObj = new Date(e.date);
+            var momentObj = moment(dateObj);
+            var momentString = momentObj.format('YYYY-MM-DD');
+            if (include(activeDates, momentString)){
+              window.location.href = "/report?date="+momentString+"&new=1";
+            }
+         }
+        });
 
-          $('.date-'+dateQS).css('color', 'red');
-          $('#table_id').DataTable({
-              pageLength: 200,
-              ajax: {
-                  url: apiUrl,
-                  dataSrc: ''
-              },
-              columns: [
-                  { data: "Created" },
-                  { data: "SourceHost" },
-                  { data: "SourceHostType" },
-                  { data: "ExternalHost" },
-                  { data: "ExternalHostType" },
-                  { data: "Count" },
-                  { data: "ExternalLink" }
-              ],
-              columnDefs: [
-                  {
-                      targets: 0,
-                      render: $.fn.dataTable.render.moment( '', 'Do MMM YYYY' )
-                  },
-                  {
-                      targets: 3,
-                      render: function ( data, type, row ) {
-                          var info = '[<a href="?host=' + data + '">info</a>] '
-                          var href = '<a target="blank" href="http://' + data + '">' + data + '</a>';
-                          return info + href;
-                      },
-                  },
-                  {
-                    targets: 4,
+        var dateQS = "";
+        var newQS = "";
+        var hostQS = "";
+        if (qs('date') != null) {
+            dateQS = qs('date');
+        }
+        if (qs('new') != null) {
+            newQS = qs('new');
+        }
+        var apiUrl = '/all?date='+dateQS+'&new='+newQS
+        if (qs('host') != null) {
+            hostQS = qs('host');
+            apiUrl = '/all-for-host?host='+hostQS
+        }
+
+        $('.date-'+dateQS).css('color', 'red');
+        $('#table_id').DataTable({
+            pageLength: 200,
+            ajax: {
+                url: apiUrl,
+                dataSrc: ''
+            },
+            columns: [
+                { data: "Created" },
+                { data: "SourceHost" },
+                { data: "SourceHostType" },
+                { data: "ExternalHost" },
+                { data: "ExternalHostType" },
+                { data: "Count" },
+                { data: "ExternalLink" }
+            ],
+            columnDefs: [
+                {
+                    targets: 0,
+                    render: $.fn.dataTable.render.moment( '', 'Do MMM YYYY' )
+                },
+                {
+                    targets: 3,
                     render: function ( data, type, row ) {
-                      var host = '"'+row.ExternalHost+'"';
-                      var type = '"'+row.ExternalHostType+'"';
-                      return "<span data-host='"+row.ExternalHost+"' id='type"+row.ID+"'>"+ data + "</span>" + " <button data-type='"+row.ExternalHostType+"' id='changeType"+row.ID+"' onClick='changeType("+row.ID + "," +host+","+type+")'>C</button>";
+                        var info = '[<a href="?host=' + data + '">info</a>] '
+                        var href = '<a target="blank" href="http://' + data + '">' + data + '</a>';
+                        return info + href;
                     },
+                },
+                {
+                  targets: 4,
+                  render: function ( data, type, row ) {
+                    var host = '"'+row.ExternalHost+'"';
+                    var type = '"'+row.ExternalHostType+'"';
+                    return "<span data-host='"+row.ExternalHost+"' id='type"+row.ID+"'>"+ data + "</span>" + " <button data-type='"+row.ExternalHostType+"' id='changeType"+row.ID+"' onClick='changeType("+row.ID + "," +host+","+type+")'>C</button>";
                   },
-                  { sClass: "nwDate", aTargets: [ 0 ] }
-              ],
-              order: [[ 0, "desc" ]]
-          });
+                },
+                { sClass: "nwDate", aTargets: [ 0 ] }
+            ],
+            order: [[ 0, "desc" ]]
+        });
       } );
 
       function changeType(id, hostName, hostType){
