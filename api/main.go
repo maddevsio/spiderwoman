@@ -62,12 +62,14 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
 		c.HTML(200, "report", gin.H{
-			"title":  "Spiderwoman | Report",
-			"status": s,
-			"dates":  dates,
-			"dateQS": c.Query("date"), // pass this param to the "index.html" template
-			"newQS":  c.Query("new"),
-			"types":  types,
+			"title":     "Spiderwoman | Report",
+			"status":    s,
+			"dates":     dates,
+			"endDate":   dates[0],
+			"startDate": dates[len(dates)-1],
+			"dateQS":    c.Query("date"), // pass this param to the "index.html" template
+			"newQS":     c.Query("new"),
+			"types":     types,
 		})
 	})
 

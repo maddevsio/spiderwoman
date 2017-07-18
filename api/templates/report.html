@@ -14,14 +14,14 @@
 {{define "content"}}
   <div class="page-bar">
       <ul class="page-breadcrumb">
-        <li>
+        <!-- <li>
           <h6><a href="/" class="date-">all</a>&nbsp;&nbsp;</h6>
         </li>
         {{ range $date := .dates }}
           <li>
             <h6><a href="/report?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>:<a href="/report?date={{ $date }}&new=1" class="date-{{ $date }}">new</a>&nbsp;|&nbsp;&nbsp;</h6>
           </li>
-        {{ end }}
+        {{ end }} -->
       </ul>
       <div id="calendar" data-provide="calendar"></div>
   </div>
@@ -72,14 +72,34 @@
       function include(arr,obj) {
           return (arr.indexOf(obj) != -1);
       }
+      var enumerateDaysBetweenDates = function(startDate, endDate) {
+        var now = startDate.clone(), dates = [];
+        while (now.isBefore(endDate) || now.isSame(endDate)) {
+            dates.push(now.format('YYYY-MM-DD'));
+            now.add('days', 1);
+        }
+        return dates;
+      };
+      var startDate = new Date({{ .startDate }});
+      var endDate = new Date({{ .endDate }});
+      var activeDates = {{ .dates }};
+      console.log(enumerateDaysBetweenDates(moment(startDate), moment(endDate)));
+      console.log(activeDates);
+      Array.prototype.diff = function(a) {
+          return this.filter(function(i) {return a.indexOf(i) < 0;});
+      };
+      var blockedDates = enumerateDaysBetweenDates(moment(startDate), moment(endDate)).diff(activeDates);
+      var disabledDays = []
+      for (i = 0; i < blockedDates.length; i++) {
+        disabledDays.push(new Date(blockedDates[i]))
+      }
+      console.log(disabledDays);
       $(document).ready( function () {
-        var activeDates = {{ .dates }};
         var activeDatesSelection = [];
         for (i = 0; i < activeDates.length; i++) {
           var dt = moment(activeDates[i], 'YYYY-MM-DD').toDate();
             activeDatesSelection.push({
               id: i,
-              name: "helo"+i,
               color: "#2C8FC9",
               startDate: dt,
               endDate: dt
@@ -87,6 +107,7 @@
         }
         var currentYear = new Date().getFullYear();
         $('#calendar').calendar({
+          minDate: startDate,
           style:'background',
           dataSource: activeDatesSelection,
           clickDay: function(e) {
@@ -96,8 +117,10 @@
             if (include(activeDates, momentString)){
               window.location.href = "/report?date="+momentString+"&new=1";
             }
-         }
+         },
+        //  disabledDays: disabledDays
         });
+        $('#calendar').data('calendar').setMaxDate(endDate);
 
         var dateQS = "";
         var newQS = "";
