@@ -72,6 +72,11 @@
       function include(arr,obj) {
           return (arr.indexOf(obj) != -1);
       }
+      function diff(A, B) {
+          return A.filter(function (a) {
+              return B.indexOf(a) == -1;
+          });
+      }
       var enumerateDaysBetweenDates = function(startDate, endDate) {
         var now = startDate.clone(), dates = [];
         while (now.isBefore(endDate) || now.isSame(endDate)) {
@@ -83,18 +88,16 @@
       var startDate = new Date({{ .startDate }});
       var endDate = new Date({{ .endDate }});
       var activeDates = {{ .dates }};
-      console.log(enumerateDaysBetweenDates(moment(startDate), moment(endDate)));
-      console.log(activeDates);
-      Array.prototype.diff = function(a) {
-          return this.filter(function(i) {return a.indexOf(i) < 0;});
-      };
-      var blockedDates = enumerateDaysBetweenDates(moment(startDate), moment(endDate)).diff(activeDates);
-      var disabledDays = []
+      var a1 = enumerateDaysBetweenDates(moment(startDate), moment(endDate));
+      var blockedDates = diff(a1, activeDates);
+      console.log(blockedDates);
+      var disabledDates = []
       for (i = 0; i < blockedDates.length; i++) {
-        disabledDays.push(new Date(blockedDates[i]))
+        disabledDates.push(new Date(blockedDates[i]))
       }
-      console.log(disabledDays);
       $(document).ready( function () {
+        console.log('DISABLED DAYS: ');
+        console.log(disabledDates);
         var activeDatesSelection = [];
         for (i = 0; i < activeDates.length; i++) {
           var dt = moment(activeDates[i], 'YYYY-MM-DD').toDate();
@@ -109,6 +112,7 @@
         $('#calendar').calendar({
           minDate: startDate,
           style:'background',
+          disabledDays: disabledDates,
           dataSource: activeDatesSelection,
           clickDay: function(e) {
             var dateObj = new Date(e.date);
@@ -117,8 +121,7 @@
             if (include(activeDates, momentString)){
               window.location.href = "/report?date="+momentString+"&new=1";
             }
-         },
-        //  disabledDays: disabledDays
+         }
         });
         $('#calendar').data('calendar').setMaxDate(endDate);
 
