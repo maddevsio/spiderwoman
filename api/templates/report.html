@@ -86,6 +86,7 @@
         return dates;
       };
       var startDate = new Date({{ .startDate }});
+      startDate.setDate(startDate.getDate()-1);
       var endDate = new Date({{ .endDate }});
       var activeDates = {{ .dates }};
       var a1 = enumerateDaysBetweenDates(moment(startDate), moment(endDate));
