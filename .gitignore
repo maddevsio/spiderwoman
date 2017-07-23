@@ -7,7 +7,6 @@ res.csv
 config.yaml
 log
 crawler
-deploy.sh
 api/api
 testdata
 types.txt
