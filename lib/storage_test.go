@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"database/sql"
 	"os"
 	"strconv"
 	"testing"
@@ -27,9 +26,7 @@ func TestCheckMonitorTable(t *testing.T) {
 	os.Remove(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
-	db, err := sql.Open("sqlite3", DBFilepath)
-	assert.Equal(t, nil, err)
-	defer db.Close()
+	db := getDB(DBFilepath)
 
 	rows, err := db.Query("SELECT name FROM sqlite_master WHERE name='monitor';")
 	assert.Equal(t, nil, err)
@@ -50,9 +47,7 @@ func TestCheckStatusTable(t *testing.T) {
 	os.Remove(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
-	db, err := sql.Open("sqlite3", DBFilepath)
-	assert.Equal(t, nil, err)
-	defer db.Close()
+	db := getDB(DBFilepath)
 
 	rows, err := db.Query("SELECT name FROM sqlite_master WHERE name='status';")
 	assert.Equal(t, nil, err)
@@ -80,9 +75,7 @@ func TestSaveRecordToMonitor(t *testing.T) {
 	res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 	assert.Equal(t, true, res)
 
-	db, err := sql.Open("sqlite3", DBFilepath)
-	assert.Equal(t, nil, err)
-	defer db.Close()
+	db := getDB(DBFilepath)
 
 	rows, err := db.Query("SELECT source_host, created FROM monitor;")
 	assert.Equal(t, nil, err)
@@ -111,9 +104,7 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 	res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 	assert.Equal(t, true, res)
 
-	db, err := sql.Open("sqlite3", DBFilepath)
-	assert.Equal(t, nil, err)
-	defer db.Close()
+	db := getDB(DBFilepath)
 
 	rows, err := db.Query("SELECT external_link FROM monitor;")
 	assert.Equal(t, nil, err)
