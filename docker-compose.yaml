@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+  app:
+    image: golang:1.8
+    volumes:
+      - .:/go/src/spiderwoman
+    working_dir: /go/src/spiderwoman
+    command: make run-once
