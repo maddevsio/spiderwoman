@@ -33,12 +33,16 @@ type Hosts struct {
 	Host []HostItem
 }
 
-func CreateDBIfNotExists(dbFilepath string) {
+func getDB(dbFilepath string) *sql.DB {
 	db, err := sql.Open("sqlite3", dbFilepath)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
-	defer db.Close()
+	return db
+}
+
+func CreateDBIfNotExists(dbFilepath string) {
+	db := getDB(dbFilepath)
 
 	sqlStmt := `
 	create table if not exists monitor (
@@ -62,7 +66,7 @@ func CreateDBIfNotExists(dbFilepath string) {
 		CONSTRAINT hostname_uniq UNIQUE (hostname)
 	);
 	`
-	_, err = db.Exec(sqlStmt)
+	_, err := db.Exec(sqlStmt)
 	if err != nil {
 		log.Printf("%q: %s\n", err, sqlStmt)
 		return
@@ -70,12 +74,7 @@ func CreateDBIfNotExists(dbFilepath string) {
 }
 
 func SaveRecordToMonitor(dbFilepath string, source_host string, external_link string, count int, external_host string) bool {
-	db, err := sql.Open("sqlite3", dbFilepath)
-	if err != nil {
-		log.Fatal(err)
-		return false
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	stmt, err := db.Prepare("insert into monitor(source_host, external_link, count, external_host, created) values(?, ?, ?, ?, DateTime('now'))")
 	if err != nil {
@@ -91,12 +90,7 @@ func SaveRecordToMonitor(dbFilepath string, source_host string, external_link st
 }
 
 func SaveRecordToMonitorStruct(dbFilepath string, monitor Monitor) bool {
-	db, err := sql.Open("sqlite3", dbFilepath)
-	if err != nil {
-		log.Fatal(err)
-		return false
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	stmt, err := db.Prepare("insert into monitor(source_host, external_link, count, external_host, created) values(?, ?, ?, ?, DateTime('now'))")
 	if monitor.Created != "" {
@@ -118,12 +112,8 @@ func SaveRecordToMonitorStruct(dbFilepath string, monitor Monitor) bool {
 }
 
 func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
+
 	rows, err := db.Query(fmt.Sprintf("SELECT m.id, m.source_host, m.external_link, m.count, m.external_host, m.created, "+
 		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
 		"coalesce(t2.hosttype,'N') as 'external_host_type' "+
@@ -148,12 +138,7 @@ func GetAllDataFromMonitor(dbFilepath string, count int) ([]Monitor, error) {
 }
 
 func UpdateOrCreateHostType(dbFilepath string, hostName string, hostType string) error {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	stmt, err := db.Prepare("INSERT OR REPLACE INTO types VALUES (NULL, ?, ?);")
 	if err != nil {
@@ -169,12 +154,7 @@ func UpdateOrCreateHostType(dbFilepath string, hostName string, hostType string)
 }
 
 func GetAllDataFromMonitorByExternalHost(dbFilepath string, host string) ([]Monitor, error) {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	query := fmt.Sprintf("SELECT m.id, m.source_host, m.external_link, m.count, m.external_host, m.created, "+
 		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
@@ -203,12 +183,7 @@ func GetAllDataFromMonitorByExternalHost(dbFilepath string, host string) ([]Moni
 }
 
 func GetAllDataFromMonitorByDay(dbFilepath string, day string) ([]Monitor, error) {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	query := fmt.Sprintf("SELECT m.id, m.source_host, m.external_link, m.count, m.external_host, m.created, "+
 		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
@@ -237,12 +212,7 @@ func GetAllDataFromMonitorByDay(dbFilepath string, day string) ([]Monitor, error
 }
 
 func GetNewExtractedHostsForDay(dbFilepath string, day string) ([]Monitor, error) {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	query := fmt.Sprintf("SELECT m.id, m.source_host, m.external_link, m.count, m.external_host, m.created, "+
 		"coalesce(t1.hosttype,'N') as 'source_host_type', "+
@@ -272,12 +242,7 @@ func GetNewExtractedHostsForDay(dbFilepath string, day string) ([]Monitor, error
 }
 
 func SetCrawlStatus(dbFilepath string, status string) bool {
-	db, err := sql.Open("sqlite3", dbFilepath)
-	if err != nil {
-		log.Fatal(err)
-		return false
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	stmt, err := db.Prepare("UPDATE status SET status_value=? WHERE status_key=?")
 	if err != nil {
@@ -293,14 +258,14 @@ func SetCrawlStatus(dbFilepath string, status string) bool {
 }
 
 func GetCrawlStatus(dbFilepath string) (string, error) {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
+	db := getDB(dbFilepath)
+
+	rows, err := db.Query("SELECT status_value FROM status WHERE status_key='crawl';")
 	if err != nil {
 		log.Fatal(err)
 		return "", err
 	}
-	defer db.Close()
 
-	rows, err := db.Query("SELECT status_value FROM status WHERE status_key='crawl';")
 	defer rows.Close()
 
 	var status string
@@ -312,12 +277,7 @@ func GetCrawlStatus(dbFilepath string) (string, error) {
 }
 
 func GetAllDaysFromMonitor(dbFilepath string) ([]string, error) {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	rows, err := db.Query("SELECT DISTINCT strftime('%Y-%m-%d', created) as mon FROM monitor ORDER BY created DESC;")
 	if err != nil {
@@ -340,14 +300,9 @@ func GetAllDaysFromMonitor(dbFilepath string) ([]string, error) {
 }
 
 func DeleteTypesTable(dbFilepath string) error {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
-	if err != nil {
-		log.Print(err)
-		return err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
-	_, err = db.Exec("DELETE FROM types;")
+	_, err := db.Exec("DELETE FROM types;")
 	if err != nil {
 		log.Print(err)
 		return err
@@ -356,12 +311,7 @@ func DeleteTypesTable(dbFilepath string) error {
 }
 
 func SaveHostType(dbFilepath string, hostName string, hostType string) error {
-	db, err := sql.Open("sqlite3", dbFilepath)
-	if err != nil {
-		log.Print(err)
-		return err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	stmt, err := db.Prepare("insert into types(hostname, hosttype) values(?, ?)")
 	if err != nil {
@@ -382,12 +332,7 @@ func ParseSqliteDate(sqliteDate string) (time.Time, error) {
 }
 
 func GetAllTypes(dbFilepath string) ([]HostItem, error) {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	query := fmt.Sprintf("SELECT t.id, t.hostname, t.hosttype FROM types as t")
 
@@ -410,12 +355,7 @@ func GetAllTypes(dbFilepath string) ([]HostItem, error) {
 }
 
 func GetUniqueTypes(dbFilepath string) ([]string, error) {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	query := fmt.Sprintf("SELECT DISTINCT t.hosttype FROM types as t")
 
@@ -441,12 +381,7 @@ func GetUniqueTypes(dbFilepath string) ([]string, error) {
 }
 
 func DeleteHost(dbFilepath string, hostID string) error {
-	db, err := sql.Open("sqlite3", dbFilepath) // TODO: need to remove duplicates
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-	defer db.Close()
+	db := getDB(dbFilepath)
 
 	stmt, err := db.Prepare("DELETE FROM types WHERE id = ?")
 	if err != nil {
