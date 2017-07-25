@@ -1,9 +1,21 @@
 version: "2"
 
 services:
-  app:
+  crawler:
+    container_name: crawler
     image: golang:1.8
     volumes:
       - .:/go/src/github.com/maddevsio/spiderwoman
     working_dir: /go/src/github.com/maddevsio/spiderwoman
     command: make run-forever
+  api:
+    container_name: api
+    image: golang:1.8
+    volumes:
+      - .:/go/src/github.com/maddevsio/spiderwoman/api/
+    working_dir: /go/src/github.com/maddevsio/spiderwoman/api/
+    command: go run main.go
+    depends_on:
+      - crawler
+    ports:
+      - "8081:8081"
