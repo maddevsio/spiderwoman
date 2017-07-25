@@ -4,6 +4,6 @@ services:
   app:
     image: golang:1.8
     volumes:
-      - .:/go/src/spiderwoman
-    working_dir: /go/src/spiderwoman
-    command: make run-once
+      - .:/go/src/github.com/maddevsio/spiderwoman
+    working_dir: /go/src/github.com/maddevsio/spiderwoman
+    command: make run-forever
