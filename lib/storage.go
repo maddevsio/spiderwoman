@@ -7,9 +7,9 @@ import (
 
 	"fmt"
 
-	_ "github.com/mattn/go-sqlite3"
+	// _ "github.com/mattn/go-sqlite3"
 
-	// _ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Monitor struct {
@@ -34,7 +34,11 @@ type Hosts struct {
 }
 
 func getDB(dbFilepath string) *sql.DB {
-	db, err := sql.Open("sqlite3", dbFilepath)
+	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/test")
+	if err != nil {
+		log.Panic(err)
+	}
+	err = db.Ping()
 	if err != nil {
 		log.Panic(err)
 	}
@@ -46,25 +50,28 @@ func CreateDBIfNotExists(dbFilepath string) {
 
 	sqlStmt := `
 	create table if not exists monitor (
-		id integer not null primary key,
-		source_host text,
-		external_link text,
+		ID int NOT NULL AUTO_INCREMENT,
+        PRIMARY KEY (id),
+		source_host varchar(255),
+		external_link varchar(255),
 		count int,
-		external_host text,
+		external_host varchar(255),
 		created date
+	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ENGINE=InnoDB;
+    create table if not exists status (
+		ID int NOT NULL AUTO_INCREMENT,
+        PRIMARY KEY (id),
+		status_key varchar(255),
+		status_value varchar(255)
 	);
-	create table if not exists status (
-		id integer not null primary key,
-		status_key text,
-		status_value text
-	);
-	insert into status(status_key, status_value) values('crawl', 'Crawl done');
-	create table if not exists types (
-		id integer not null primary key,
-		hostname text,
-		hosttype text,
+    insert into status(status_key, status_value) values('crawl', 'Crawl done');
+    create table if not exists types (
+		ID int NOT NULL AUTO_INCREMENT,
+        PRIMARY KEY (id),
+		hostname varchar(255),
+		hosttype varchar(255),
 		CONSTRAINT hostname_uniq UNIQUE (hostname)
-	);
+	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ENGINE=InnoDB;
 	`
 	_, err := db.Exec(sqlStmt)
 	if err != nil {
