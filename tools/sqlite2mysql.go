@@ -27,18 +27,25 @@ func main() {
 
 	///////
 
-	query := fmt.Sprint("SELECT id FROM types")
-
+	query := fmt.Sprint("SELECT hostname, hosttype FROM types")
 	rows, err := dbSqlite.Query(query)
-
 	if err != nil {
 		log.Panicf("Error getting data from types: %v", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var id int
-		err = rows.Scan(&id)
-		log.Print(id)
+		var hostname string
+		var hosttype string
+		err = rows.Scan(&hostname, &hosttype)
+		log.Printf("type: %s, host: %s", hosttype, hostname)
+		stmt, err := dbMysql.Prepare("insert into types(hostname, hosttype) values(?, ?)")
+		if err != nil {
+			log.Print(err)
+		}
+		_, err = stmt.Exec(hostname, hosttype)
+		if err != nil {
+			log.Print(err)
+		}
 	}
 }
