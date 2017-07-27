@@ -11,18 +11,16 @@ import (
 )
 
 const (
-	DBFilepath = "/tmp/spiderwoman.db"
+	DBFilepath = "spiderwoman-test"
 )
 
 func TestCreateDBIfNotExists(t *testing.T) {
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
-	//_, err := os.Stat(DBFilepath)
-	//assert.Equal(t, false, os.IsNotExist(err))
 }
 
 func TestCheckMonitorTable(t *testing.T) {
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	db := getDB(DBFilepath)
@@ -44,7 +42,7 @@ func TestCheckMonitorTable(t *testing.T) {
 }
 
 func TestCheckStatusTable(t *testing.T) {
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	db := getDB(DBFilepath)
@@ -66,7 +64,7 @@ func TestCheckStatusTable(t *testing.T) {
 }
 
 func TestSaveRecordToMonitor(t *testing.T) {
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	sourceHost := "http://a"
@@ -96,7 +94,7 @@ func TestSaveRecordToMonitor(t *testing.T) {
 }
 
 func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	sourceHost := "http://a"
@@ -125,7 +123,7 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 }
 
 func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	err := SaveHostType(DBFilepath, "host1", "type1")
@@ -191,7 +189,7 @@ func TestParseSqliteDate(t *testing.T) {
 }
 
 func TestGetDataFromMonitor__ByDays(t *testing.T) {
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
@@ -240,7 +238,7 @@ func TestCrawlStatus(t *testing.T) {
 }
 
 func TestSaveHostType(t *testing.T) {
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
@@ -255,7 +253,7 @@ func TestSaveHostType(t *testing.T) {
 func TestGetNewDataForDate(t *testing.T) {
 	// fixture for different days
 	// change SaveRecordToMonitor func to use date as a param, or create new method
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	monitorNoDate := Monitor{}
@@ -301,7 +299,7 @@ func TestGetNewDataForDate(t *testing.T) {
 func TestGetNewDataByExternalHost(t *testing.T) {
 	// fixture for different days
 	// change SaveRecordToMonitor func to use date as a param, or create new method
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	monitorNoDate := Monitor{}
@@ -331,7 +329,7 @@ func TestDeleteTypesTable(t *testing.T) {
 }
 
 func TestGetAllTypes(t *testing.T) {
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
@@ -343,7 +341,7 @@ func TestGetAllTypes(t *testing.T) {
 }
 
 func TestDeleteHost(t *testing.T) {
-	DeleteDB(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)

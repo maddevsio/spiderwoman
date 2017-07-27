@@ -9,13 +9,13 @@ import (
 func createXLS_BackupDB(sqliteDBPath string) {
 	createAllXLSByDays(sqliteDBPath)
 
-	log.Print("Backuping database")
-	err = lib.BackupDatabase(sqliteDBPath)
-	if (err != nil) {
-		log.Printf("Backup error: %v", err)
-	} else {
-		log.Print("Database has been copied to /tmp/res.db")
-	}
+	//log.Print("Backuping database")
+	//err = lib.BackupDatabase(sqliteDBPath)
+	//if (err != nil) {
+	//	log.Printf("Backup error: %v", err)
+	//} else {
+	//	log.Print("Database has been copied to /tmp/res.db")
+	//}
 }
 
 func createAllXLSByDays(sqliteDBPath string) {

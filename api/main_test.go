@@ -19,6 +19,9 @@ var (
 )
 
 func TestIndex(t *testing.T) {
+	lib.TruncateDB(config.GetString("db-path"))
+	lib.CreateDBIfNotExists(config.GetString("db-path"))
+
 	ts := httptest.NewServer(GetAPIEngine(config))
 	defer ts.Close()
 
@@ -79,7 +82,7 @@ func TestPing404(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	os.Remove(config.GetString("db-path"))
+	lib.TruncateDB(config.GetString("db-path"))
 	lib.CreateDBIfNotExists(config.GetString("db-path"))
 
 	for i := int(0); i < 2; i++ {
@@ -151,7 +154,7 @@ func TestXLSSimple(t *testing.T) {
 
 
 func TestAllForHost(t *testing.T) {
-	os.Remove(config.GetString("db-path"))
+	lib.TruncateDB(config.GetString("db-path"))
 	lib.CreateDBIfNotExists(config.GetString("db-path"))
 
 	for i := int(0); i < 2; i++ {

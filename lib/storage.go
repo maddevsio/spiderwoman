@@ -29,10 +29,10 @@ type Hosts struct {
 	Host []HostItem
 }
 
-func DeleteDB(dbFilepath string) {
-	db := getDB(dbFilepath)
+func TruncateDB(dbName string) {
+	db := getDB(dbName)
 	defer db.Close()
-	sqlStmt := "drop database test; create database test;"
+	sqlStmt := fmt.Sprintf("DROP DATABASE IF EXISTS `%s`; CREATE DATABASE `%s`;", dbName, dbName)
 	_, err := db.Exec(sqlStmt)
 	if err != nil {
 		log.Printf("%q: %s\n", err, sqlStmt)
@@ -40,9 +40,10 @@ func DeleteDB(dbFilepath string) {
 	}
 }
 
-func getDB(dbFilepath string) *sql.DB {
-	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/test?multiStatements=true")
+func getDB(dbName string) *sql.DB {
+	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/" + dbName + "?multiStatements=true")
 	if err != nil {
+		log.Printf("===%v===", err)
 		log.Panic(err)
 	}
 	err = db.Ping()

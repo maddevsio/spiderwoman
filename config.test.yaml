@@ -1,4 +1,4 @@
-db-path: /tmp/spiderwoman.db
+db-path: spiderwoman-api-test
 api-port: :8080
 xls-dir: /tmp/xls
 box: dev
