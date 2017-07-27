@@ -40,14 +40,6 @@ func TestResolveCache(t *testing.T) {
 	assert.Equal(t, lastCachedReturn, true)
 }
 
-func TestBackup(t *testing.T) {
-	os.Remove("/tmp/res.db")
-	err := BackupDatabase(DBFilepath)
-	assert.NoError(t, err)
-	_, err = os.Stat("/tmp/res.db")
-	assert.Equal(t, false, os.IsNotExist(err))
-}
-
 func TestGetHostsFromFile(t *testing.T) {
 	hosts, err := GetHostsFromFile("", "../sources.default.txt")
 	assert.NoError(t, err)

@@ -3,7 +3,6 @@ package main
 import (
 	"testing"
 	"gopkg.in/h2non/gock.v1"
-	"os"
 	"github.com/maddevsio/spiderwoman/lib"
 	"github.com/stretchr/testify/assert"
 )
@@ -11,9 +10,10 @@ import (
 func TestCrawl(t *testing.T) {
 	defer gock.Off()
 
-	dbPath := "./testdata/spiderwoman.db"
+	dbName := "spiderwoman-test-crawl"
 
-	os.Remove(dbPath)
+	lib.TruncateDB(dbName)
+	lib.CreateDBIfNotExists(dbName)
 
 	gock.New("http://server.com").
 		Get("/").
@@ -22,11 +22,11 @@ func TestCrawl(t *testing.T) {
 		"<a href='http://lalka.com'>mamka</a>" +
 		"<a href='http://'>vse na mid!!</a>")
 
-	path := Path{dbPath, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
-	monitors, err := lib.GetAllDataFromMonitor(dbPath, 0)
+	monitors, err := lib.GetAllDataFromMonitor(dbName, 0)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(monitors))
 	assert.Equal(t, "lalka.com", monitors[0].ExternalHost)
@@ -35,9 +35,10 @@ func TestCrawl(t *testing.T) {
 func TestCrawlCaseInsensitive(t *testing.T) {
 	defer gock.Off()
 
-	dbPath := "./testdata/spiderwoman.db"
+	dbName := "spiderwoman-test-crawl"
 
-	os.Remove(dbPath)
+	lib.TruncateDB(dbName)
+	lib.CreateDBIfNotExists(dbName)
 
 	gock.New("http://server.com").
 		Get("/").
@@ -52,11 +53,11 @@ func TestCrawlCaseInsensitive(t *testing.T) {
 		Reply(200).
 		BodyString("<a href='http://laLka.com'>maMka</a>")
 
-	path := Path{dbPath, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
-	monitors, err := lib.GetAllDataFromMonitor(dbPath, 0)
+	monitors, err := lib.GetAllDataFromMonitor(dbName, 0)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(monitors))
 	assert.Equal(t, "lalka.com", monitors[0].ExternalHost)

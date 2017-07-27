@@ -1,8 +1,6 @@
 package lib
 
 import (
-	"database/sql"
-	"os"
 	"strconv"
 	"testing"
 
@@ -13,26 +11,23 @@ import (
 )
 
 const (
-	DBFilepath = "/tmp/spiderwoman.db"
+	DBFilepath = "spiderwoman-test"
 )
 
 func TestCreateDBIfNotExists(t *testing.T) {
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
-	_, err := os.Stat(DBFilepath)
-	assert.Equal(t, false, os.IsNotExist(err))
 }
 
 func TestCheckMonitorTable(t *testing.T) {
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
-	db, err := sql.Open("sqlite3", DBFilepath)
-	assert.Equal(t, nil, err)
+	db := getDB(DBFilepath)
 	defer db.Close()
 
-	rows, err := db.Query("SELECT name FROM sqlite_master WHERE name='monitor';")
-	assert.Equal(t, nil, err)
+	rows, err := db.Query("SHOW TABLES LIKE 'monitor'")
+	assert.NoError(t, err)
 	defer rows.Close()
 
 	for rows.Next() {
@@ -47,14 +42,13 @@ func TestCheckMonitorTable(t *testing.T) {
 }
 
 func TestCheckStatusTable(t *testing.T) {
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
-	db, err := sql.Open("sqlite3", DBFilepath)
-	assert.Equal(t, nil, err)
+	db := getDB(DBFilepath)
 	defer db.Close()
 
-	rows, err := db.Query("SELECT name FROM sqlite_master WHERE name='status';")
+	rows, err := db.Query("SHOW TABLES LIKE 'status'")
 	assert.Equal(t, nil, err)
 	defer rows.Close()
 
@@ -70,7 +64,7 @@ func TestCheckStatusTable(t *testing.T) {
 }
 
 func TestSaveRecordToMonitor(t *testing.T) {
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	sourceHost := "http://a"
@@ -80,8 +74,7 @@ func TestSaveRecordToMonitor(t *testing.T) {
 	res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 	assert.Equal(t, true, res)
 
-	db, err := sql.Open("sqlite3", DBFilepath)
-	assert.Equal(t, nil, err)
+	db := getDB(DBFilepath)
 	defer db.Close()
 
 	rows, err := db.Query("SELECT source_host, created FROM monitor;")
@@ -101,7 +94,7 @@ func TestSaveRecordToMonitor(t *testing.T) {
 }
 
 func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	sourceHost := "http://a"
@@ -111,8 +104,7 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 	res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
 	assert.Equal(t, true, res)
 
-	db, err := sql.Open("sqlite3", DBFilepath)
-	assert.Equal(t, nil, err)
+	db := getDB(DBFilepath)
 	defer db.Close()
 
 	rows, err := db.Query("SELECT external_link FROM monitor;")
@@ -131,7 +123,7 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 }
 
 func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	err := SaveHostType(DBFilepath, "host1", "type1")
@@ -197,7 +189,7 @@ func TestParseSqliteDate(t *testing.T) {
 }
 
 func TestGetDataFromMonitor__ByDays(t *testing.T) {
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
@@ -246,7 +238,7 @@ func TestCrawlStatus(t *testing.T) {
 }
 
 func TestSaveHostType(t *testing.T) {
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
@@ -261,7 +253,7 @@ func TestSaveHostType(t *testing.T) {
 func TestGetNewDataForDate(t *testing.T) {
 	// fixture for different days
 	// change SaveRecordToMonitor func to use date as a param, or create new method
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	monitorNoDate := Monitor{}
@@ -276,7 +268,7 @@ func TestGetNewDataForDate(t *testing.T) {
 	monitorWithDate.ExternalLink = "http://b/1?10"
 	monitorWithDate.Count = 810
 	monitorWithDate.ExternalHost = "host1"
-	monitorWithDate.Created = "2016-12-13T00:00:00Z"
+	monitorWithDate.Created = "2016-12-13"
 	_ = SaveRecordToMonitorStruct(DBFilepath, monitorWithDate)
 
 	monitors, err := GetAllDataFromMonitor(DBFilepath, 0)
@@ -287,7 +279,8 @@ func TestGetNewDataForDate(t *testing.T) {
 	assert.Equal(t, 810, monitors[0].Count)
 
 	// lets parse the time to compare dates
-	t1, _ := ParseSqliteDate(monitors[0].Created)
+	log.Print(monitors[0].Created)
+	t1, _ := ParseMysqlDate(monitors[0].Created)
 	t2 := time.Now().UTC()
 
 	log.Printf("%v", t1)
@@ -306,7 +299,7 @@ func TestGetNewDataForDate(t *testing.T) {
 func TestGetNewDataByExternalHost(t *testing.T) {
 	// fixture for different days
 	// change SaveRecordToMonitor func to use date as a param, or create new method
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
 	monitorNoDate := Monitor{}
@@ -321,7 +314,7 @@ func TestGetNewDataByExternalHost(t *testing.T) {
 	monitorWithDate.ExternalLink = "http://b/1?10"
 	monitorWithDate.Count = 811
 	monitorWithDate.ExternalHost = "host1"
-	monitorWithDate.Created = "2016-12-13T00:00:00Z"
+	monitorWithDate.Created = "2016-12-13"
 	_ = SaveRecordToMonitorStruct(DBFilepath, monitorWithDate)
 
 	monitors, err := GetAllDataFromMonitorByExternalHost(DBFilepath, "host1")
@@ -336,7 +329,7 @@ func TestDeleteTypesTable(t *testing.T) {
 }
 
 func TestGetAllTypes(t *testing.T) {
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
@@ -348,7 +341,7 @@ func TestGetAllTypes(t *testing.T) {
 }
 
 func TestDeleteHost(t *testing.T) {
-	os.Remove(DBFilepath)
+	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)

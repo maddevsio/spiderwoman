@@ -7,11 +7,11 @@ import (
 )
 
 func TestCreateExcel(t *testing.T) {
-	dbFilePath := "/tmp/spiderwoman.db"
 	excelFilePath := "/tmp/spiderwoman.xls"
 
-	os.Remove(excelFilePath)
-	CreateExcelFromDB(dbFilePath, excelFilePath, "2017-01-20")
+	TruncateDB(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	CreateExcelFromDB(DBFilepath, excelFilePath, "2017-01-20")
 	_, err := os.Stat(excelFilePath);
 
 	assert.Equal(t, nil, err)
