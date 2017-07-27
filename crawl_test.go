@@ -13,9 +13,9 @@ func TestCrawl(t *testing.T) {
 
 	dbPath := "./testdata/spiderwoman.db"
 
-	os.Remove(dbPath)
+	lib.DeleteDB(dbPath)
 
-	gock.New("http://server.com").
+	gock.New("http://server123.com").
 		Get("/").
 		Reply(200).
 		BodyString(
