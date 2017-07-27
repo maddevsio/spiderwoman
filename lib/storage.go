@@ -34,7 +34,7 @@ type Hosts struct {
 }
 
 func getDB(dbFilepath string) *sql.DB {
-	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/test")
+	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/test?multiStatements=true")
 	if err != nil {
 		log.Panic(err)
 	}
