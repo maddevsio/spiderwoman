@@ -5,17 +5,22 @@ services:
     container_name: crawler
     image: golang:1.8
     volumes:
-      - .:/go/src/github.com/maddevsio/spiderwoman
-    working_dir: /go/src/github.com/maddevsio/spiderwoman
-    command: make run-forever
+      - .:/go/src/github.com/maddevsio/spiderwoman/
+    working_dir: /go/src/github.com/maddevsio/spiderwoman/
+    environment:
+      - DB-PATH=/res.db
+    command: make run-once
   api:
     container_name: api
     image: golang:1.8
     volumes:
-      - .:/go/src/github.com/maddevsio/spiderwoman/api/
+      - .:/go/src/github.com/maddevsio/spiderwoman/
+      - ./api/:/go/src/github.com/maddevsio/spiderwoman/api/
     working_dir: /go/src/github.com/maddevsio/spiderwoman/api/
-    command: go run main.go
+    environment:
+      - DB-PATH=/res.db
     depends_on:
       - crawler
     ports:
-      - "8081:8081"
+      - "8080:8080"
+    command: go run main.go
