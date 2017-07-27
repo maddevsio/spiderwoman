@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"os"
 	"strconv"
 	"testing"
 
@@ -16,11 +15,17 @@ const (
 )
 
 func deleteDB(dbFilepath string) {
-	os.Remove(dbFilepath)
+	db := getDB(DBFilepath)
+	sqlStmt := "drop database test; create database test;"
+	_, err := db.Exec(sqlStmt)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlStmt)
+		return
+	}
 }
 
 func TestCreateDBIfNotExists(t *testing.T) {
-	//deleteDB(DBFilepath)
+	deleteDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	//_, err := os.Stat(DBFilepath)
 	//assert.Equal(t, false, os.IsNotExist(err))
@@ -32,8 +37,8 @@ func TestCheckMonitorTable(t *testing.T) {
 
 	db := getDB(DBFilepath)
 
-	rows, err := db.Query("SELECT name FROM sqlite_master WHERE name='monitor';")
-	assert.Equal(t, nil, err)
+	rows, err := db.Query("SHOW TABLES LIKE 'monitor'")
+	assert.NoError(t, err)
 	defer rows.Close()
 
 	for rows.Next() {
@@ -53,7 +58,7 @@ func TestCheckStatusTable(t *testing.T) {
 
 	db := getDB(DBFilepath)
 
-	rows, err := db.Query("SELECT name FROM sqlite_master WHERE name='status';")
+	rows, err := db.Query("SHOW TABLES LIKE 'status'")
 	assert.Equal(t, nil, err)
 	defer rows.Close()
 
