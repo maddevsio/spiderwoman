@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	dbSqlite, err := sql.Open("sqlite3", "../testdata/res.db")
+	dbSqlite, err := sql.Open("sqlite3", "../res.db")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -28,32 +28,32 @@ func main() {
 
 	/////// types
 
-	//query := fmt.Sprint("SELECT hostname, hosttype FROM types")
-	//rows, err := dbSqlite.Query(query)
-	//if err != nil {
-	//	log.Panicf("Error getting data from types: %v", err)
-	//}
-	//defer rows.Close()
-	//
-	//for rows.Next() {
-	//	var hostname string
-	//	var hosttype string
-	//	err = rows.Scan(&hostname, &hosttype)
-	//	log.Printf("type: %s, host: %s", hosttype, hostname)
-	//	stmt, err := dbMysql.Prepare("insert into types(hostname, hosttype) values(?, ?)")
-	//	if err != nil {
-	//		log.Print(err)
-	//	}
-	//	_, err = stmt.Exec(hostname, hosttype)
-	//	if err != nil {
-	//		log.Print(err)
-	//	}
-	//}
+	query := fmt.Sprint("SELECT hostname, hosttype FROM types")
+	rows, err := dbSqlite.Query(query)
+	if err != nil {
+		log.Panicf("Error getting data from types: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var hostname string
+		var hosttype string
+		err = rows.Scan(&hostname, &hosttype)
+		log.Printf("type: %s, host: %s", hosttype, hostname)
+		stmt, err := dbMysql.Prepare("insert into types(hostname, hosttype) values(?, ?)")
+		if err != nil {
+			log.Print(err)
+		}
+		_, err = stmt.Exec(hostname, hosttype)
+		if err != nil {
+			log.Print(err)
+		}
+	}
 
 	/////// monitors
 
-	query := fmt.Sprint("SELECT id, source_host, external_link, count, external_host, created FROM monitor ORDER BY id DESC")
-	rows, err := dbSqlite.Query(query)
+	query = fmt.Sprint("SELECT id, source_host, external_link, count, external_host, created FROM monitor ORDER BY id DESC")
+	rows, err = dbSqlite.Query(query)
 	if err != nil {
 		log.Panicf("Error getting data from mons: %v", err)
 	}
