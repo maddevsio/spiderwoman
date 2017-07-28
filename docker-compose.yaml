@@ -1,26 +1,30 @@
 version: "2"
 
 services:
+  spiderdb:
+    container_name: spiderdb
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
   crawler:
     container_name: crawler
-    image: golang:1.8
-    volumes:
-      - .:/go/src/github.com/maddevsio/spiderwoman/
+    build:
+      context: .
+      dockerfile: Dockerfile
     working_dir: /go/src/github.com/maddevsio/spiderwoman/
-    environment:
-      - DB-PATH=/res.db
-    command: make run-once
+    depends_on:
+      - spiderdb
+    command: ["./wait-for-mysql.sh", "spiderdb", "30", "make run-forever"]
   api:
     container_name: api
-    image: golang:1.8
-    volumes:
-      - .:/go/src/github.com/maddevsio/spiderwoman/
-      - ./api/:/go/src/github.com/maddevsio/spiderwoman/api/
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
     working_dir: /go/src/github.com/maddevsio/spiderwoman/api/
-    environment:
-      - DB-PATH=/res.db
     depends_on:
       - crawler
     ports:
       - "8080:8080"
-    command: go run main.go
+    command: go run ./main.go

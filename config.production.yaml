@@ -1,0 +1,7 @@
+db-path: /res.db
+api-port: :8080
+xls-dir: /tmp/xls
+xls-path: /tmp/xls/spiderwoman-%s.xls
+box: dev
+admin-user: user
+admin-password: user

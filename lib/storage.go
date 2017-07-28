@@ -2,9 +2,10 @@ package lib
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
-	"fmt"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -41,7 +42,7 @@ func TruncateDB(dbName string) {
 }
 
 func getDB(dbName string) *sql.DB {
-	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/" + dbName + "?multiStatements=true")
+	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/"+dbName+"?multiStatements=true")
 	if err != nil {
 		log.Printf("===%v===", err)
 		log.Panic(err)
