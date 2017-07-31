@@ -163,7 +163,7 @@ func UpdateOrCreateHostType(dbFilepath string, hostName string, hostType string)
 	db := getDB(dbFilepath)
 	defer db.Close()
 
-	stmt, err := db.Prepare("INSERT OR REPLACE INTO types VALUES (NULL, ?, ?);")
+	stmt, err := db.Prepare("REPLACE INTO types VALUES (NULL, ?, ?);")
 	if err != nil {
 		log.Print(err)
 		return err

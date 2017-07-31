@@ -291,9 +291,11 @@ func TestGetNewDataForDate(t *testing.T) {
 	t2 = time.Now()
 	assert.False(t, (t1.Year() == t2.Year() && t1.YearDay() == t2.YearDay()))
 
+	log.Print(t2.Format("2006-01-02"))
+
 	monitors, err = GetNewExtractedHostsForDay(DBFilepath, t2.Format("2006-01-02"))
 	assert.NoError(t, err)
-	assert.Equal(t, len(monitors), 1)
+	assert.Equal(t, 1, len(monitors))
 }
 
 func TestGetNewDataByExternalHost(t *testing.T) {
@@ -338,6 +340,27 @@ func TestGetAllTypes(t *testing.T) {
 	hosts, err := GetAllTypes(DBFilepath)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(hosts))
+}
+
+func TestUpdateType(t *testing.T) {
+	TruncateDB(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+
+	err := UpdateOrCreateHostType(DBFilepath, "test.com", "H")
+	assert.NoError(t, err)
+	types, err := GetAllTypes(DBFilepath)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(types))
+	assert.Equal(t, "test.com", types[0].HostName)
+	assert.Equal(t, "H", types[0].HostType)
+
+	err = UpdateOrCreateHostType(DBFilepath, "test.com", "M")
+	assert.NoError(t, err)
+	types, err = GetAllTypes(DBFilepath)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(types))
+	assert.Equal(t, "test.com", types[0].HostName)
+	assert.Equal(t, "M", types[0].HostType)
 }
 
 func TestDeleteHost(t *testing.T) {
