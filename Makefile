@@ -1,7 +1,7 @@
 objects = main.go callbacks.go actions.go crawl.go data.go init.go
 
 test:
-	go test -v ./...
+	go test -v $(shell go list ./... | grep -v /vendor/)
 
 run:
 	go run $(objects)

@@ -42,7 +42,7 @@ func TruncateDB(dbName string) {
 }
 
 func getDB(dbName string) *sql.DB {
-	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/"+dbName+"?multiStatements=true")
+	db, err := sql.Open("mysql", "root@tcp(mysql:3306)/"+dbName+"?multiStatements=true")
 	if err != nil {
 		log.Printf("===%v===", err)
 		log.Panic(err)
@@ -68,16 +68,16 @@ func CreateDBIfNotExists(dbFilepath string) {
 		external_host varchar(255),
 		created date
 	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ENGINE=InnoDB;
-    create table if not exists status (
+    		create table if not exists status (
 		ID int NOT NULL AUTO_INCREMENT,
-        PRIMARY KEY (id),
+	        PRIMARY KEY (id),
 		status_key varchar(255),
 		status_value varchar(255)
 	);
-    insert into status(status_key, status_value) values('crawl', 'Crawl done');
-    create table if not exists types (
+    	insert into status(status_key, status_value) values('crawl', 'Crawl done');
+    	create table if not exists types (
 		ID int NOT NULL AUTO_INCREMENT,
-        PRIMARY KEY (id),
+        	PRIMARY KEY (id),
 		hostname varchar(255),
 		hosttype varchar(255),
 		CONSTRAINT hostname_uniq UNIQUE (hostname)

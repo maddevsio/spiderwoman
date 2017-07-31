@@ -1,13 +1,24 @@
 version: "2"
 
 services:
-  spiderdb:
-    container_name: spiderdb
-    image: mysql
+
+  mysql:
+    image: mysql:5.7
     environment:
-      MYSQL_ROOT_PASSWORD: root
+     - MYSQL_ALLOW_EMPTY_PASSWORD=true
     volumes:
-      - ./database:/docker-entrypoint-initdb.d
+      - /usr/local/opt/docker-volumes/mysql-spiderwoman:/var/lib/mysql:rw
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    ports:
+     - 127.0.0.1:3306:3306
+
+  pma:
+    ports:
+     - 8090:80
+    links:
+     - mysql:db
+    image: phpmyadmin/phpmyadmin
+
   crawler:
     container_name: crawler
     build:
@@ -15,8 +26,10 @@ services:
       dockerfile: Dockerfile
     working_dir: /go/src/github.com/maddevsio/spiderwoman/
     depends_on:
-      - spiderdb
-    command: ["./wait-for-mysql.sh", "spiderdb", "30", "make run-forever"]
+      - mysql
+    command: make run-once
+    #command: ["./wait-for-mysql.sh", "mysql", "30", "make run-once"]
+
   api:
     container_name: api
     build:
@@ -24,7 +37,7 @@ services:
       dockerfile: ./api/Dockerfile
     working_dir: /go/src/github.com/maddevsio/spiderwoman/api/
     depends_on:
-      - crawler
+      - mysql
     ports:
-      - "8080:8080"
-    command: go run ./main.go
+      - 8080:8080
+    command: make run
