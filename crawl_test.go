@@ -63,3 +63,7 @@ func TestCrawlCaseInsensitive(t *testing.T) {
 	assert.Equal(t, "lalka.com", monitors[0].ExternalHost)
 	assert.Equal(t, 2, monitors[0].Count)
 }
+
+func TestCrawlWWW(t *testing.T) {
+
+}
