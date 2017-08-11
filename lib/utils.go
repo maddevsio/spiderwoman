@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"log"
 	"sync"
+	"regexp"
 )
 
 const (
@@ -67,6 +68,8 @@ func SaveDataToSqlite(DBFilepath string, externalLinksResolved map[string]map[st
 				externalHost = externalLink
 			} else {
 				externalHost = u.Host
+				re := regexp.MustCompile("^www\\.")
+				externalHost = re.ReplaceAllString(externalHost, "")
 				if u.Host == "" {
 					continue
 				}

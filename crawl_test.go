@@ -64,6 +64,31 @@ func TestCrawlCaseInsensitive(t *testing.T) {
 	assert.Equal(t, 2, monitors[0].Count)
 }
 
+func TestCrawlCase(t *testing.T) {
+	defer gock.Off()
+
+	dbName := "spiderwoman-test-crawl"
+
+	lib.TruncateDB(dbName)
+	lib.CreateDBIfNotExists(dbName)
+
+	gock.New("http://server.com").
+		Get("/").
+		Reply(200).
+		BodyString(
+		"<a href='http://lalka.com'>mamka</a>" +
+			"<a href='http://LALkA.cOm'>azzazaza</a>")
+
+	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	initialize(path)
+	crawl(path)
+
+	monitors, err := lib.GetAllDataFromMonitor(dbName, 0)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(monitors))
+	assert.Equal(t, "lalka.com", monitors[0].ExternalHost)
+}
+
 func TestCrawlWWW(t *testing.T) {
 	defer gock.Off()
 
@@ -77,7 +102,7 @@ func TestCrawlWWW(t *testing.T) {
 		Reply(200).
 		BodyString(
 		"<a href='http://lalka.com'>mamka</a>" +
-			"<a href='http://www.lalka.com'>mamka</a>")
+			"<a href='http://www.lalka.COM/blaah'>mamka</a>")
 
 	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
@@ -85,6 +110,7 @@ func TestCrawlWWW(t *testing.T) {
 
 	monitors, err := lib.GetAllDataFromMonitor(dbName, 0)
 	assert.NoError(t, err)
-	assert.Equal(t, 1, len(monitors))
+	assert.Equal(t, 2, len(monitors))
 	assert.Equal(t, "lalka.com", monitors[0].ExternalHost)
+	assert.Equal(t, "lalka.com", monitors[1].ExternalHost)
 }
