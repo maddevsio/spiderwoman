@@ -90,24 +90,24 @@ func CreateDBIfNotExists(dbFilepath string) {
 	}
 }
 
-func SaveRecordToMonitor(dbFilepath string, source_host string, external_link string, count int, external_host string) bool {
-	db := getDB(dbFilepath)
-	defer db.Close()
+//func SaveRecordToMonitor(dbFilepath string, source_host string, external_link string, count int, external_host string) bool {
+//	db := getDB(dbFilepath)
+//	defer db.Close()
+//
+//	stmt, err := db.Prepare("insert into monitor(source_host, external_link, count, external_host, created) values(?, ?, ?, ?, NOW())")
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	_, err = stmt.Exec(source_host, external_link, count, external_host)
+//	if err != nil {
+//		log.Fatal(err)
+//		return false
+//	}
+//	return true
+//}
 
-	stmt, err := db.Prepare("insert into monitor(source_host, external_link, count, external_host, created) values(?, ?, ?, ?, NOW())")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = stmt.Exec(source_host, external_link, count, external_host)
-	if err != nil {
-		log.Fatal(err)
-		return false
-	}
-	return true
-}
-
-func SaveRecordToMonitorStruct(dbFilepath string, monitor Monitor) bool {
+func SaveRecordToMonitor(dbFilepath string, monitor Monitor) bool {
 	db := getDB(dbFilepath)
 	defer db.Close()
 
