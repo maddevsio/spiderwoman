@@ -77,7 +77,12 @@ func SaveDataToSqlite(DBFilepath string, externalLinksResolved map[string]map[st
 			if verbose {
 				log.Printf("Saving result of %s: ", externalLink)
 			}
-			res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+			m := Monitor{}
+			m.SourceHost = sourceHost
+			m.ExternalHost = externalHost
+			m.Count = count
+			m.ExternalLink = externalLink
+			res := SaveRecordToMonitor(DBFilepath, m)
 			if verbose {
 				log.Printf("The result of saving is: %t", res)
 			}

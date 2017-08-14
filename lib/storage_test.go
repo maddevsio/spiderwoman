@@ -67,11 +67,12 @@ func TestSaveRecordToMonitor(t *testing.T) {
 	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
-	sourceHost := "http://a"
-	externalLink := "http://b/1"
-	count := 800
-	externalHost := "b"
-	res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+	m := Monitor{}
+	m.SourceHost = "http://a"
+	m.ExternalLink = "http://b/1"
+	m.Count = 800
+	m.ExternalHost = "b"
+	res := SaveRecordToMonitor(DBFilepath, m)
 	assert.Equal(t, true, res)
 
 	db := getDB(DBFilepath)
@@ -97,11 +98,12 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 
-	sourceHost := "http://a"
-	externalLink := "http://somebaddomain.com/'.show_site_name($line['url'],100).'/"
-	count := 800
-	externalHost := "b"
-	res := SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+	m := Monitor{}
+	m.SourceHost = "http://a"
+	m.ExternalLink = "http://somebaddomain.com/'.show_site_name($line['url'],100).'/"
+	m.Count = 800
+	m.ExternalHost = "b"
+	res := SaveRecordToMonitor(DBFilepath, m)
 	assert.Equal(t, true, res)
 
 	db := getDB(DBFilepath)
@@ -117,7 +119,7 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 		var fetchedExternalLink string
 		err = rows.Scan(&fetchedExternalLink)
 		assert.Equal(t, nil, err)
-		assert.Equal(t, externalLink, fetchedExternalLink)
+		assert.Equal(t, m.ExternalLink, fetchedExternalLink)
 	}
 	assert.Equal(t, 1, k)
 }
@@ -136,30 +138,34 @@ func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 	assert.NoError(t, err)
 
 	for i := int(0); i < 10; i++ {
-		sourceHost := "host1"
-		externalLink := "http://b/1?" + strconv.Itoa(i)
-		count := 800 + i
-		externalHost := "b"
-		_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+		m := Monitor{}
+		m.SourceHost = "host1"
+		m.ExternalLink = "http://b/1?" + strconv.Itoa(i)
+		m.Count = 800 + i
+		m.ExternalHost = "b"
+		_ = SaveRecordToMonitor(DBFilepath, m)
 	}
 
-	sourceHost := "host2"
-	externalLink := "http://b/1?10"
-	count := 810
-	externalHost := "host1"
-	_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+	m := Monitor{}
+	m.SourceHost = "host2"
+	m.ExternalLink = "http://b/1?10"
+	m.Count = 810
+	m.ExternalHost = "host1"
+	_ = SaveRecordToMonitor(DBFilepath, m)
 
-	sourceHost = "host3"
-	externalLink = "http://b/1?10"
-	count = 810
-	externalHost = "host3"
-	_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+	m = Monitor{}
+	m.SourceHost = "host3"
+	m.ExternalLink = "http://b/1?10"
+	m.Count = 810
+	m.ExternalHost = "host3"
+	_ = SaveRecordToMonitor(DBFilepath, m)
 
-	sourceHost = "host3"
-	externalLink = "http://b/1?10"
-	count = 810
-	externalHost = "host4"
-	_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+	m = Monitor{}
+	m.SourceHost = "host3"
+	m.ExternalLink = "http://b/1?10"
+	m.Count = 810
+	m.ExternalHost = "host4"
+	_ = SaveRecordToMonitor(DBFilepath, m)
 
 	monitors, err := GetAllDataFromMonitor(DBFilepath, 9)
 	assert.NoError(t, err)
@@ -195,11 +201,12 @@ func TestGetDataFromMonitor__ByDays(t *testing.T) {
 	assert.NoError(t, err)
 
 	for i := int(0); i < 100; i++ {
-		sourceHost := "http://a"
-		externalLink := "http://b/1?" + strconv.Itoa(i)
-		count := 800 + i
-		externalHost := "b"
-		_ = SaveRecordToMonitor(DBFilepath, sourceHost, externalLink, count, externalHost)
+		m := Monitor{}
+		m.SourceHost = "http://a"
+		m.ExternalLink = "http://b/1?" + strconv.Itoa(i)
+		m.Count = 800 + i
+		m.ExternalHost = "b"
+		_ = SaveRecordToMonitor(DBFilepath, m)
 	}
 
 	dates, err := GetAllDaysFromMonitor(DBFilepath)
@@ -261,7 +268,7 @@ func TestGetNewDataForDate(t *testing.T) {
 	monitorNoDate.ExternalLink = "http://b/1?10"
 	monitorNoDate.Count = 810
 	monitorNoDate.ExternalHost = "host0"
-	_ = SaveRecordToMonitorStruct(DBFilepath, monitorNoDate)
+	_ = SaveRecordToMonitor(DBFilepath, monitorNoDate)
 
 	monitorWithDate := Monitor{}
 	monitorWithDate.SourceHost = "host2"
@@ -269,7 +276,7 @@ func TestGetNewDataForDate(t *testing.T) {
 	monitorWithDate.Count = 810
 	monitorWithDate.ExternalHost = "host1"
 	monitorWithDate.Created = "2016-12-13"
-	_ = SaveRecordToMonitorStruct(DBFilepath, monitorWithDate)
+	_ = SaveRecordToMonitor(DBFilepath, monitorWithDate)
 
 	monitors, err := GetAllDataFromMonitor(DBFilepath, 0)
 	assert.NoError(t, err)
@@ -309,7 +316,7 @@ func TestGetNewDataByExternalHost(t *testing.T) {
 	monitorNoDate.ExternalLink = "http://b/1?10"
 	monitorNoDate.Count = 810
 	monitorNoDate.ExternalHost = "host0"
-	_ = SaveRecordToMonitorStruct(DBFilepath, monitorNoDate)
+	_ = SaveRecordToMonitor(DBFilepath, monitorNoDate)
 
 	monitorWithDate := Monitor{}
 	monitorWithDate.SourceHost = "host2"
@@ -317,7 +324,7 @@ func TestGetNewDataByExternalHost(t *testing.T) {
 	monitorWithDate.Count = 811
 	monitorWithDate.ExternalHost = "host1"
 	monitorWithDate.Created = "2016-12-13"
-	_ = SaveRecordToMonitorStruct(DBFilepath, monitorWithDate)
+	_ = SaveRecordToMonitor(DBFilepath, monitorWithDate)
 
 	monitors, err := GetAllDataFromMonitorByExternalHost(DBFilepath, "host1")
 	assert.NoError(t, err)

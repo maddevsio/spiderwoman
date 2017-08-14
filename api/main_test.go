@@ -86,11 +86,12 @@ func TestAll(t *testing.T) {
 	lib.CreateDBIfNotExists(config.GetString("db-path"))
 
 	for i := int(0); i < 2; i++ {
-		sourceHost := "http://a"
-		externalLink := "http://b/1?" + strconv.Itoa(i)
-		count := 800+i
-		externalHost := "b"
-		_ = lib.SaveRecordToMonitor(config.GetString("db-path"), sourceHost, externalLink, count, externalHost)
+		m := lib.Monitor{}
+		m.SourceHost = "http://a"
+		m.ExternalLink = "http://b/1?" + strconv.Itoa(i)
+		m.Count = 800+i
+		m.ExternalHost = "b"
+		_ = lib.SaveRecordToMonitor(config.GetString("db-path"), m)
 	}
 
 	ts := httptest.NewServer(GetAPIEngine(config))
@@ -158,11 +159,12 @@ func TestAllForHost(t *testing.T) {
 	lib.CreateDBIfNotExists(config.GetString("db-path"))
 
 	for i := int(0); i < 2; i++ {
-		sourceHost := "http://a"
-		externalLink := "http://b/1?" + strconv.Itoa(i)
-		count := 800+i
-		externalHost := "b"
-		_ = lib.SaveRecordToMonitor(config.GetString("db-path"), sourceHost, externalLink, count, externalHost)
+		m := lib.Monitor{}
+		m.SourceHost = "http://a"
+		m.ExternalLink = "http://b/1?" + strconv.Itoa(i)
+		m.Count = 800+i
+		m.ExternalHost = "b"
+		_ = lib.SaveRecordToMonitor(config.GetString("db-path"), m)
 	}
 
 	ts := httptest.NewServer(GetAPIEngine(config))
