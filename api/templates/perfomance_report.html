@@ -36,20 +36,7 @@
       {{end}}
   {{end}}
   <table id="table_id" class="table table-striped table-bordered" style="font-family:Arial; font-size:12px;">
-      <thead>
-      <tr>
-          <th>Created</th>
-          <th>SourceHostCount</th>
-          <th>Count</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-          <td class="nwDate">Created</td>
-          <td>SourceHostCount</td>
-          <th>Count</th>
-      </tr>
-      </tbody>
+
   </table>
 {{end}}
 {{define "extrajs"}}
@@ -61,20 +48,27 @@
   <script>
       $(document).ready( function () {
         var hostQS = qs('host');
-        var apiUrl = '/perfomance_data?host='+hostQS
-
-        $('#table_id').DataTable({
-            pageLength: 200,
-            ajax: {
-                url: apiUrl,
-                dataSrc: ''
-            },
-            columns: [
-                { data: "Created" },
-                { data: "SourceHostCount" },
-                { data: "Count" },
-            ]
+        var apiUrl = '/perfomance_data?host='+hostQS;
+        var row0 = [{title:""}];
+        var row1 = ["SourceHostCount"];
+        var row2 = ["Count"];
+        var data = {{ .data }};
+        for(i=0;i<data.length;i++){
+          row0.push({title:data[i].Created});
+          row1.push(data[i].SourceHostCount);
+          row2.push(data[i].Count);
+        }
+        var datatableData = [row1, row2];
+        $("#table_id").DataTable({
+          data: datatableData,
+          searching: false,
+          columns: row0
         });
       } );
+      function qs(key) {
+          key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+          var match = location.search.match(new RegExp("[?&]"+key+"=([^&]+)(&|$)"));
+          return match && decodeURIComponent(match[1].replace(/\+/g, " "));
+      }
   </script>
 {{end}}

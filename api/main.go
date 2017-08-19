@@ -109,19 +109,15 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	// perfomance report page
 	r.GET("/perfomance/", func(c *gin.Context) {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
+		var data []lib.PerfomanceReportResponse
+		if c.Query("host") != "" {
+			data, _ = lib.PerfomanceReport(config.GetString("db-path"), c.Query("host"))
+		}
 		c.HTML(200, "perfomance-report", gin.H{
 			"title":  "Spiderwoman | Perfomance Report",
 			"status": s,
+			"data":   data,
 		})
-	})
-
-	// get all monitors filtered by host
-	r.GET("/perfomance_data", func(c *gin.Context) {
-		var m []lib.PerfomanceReportResponse
-		if c.Query("host") != "" {
-			m, _ = lib.PerfomanceReport(config.GetString("db-path"), c.Query("host"))
-		}
-		c.JSON(200, m)
 	})
 
 	// return xls on the fly for new data

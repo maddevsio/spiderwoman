@@ -431,7 +431,6 @@ func PerfomanceReport(dbFilepath string, host string) ([]PerfomanceReportRespons
 	query := fmt.Sprintf("SELECT created, SUM(count), COUNT(DISTINCT `source_host`) as source_host_count "+
 		"FROM monitor "+
 		"WHERE external_host = '%s' GROUP BY created;", host)
-	fmt.Println(query)
 
 	rows, err := db.Query(query)
 
