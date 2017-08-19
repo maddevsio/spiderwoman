@@ -30,6 +30,12 @@ type Hosts struct {
 	Host []HostItem
 }
 
+type PerfomanceReportResponse struct {
+	Created         string
+	SourceHostCount int
+	Count           int
+}
+
 func TruncateDB(dbName string) {
 	db := getDB(dbName)
 	defer db.Close()
@@ -416,4 +422,31 @@ func DeleteHost(dbFilepath string, hostID string) error {
 		return err
 	}
 	return nil
+}
+
+func PerfomanceReport(dbFilepath string, host string) ([]PerfomanceReportResponse, error) {
+	db := getDB(dbFilepath)
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT created, SUM(count), COUNT(DISTINCT `source_host`) as source_host_count "+
+		"FROM monitor "+
+		"WHERE external_host = '%s' GROUP BY created;", host)
+	fmt.Println(query)
+
+	rows, err := db.Query(query)
+
+	if err != nil {
+		log.Printf("Error getting data from monitor: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []PerfomanceReportResponse
+	for rows.Next() {
+		m := PerfomanceReportResponse{}
+		err = rows.Scan(&m.Created, &m.SourceHostCount, &m.Count)
+		data = append(data, m)
+	}
+
+	return data, nil
 }

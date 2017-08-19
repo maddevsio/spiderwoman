@@ -27,6 +27,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	templates.AddFromFiles("index", "templates/base.html", "templates/index.html")
 	templates.AddFromFiles("types", "templates/base.html", "templates/types.html")
 	templates.AddFromFiles("report", "templates/base.html", "templates/report.html")
+	templates.AddFromFiles("perfomance-report", "templates/base.html", "templates/perfomance_report.html")
 
 	r := gin.Default()
 	r.HTMLRender = templates // Comment this if you want to use old templates
@@ -101,6 +102,24 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		var m []lib.Monitor
 		if c.Query("host") != "" {
 			m, _ = lib.GetAllDataFromMonitorByExternalHost(config.GetString("db-path"), c.Query("host"))
+		}
+		c.JSON(200, m)
+	})
+
+	// perfomance report page
+	r.GET("/perfomance/", func(c *gin.Context) {
+		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
+		c.HTML(200, "perfomance-report", gin.H{
+			"title":  "Spiderwoman | Perfomance Report",
+			"status": s,
+		})
+	})
+
+	// get all monitors filtered by host
+	r.GET("/perfomance_data", func(c *gin.Context) {
+		var m []lib.PerfomanceReportResponse
+		if c.Query("host") != "" {
+			m, _ = lib.PerfomanceReport(config.GetString("db-path"), c.Query("host"))
 		}
 		c.JSON(200, m)
 	})

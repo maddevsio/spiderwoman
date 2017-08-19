@@ -1,0 +1,80 @@
+{{define "extrastyles"}}
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../assets/global/css/bootstrap-year-calendar.min.css">
+  <style>
+      .nwDate {
+          white-space: nowrap;
+      }
+      ul.page-breadcrumb li > h6 {
+        margin-bottom: 0;
+        margin-top: 0;
+      }
+  </style>
+{{end}}
+{{define "content"}}
+  <div class="page-bar">
+      <ul class="page-breadcrumb">
+        <!-- <li>
+          <h6><a href="/" class="date-">all</a>&nbsp;&nbsp;</h6>
+        </li>
+        {{ range $date := .dates }}
+          <li>
+            <h6><a href="/report?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>:<a href="/report?date={{ $date }}&new=1" class="date-{{ $date }}">new</a>&nbsp;|&nbsp;&nbsp;</h6>
+          </li>
+        {{ end }} -->
+      </ul>
+  </div>
+  <h1 class="page-title"> {{ .title }} </h1>
+  {{if .dateQS}}
+      {{if not .newQS}}
+          <p style="text-align: right;"><a href="/get-day-xls?date={{.dateQS}}" class="btn btn-sm blue"><i class="fa fa-file-excel-o"></i> Скачать <b style="color:blue;">весь</b> эксель за {{.dateQS}} </a></p>
+      {{else}}
+          <p style="text-align: right;">
+            <a href="/report?date={{ .dateQS }}" class="btn btn-sm blue"> {{.dateQS}} </a>
+            <a href="/get-new-xls?date={{.dateQS}}" class="btn btn-sm blue"><i class="fa fa-file-excel-o"></i> Скачать <b style="color:red;">new</b> эксель за {{.dateQS}} </a>
+          </p>
+      {{end}}
+  {{end}}
+  <table id="table_id" class="table table-striped table-bordered" style="font-family:Arial; font-size:12px;">
+      <thead>
+      <tr>
+          <th>Created</th>
+          <th>SourceHostCount</th>
+          <th>Count</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+          <td class="nwDate">Created</td>
+          <td>SourceHostCount</td>
+          <th>Count</th>
+      </tr>
+      </tbody>
+  </table>
+{{end}}
+{{define "extrajs"}}
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.15/api/row().show().js"></script>
+  <script>
+      $(document).ready( function () {
+        var hostQS = qs('host');
+        var apiUrl = '/perfomance_data?host='+hostQS
+
+        $('#table_id').DataTable({
+            pageLength: 200,
+            ajax: {
+                url: apiUrl,
+                dataSrc: ''
+            },
+            columns: [
+                { data: "Created" },
+                { data: "SourceHostCount" },
+                { data: "Count" },
+            ]
+        });
+      } );
+  </script>
+{{end}}

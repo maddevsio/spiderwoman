@@ -165,9 +165,10 @@
                 {
                     targets: 3,
                     render: function ( data, type, row ) {
-                        var info = '[<a href="?host=' + data + '">info</a>] '
+                        var info = '[<a href="?host=' + data + '">i</a>] ';
+                        var perfomance = '[<a href="/perfomance?host=' + data + '">p</a>]';
                         var href = '<a target="blank" href="http://' + data + '">' + data + '</a>';
-                        return info + href;
+                        return info + perfomance + href;
                     },
                 },
                 {
