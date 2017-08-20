@@ -114,7 +114,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 			data, _ = lib.PerfomanceReport(config.GetString("db-path"), c.Query("host"))
 		}
 		c.HTML(200, "perfomance-report", gin.H{
-			"title":  "Spiderwoman | Perfomance Report",
+			"title":  "Spiderwoman | Perfomance Report For " + c.Query("host"),
 			"status": s,
 			"data":   data,
 		})
