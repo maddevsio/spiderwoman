@@ -443,7 +443,7 @@ func PerfomanceReport(dbFilepath string, host string) ([]PerfomanceReportRespons
 	var data []PerfomanceReportResponse
 	for rows.Next() {
 		m := PerfomanceReportResponse{}
-		err = rows.Scan(&m.Created, &m.SourceHostCount, &m.Count)
+		err = rows.Scan(&m.Created, &m.Count, &m.SourceHostCount)
 		data = append(data, m)
 	}
 
