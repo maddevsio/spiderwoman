@@ -47,20 +47,20 @@
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.15/api/row().show().js"></script>
   <script>
       $(document).ready( function () {
-        var row0 = [{title:""}];
-        var row1 = ["SourceHostCount"];
-        var row2 = ["Count"];
+        var dateRow = [{title:""}];
+        var sourceHostRow = ["SourceHostCount"];
+        var countRow = ["Count"];
         var data = {{ .data }};
         for(i=0;i<data.length;i++){
-          row0.push({title:data[i].Created});
-          row2.push(data[i].Count);
-          row1.push(data[i].SourceHostCount);
+          dateRow.push({title:data[i].Created});
+          sourceHostRow.push(data[i].SourceHostCount);
+          countRow.push(data[i].Count);
         }
-        var datatableData = [row1, row2];
+        var datatableData = [sourceHostRow, countRow];
         $("#table_id").DataTable({
           data: datatableData,
           searching: false,
-          columns: row0,
+          columns: dateRow,
           scrollX: true,
         });
       } );
