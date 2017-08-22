@@ -53,8 +53,8 @@
         var data = {{ .data }};
         for(i=0;i<data.length;i++){
           row0.push({title:data[i].Created});
-          row2.push(data[i].SourceHostCount);
-          row1.push(data[i].Count);
+          row2.push(data[i].Count);
+          row1.push(data[i].SourceHostCount);
         }
         var datatableData = [row1, row2];
         $("#table_id").DataTable({
