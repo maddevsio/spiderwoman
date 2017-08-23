@@ -1,0 +1,10 @@
+select monitor.created, monitor.source_host, types.hosttype from monitor inner join types on monitor.source_host=types.hostname where external_host='facebook.com' and created='2017-08-23';
+
+SELECT
+	monitor.created,
+	SUM(monitor.count) as sum_count,
+	COUNT(DISTINCT monitor.source_host) as source_host_count,
+	types.hosttype
+FROM monitor
+INNER JOIN types ON monitor.external_host = types.hostname
+WHERE monitor.external_host='facebook.com' GROUP BY monitor.created;
