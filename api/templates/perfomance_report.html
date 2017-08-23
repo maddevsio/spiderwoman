@@ -13,16 +13,6 @@
 {{end}}
 {{define "content"}}
   <div class="page-bar">
-      <ul class="page-breadcrumb">
-        <!-- <li>
-          <h6><a href="/" class="date-">all</a>&nbsp;&nbsp;</h6>
-        </li>
-        {{ range $date := .dates }}
-          <li>
-            <h6><a href="/report?date={{ $date }}" class="date-{{ $date }}">{{ $date }}</a>:<a href="/report?date={{ $date }}&new=1" class="date-{{ $date }}">new</a>&nbsp;|&nbsp;&nbsp;</h6>
-          </li>
-        {{ end }} -->
-      </ul>
   </div>
   <h1 class="page-title"> {{ .title }} </h1>
   {{if .dateQS}}
@@ -48,8 +38,8 @@
   <script>
       $(document).ready( function () {
         var dateRow = [{title:""}];
-        var sourceHostRow = ["SourceHostCount"];
-        var countRow = ["Count"];
+        var sourceHostRow = ["UniqHostSourceCount"];
+        var countRow = ["Sum of links"];
         var data = {{ .data }};
         for(i=0;i<data.length;i++){
           dateRow.push({title:data[i].Created});
