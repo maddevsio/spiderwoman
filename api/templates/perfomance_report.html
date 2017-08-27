@@ -49,12 +49,17 @@
         var dateRow = [{title:""}];
         var sourceHostRow = ["UniqHostSourceCount"];
         var countRow = ["Sum of links"];
+        var percentageRow = [["Percentage"],"0%",];
         var typesRow = [["Types"],];
         var data = {{ .data }};
         for(i=0;i<data.length;i++){
           dateRow.push({title:data[i].Created});
           sourceHostRow.push(data[i].SourceHostCount);
           countRow.push(data[i].Count);
+          if (data[i+1]){
+            percentage = (data[i+1].Count/data[i].Count-1)*100;
+            percentageRow[i+2] = parseFloat(percentage.toFixed(2))+"%"; // start from +2 because of title and first col
+          }
           if (dataTypes[data[i].Created]) {
             for (var j=0; j<dataTypes[data[i].Created].length; j++) {
               var d = dataTypes[data[i].Created][j].type + ": " + dataTypes[data[i].Created][j].count + "\n"
@@ -66,7 +71,7 @@
             }
           }
         }
-        var datatableData = [sourceHostRow, countRow, typesRow];
+        var datatableData = [sourceHostRow, countRow, typesRow, percentageRow];
         $("#table_id").DataTable({
           data: datatableData,
           searching: false,
