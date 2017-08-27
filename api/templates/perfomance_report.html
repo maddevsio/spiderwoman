@@ -37,16 +37,36 @@
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.15/api/row().show().js"></script>
   <script>
       $(document).ready( function () {
+        var dataByTypes = {{ .byTypes }};
+        var dataTypes = [];
+        for (var i=0; i<dataByTypes.length; i++){
+          if (dataTypes[dataByTypes[i].Created]){
+            dataTypes[dataByTypes[i].Created].push({"type": dataByTypes[i].HostType, "count": dataByTypes[i].Count});
+          } else{
+            dataTypes[dataByTypes[i].Created] = [{"type": dataByTypes[i].HostType, "count": dataByTypes[i].Count}];
+          }
+        }
         var dateRow = [{title:""}];
         var sourceHostRow = ["UniqHostSourceCount"];
         var countRow = ["Sum of links"];
+        var typesRow = [["Types"],];
         var data = {{ .data }};
         for(i=0;i<data.length;i++){
           dateRow.push({title:data[i].Created});
           sourceHostRow.push(data[i].SourceHostCount);
           countRow.push(data[i].Count);
+          if (dataTypes[data[i].Created]) {
+            for (var j=0; j<dataTypes[data[i].Created].length; j++) {
+              var d = dataTypes[data[i].Created][j].type + ": " + dataTypes[data[i].Created][j].count + "\n"
+              if (typesRow[i+1] && typesRow[i+1].length > 0){
+                typesRow[i+1] += d;
+              }else{
+                typesRow[i+1] = d;
+              }
+            }
+          }
         }
-        var datatableData = [sourceHostRow, countRow];
+        var datatableData = [sourceHostRow, countRow, typesRow];
         $("#table_id").DataTable({
           data: datatableData,
           searching: false,

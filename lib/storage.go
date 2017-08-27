@@ -36,6 +36,12 @@ type PerfomanceReportResponse struct {
 	Count           int
 }
 
+type PerfomanceReportByHostTypeResponse struct {
+	Created  string
+	HostType string
+	Count    int
+}
+
 func TruncateDB(dbName string) {
 	db := getDB(dbName)
 	defer db.Close()
@@ -48,7 +54,7 @@ func TruncateDB(dbName string) {
 }
 
 func getDB(dbName string) *sql.DB {
-	db, err := sql.Open("mysql", "root@tcp(mysql:3306)/"+dbName+"?multiStatements=true")
+	db, err := sql.Open("mysql", "root:rootroot@tcp(localhost:3306)/"+dbName+"?multiStatements=true")
 	if err != nil {
 		log.Printf("===%v===", err)
 		log.Panic(err)
@@ -447,5 +453,29 @@ func PerfomanceReport(dbFilepath string, host string) ([]PerfomanceReportRespons
 		data = append(data, m)
 	}
 
+	return data, nil
+}
+
+func PerfomanceReportByHostTypes(dbFilepath string, host string) ([]PerfomanceReportByHostTypeResponse, error) {
+	db := getDB(dbFilepath)
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT monitor.created, types.hosttype, COUNT(DISTINCT monitor.source_host)"+
+		" FROM monitor INNER JOIN types ON monitor.source_host=types.hostname"+
+		" WHERE external_host='%s' GROUP BY created, types.hosttype;", host)
+	rows, err := db.Query(query)
+
+	if err != nil {
+		log.Printf("Error getting data from monitor: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []PerfomanceReportByHostTypeResponse
+	for rows.Next() {
+		m := PerfomanceReportByHostTypeResponse{}
+		err = rows.Scan(&m.Created, &m.HostType, &m.Count)
+		data = append(data, m)
+	}
 	return data, nil
 }

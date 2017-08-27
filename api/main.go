@@ -110,13 +110,17 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	r.GET("/perfomance/", func(c *gin.Context) {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var data []lib.PerfomanceReportResponse
+		var byTypes []lib.PerfomanceReportByHostTypeResponse
 		if c.Query("host") != "" {
 			data, _ = lib.PerfomanceReport(config.GetString("db-path"), c.Query("host"))
+			byTypes, _ = lib.PerfomanceReportByHostTypes(config.GetString("db-path"), c.Query("host"))
 		}
 		c.HTML(200, "perfomance-report", gin.H{
-			"title":  "Spiderwoman | Perfomance Report For " + c.Query("host"),
-			"status": s,
-			"data":   data,
+			"title":   "Spiderwoman | Perfomance Report For " + c.Query("host"),
+			"status":  s,
+			"host":    c.Query("host"),
+			"data":    data,
+			"byTypes": byTypes,
 		})
 	})
 
