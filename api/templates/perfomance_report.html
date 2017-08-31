@@ -47,10 +47,10 @@
           }
         }
         var dateRow = [{title:""}];
-        var sourceHostRow = ["UniqHostSourceCount"];
-        var countRow = ["Sum of links"];
-        var percentageRow = [["Percentage"],"0%",];
-        var typesRow = [["Types"],];
+        var sourceHostRow = ["03&nbsp;UniqHostSourceCount"];
+        var countRow = ["01 Sum of links"];
+        var percentageRow = [["02 Percentage"],"0%",];
+        var typesRow = [["04 Types"],];
         var data = {{ .data }};
         for(i=0;i<data.length;i++){
           dateRow.push({title:data[i].Created});
@@ -71,7 +71,7 @@
             }
           }
         }
-        var datatableData = [sourceHostRow, countRow, typesRow, percentageRow];
+        var datatableData = [countRow, percentageRow, sourceHostRow, typesRow];
         $("#table_id").DataTable({
           data: datatableData,
           searching: false,
