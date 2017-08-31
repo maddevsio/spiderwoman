@@ -54,7 +54,7 @@ func TruncateDB(dbName string) {
 }
 
 func getDB(dbName string) *sql.DB {
-	db, err := sql.Open("mysql", "root:rootroot@tcp(localhost:3306)/"+dbName+"?multiStatements=true")
+	db, err := sql.Open("mysql", "root:@tcp(mysql:3306)/"+dbName+"?multiStatements=true")
 	if err != nil {
 		log.Printf("===%v===", err)
 		log.Panic(err)
