@@ -115,6 +115,33 @@ func TestCrawlWWW(t *testing.T) {
 	assert.Equal(t, "lalka.com", monitors[1].ExternalHost)
 }
 
+func TestCrawl443(t *testing.T) {
+	defer gock.Off()
+
+	dbName := "spiderwoman-test-crawl"
+
+	lib.TruncateDB(dbName)
+	lib.CreateDBIfNotExists(dbName)
+
+	gock.New("http://server.com").
+		Get("/").
+		Reply(200).
+		BodyString(
+		"<a href='http://lalka.com'>mamka</a>" +
+			"<a href='http://www.lalka.COM:443/blaah'>mamka</a>")
+
+	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	initialize(path)
+	crawl(path)
+
+	monitors, err := lib.GetAllDataFromMonitor(dbName, 0)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(monitors))
+	assert.Equal(t, "lalka.com", monitors[0].ExternalHost)
+	assert.Equal(t, "lalka.com", monitors[1].ExternalHost)
+}
+
+
 func TestCrawUnicodeLink(t *testing.T) {
 	defer gock.Off()
 
