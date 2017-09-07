@@ -46,13 +46,15 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
+		featured_hosts, _ := lib.GetFeaturedHosts(config.GetString("db-path"))
 		c.HTML(200, "index", gin.H{
-			"title":  "Spiderwoman | Home",
-			"status": s,
-			"dates":  dates,
-			"dateQS": c.Query("date"), // pass this param to the "index.html" template
-			"newQS":  c.Query("new"),
-			"types":  types,
+			"title":          "Spiderwoman | Home",
+			"status":         s,
+			"dates":          dates,
+			"dateQS":         c.Query("date"), // pass this param to the "index.html" template
+			"newQS":          c.Query("new"),
+			"types":          types,
+			"featured_hosts": featured_hosts,
 		})
 	})
 
@@ -188,6 +190,15 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		hostName := c.PostForm("host_name")
 		hostType := c.PostForm("host_type")
 		err := lib.UpdateOrCreateHostType(config.GetString("db-path"), hostName, hostType)
+		if err != nil {
+			log.Println(err)
+			c.JSON(500, nil)
+		}
+		c.JSON(200, nil)
+	})
+
+	r.GET("/featured/add/", func(c *gin.Context) {
+		err := lib.AddFeaturedHost(config.GetString("db-path"), c.Query("host"))
 		if err != nil {
 			log.Println(err)
 			c.JSON(500, nil)

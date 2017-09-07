@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -40,6 +41,16 @@ type PerfomanceReportByHostTypeResponse struct {
 	Created  string
 	HostType string
 	Count    int
+}
+
+type FeaturedHostItem struct {
+	ID   int64
+	Host string
+}
+
+type FeaturedHosts struct {
+	ID   int64
+	Host []FeaturedHostItem
 }
 
 func TruncateDB(dbName string) {
@@ -94,6 +105,12 @@ func CreateDBIfNotExists(dbFilepath string) {
 		hosttype varchar(255),
 		CONSTRAINT hostname_uniq UNIQUE (hostname)
 	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ENGINE=InnoDB;
+	create table if not exists featured_hosts (
+		ID int not null auto_increment,
+		primary key (id),
+		host varchar(255),
+		CONSTRAINT host_uniq UNIQUE (host)
+	);
 	`
 	_, err := db.Exec(sqlStmt)
 	if err != nil {
@@ -478,4 +495,80 @@ func PerfomanceReportByHostTypes(dbFilepath string, host string) ([]PerfomanceRe
 		data = append(data, m)
 	}
 	return data, nil
+}
+
+func AddFeaturedHost(dbFilepath string, host string) error {
+	db := getDB(dbFilepath)
+	defer db.Close()
+
+	stmt, err := db.Prepare("INSERT INTO featured_hosts(host) VALUES(?)")
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	_, err = stmt.Exec(host)
+	if err != nil {
+		log.Print(err)
+		if strings.Contains(err.Error(), "Duplicate entry") {
+			err = RemoveFeaturedHost(dbFilepath, host)
+			if err != nil {
+				log.Print(err)
+				return err
+			}
+		}
+		return err
+	}
+	return nil
+}
+
+func RemoveFeaturedHost(dbFilepath string, host string) error {
+	db := getDB(dbFilepath)
+	defer db.Close()
+
+	stmt, err := db.Prepare("DELETE FROM featured_hosts WHERE host = ?")
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	_, err = stmt.Exec(host)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	return nil
+}
+
+func GetFeaturedHosts(dbFilepath string) ([]string, error) {
+	db := getDB(dbFilepath)
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT host FROM featured_hosts")
+
+	rows, err := db.Query(query)
+
+	if err != nil {
+		log.Printf("Error getting data from types: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	// var data []FeaturedHostItem
+	// for rows.Next() {
+	// 	t := FeaturedHostItem{}
+	// 	err = rows.Scan(&t.ID, &t.Host)
+	// 	data = append(data, t)
+	// }
+	var hosts []string
+
+	for rows.Next() {
+		var host string
+		err = rows.Scan(&host)
+		if err == nil {
+			hosts = append(hosts, host)
+		} else {
+			log.Printf("Error getting featured hosts: %v", err)
+		}
+	}
+	return hosts, nil
 }

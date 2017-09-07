@@ -20,5 +20,37 @@
       </ul>
     </div>
     <h1 class="page-title"> {{ .title }} </h1>
+    <div class="col-md-3">
+    <div class="portlet light bordered">
+      <div class="portlet-title">
+          <div class="caption">
+              <i class="icon-share font-dark hide"></i>
+              <span class="caption-subject font-dark bold uppercase"><i class="fa fa-star"></i> Featured Hosts</span>
+          </div>
+      </div>
+      <div class="portlet-body">
+        <div class="scroller" style="height: 200px; overflow: hidden; width: auto;" data-rail-visible="1" data-rail-color="yellow" data-handle-color="#a1b2bd" data-initialized="1">
+          <ul class="feeds">
+              {{ range $host := .featured_hosts }}
+                <li>
+                    <div class="col1">
+                        <div class="cont">
+                            <div class="cont-col1">
+                                <div class="desc"> {{ $host }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col2">
+                        <div> [<a href="/report?host={{ $host }}">i</a>]&nbsp;[<a href="/perfomance?host={{ $host }}">p</a>] </div>
+                    </div>
+                </li>
+                {{ end }}
+          </ul>
+        </div>
+        <div class="slimScrollBar" style="background: rgb(161, 178, 189); width: 7px; position: absolute; top: 95px; opacity: 0.4; display: none; border-radius: 7px; z-index: 99; right: 1px; height: 105.263px;"></div>
+        <div class="slimScrollRail" style="width: 7px; height: 100%; position: absolute; top: 0px; border-radius: 7px; background: yellow; opacity: 0.2; z-index: 90; right: 1px; display: none;"></div>
+      </div>
+      </div>
+    </div>
 {{end}}
 {{define "extrajs"}}{{end}}

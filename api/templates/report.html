@@ -91,14 +91,11 @@
       var activeDates = {{ .dates }};
       var a1 = enumerateDaysBetweenDates(moment(startDate), moment(endDate));
       var blockedDates = diff(a1, activeDates);
-      console.log(blockedDates);
       var disabledDates = []
       for (i = 0; i < blockedDates.length; i++) {
         disabledDates.push(new Date(blockedDates[i]))
       }
       $(document).ready( function () {
-        console.log('DISABLED DAYS: ');
-        console.log(disabledDates);
         var activeDatesSelection = [];
         for (i = 0; i < activeDates.length; i++) {
           var dt = moment(activeDates[i], 'YYYY-MM-DD').toDate();
@@ -167,8 +164,9 @@
                     render: function ( data, type, row ) {
                         var info = '[<a href="?host=' + data + '">i</a>] ';
                         var perfomance = '[<a href="/perfomance?host=' + data + '">p</a>]';
+                        var featured = "[<a href='#' onClick='addFeaturedHost(\"" + data + "\")'>★</a>]";
                         var href = '<a target="blank" href="http://' + data + '">' + data + '</a>';
-                        return href + '<br>' + info + perfomance;
+                        return href + '<br>' + info + perfomance + featured;
                     },
                 },
                 {
@@ -231,11 +229,18 @@
             $('#changeType'+id).attr("data-type", host_type);
           });
         } else {
-          console.log('heloo')
           $('#changeTypeSel'+id).hide();
           $('#changeType'+id).show();
           $('#type'+id).show();
         }
+      }
+
+      function addFeaturedHost(host){
+        console.log(host);
+        var url = "/featured/add?host=" + host;
+        $.get(url, function(){
+          document.location.reload();
+        });
       }
 
       function qs(key) {
