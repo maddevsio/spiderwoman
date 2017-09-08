@@ -164,7 +164,7 @@
                     render: function ( data, type, row ) {
                         var info = '[<a href="?host=' + data + '">i</a>] ';
                         var perfomance = '[<a href="/perfomance?host=' + data + '">p</a>]';
-                        var featured = "[<a href='#' onClick='addFeaturedHost(\"" + data + "\")'>★</a>]";
+                        var featured = "[<a onClick='addFeaturedHost(\"" + data + "\")'>★</a>]";
                         var href = '<a target="blank" href="http://' + data + '">' + data + '</a>';
                         return href + '<br>' + info + perfomance + featured;
                     },
@@ -238,7 +238,7 @@
       function addFeaturedHost(host){
         var url = "/featured/add?host=" + host;
         $.get(url, function(){
-          document.location.reload();
+          console.log('Host is added');
         });
       }
 
