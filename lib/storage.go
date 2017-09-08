@@ -43,16 +43,6 @@ type PerfomanceReportByHostTypeResponse struct {
 	Count    int
 }
 
-type FeaturedHostItem struct {
-	ID   int64
-	Host string
-}
-
-type FeaturedHosts struct {
-	ID   int64
-	Host []FeaturedHostItem
-}
-
 func TruncateDB(dbName string) {
 	db := getDB(dbName)
 	defer db.Close()
@@ -553,12 +543,6 @@ func GetFeaturedHosts(dbFilepath string) ([]string, error) {
 	}
 	defer rows.Close()
 
-	// var data []FeaturedHostItem
-	// for rows.Next() {
-	// 	t := FeaturedHostItem{}
-	// 	err = rows.Scan(&t.ID, &t.Host)
-	// 	data = append(data, t)
-	// }
 	var hosts []string
 
 	for rows.Next() {

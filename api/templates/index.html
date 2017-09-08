@@ -32,7 +32,7 @@
         <div class="scroller" style="height: 200px; overflow: hidden; width: auto;" data-rail-visible="1" data-rail-color="yellow" data-handle-color="#a1b2bd" data-initialized="1">
           <ul class="feeds">
               {{ range $host := .featured_hosts }}
-                <li>
+                <li id="featured{{ $host }}">
                     <div class="col1">
                         <div class="cont">
                             <div class="cont-col1">
@@ -41,7 +41,7 @@
                         </div>
                     </div>
                     <div class="col2">
-                        <div> [<a href="/report?host={{ $host }}">i</a>]&nbsp;[<a href="/perfomance?host={{ $host }}">p</a>] </div>
+                        <div> [<a href="/report?host={{ $host }}">i</a>]&nbsp;[<a href="/perfomance?host={{ $host }}">p</a>]&nbsp;[<a onClick='removeFeaturedHost({{ $host }})'>d</a>]</div>
                     </div>
                 </li>
                 {{ end }}
@@ -53,4 +53,13 @@
       </div>
     </div>
 {{end}}
-{{define "extrajs"}}{{end}}
+{{define "extrajs"}}
+<script>
+  function removeFeaturedHost(host){
+    var url = "/featured/remove?host=" + host;
+    $.get(url, function(){
+      $('li[id="featured' + host + '"]').remove();
+    });
+  }
+</script>
+{{end}}

@@ -205,6 +205,15 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		}
 		c.JSON(200, nil)
 	})
+
+	r.GET("/featured/remove/", func(c *gin.Context) {
+		err := lib.RemoveFeaturedHost(config.GetString("db-path"), c.Query("host"))
+		if err != nil {
+			log.Println(err)
+			c.JSON(500, nil)
+		}
+		c.JSON(200, nil)
+	})
 	return r
 }
 

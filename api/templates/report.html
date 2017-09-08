@@ -236,7 +236,6 @@
       }
 
       function addFeaturedHost(host){
-        console.log(host);
         var url = "/featured/add?host=" + host;
         $.get(url, function(){
           document.location.reload();
