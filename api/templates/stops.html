@@ -1,0 +1,83 @@
+{{define "extrastyles"}}
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css">
+{{end}}
+{{define "content"}}
+<div class="page-bar">
+</div>
+<div class="page-toolbar">
+    <div class="btn-group pull-right">
+      <button type="button" class="btn btn-primary" id="addNew">Add New Stop Host</button>
+    </div>
+</div>
+<h1 class="page-title"> {{ .title }} </h1>
+
+<table id="table_id" class="table table-striped table-bordered" style="font-family:Arial; font-size:12px;">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Host</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>ID</td>
+        <td>Host</td>
+        <td></td>
+    </tr>
+    </tbody>
+</table>
+{{end}}
+
+{{define "extrajs"}}
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.15/api/row().show().js"></script>
+  <script>
+      var table;
+      $(document).ready( function () {
+          table = $('#table_id').DataTable({
+              pageLength: 10,
+              data: {{ .hosts }},
+              columns: [
+                  { data: "ID" },
+                  { data: "Host" },
+              ],
+              aoColumnDefs: [{
+                aTargets: [2],
+                data: {},
+                mRender: function(data, type, full) {
+                  if(data['Action']=="add"){
+                    return "<button onClick=addHost()>add</button>";
+                  }
+                  return "<button onClick=deleteHost('"+data['Host']+"')>delete</button>";
+                }
+              }],
+              order: [[ 0, "desc" ]],
+          });
+
+          $('#addNew').on('click', function(){
+            table.row.add({
+              "ID": "-",
+              "Host": "<input type='text' name='host' placeholder='Name'>",
+              "Action": "add"
+            }).draw().show().draw(false);
+          });
+      } );
+      function deleteHost(host){
+        $.get( "/stops/delete?host=" + host, function() {
+          window.location.reload();
+        });
+      }
+      function addHost(){
+        var data = table.$('input').serialize();
+        $.post( "/stops/create", data, function() {
+          window.location.reload();
+        }).fail(function() {
+          alert( "Such host already exists!" );
+        });
+      }
+  </script>
+{{end}}

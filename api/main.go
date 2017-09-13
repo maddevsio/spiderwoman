@@ -28,6 +28,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	templates.AddFromFiles("types", "templates/base.html", "templates/types.html")
 	templates.AddFromFiles("report", "templates/base.html", "templates/report.html")
 	templates.AddFromFiles("perfomance-report", "templates/base.html", "templates/perfomance_report.html")
+	templates.AddFromFiles("stops", "templates/base.html", "templates/stops.html")
 
 	r := gin.Default()
 	r.HTMLRender = templates // Comment this if you want to use old templates
@@ -208,6 +209,34 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 
 	r.GET("/featured/remove/", func(c *gin.Context) {
 		err := lib.RemoveFeaturedHost(config.GetString("db-path"), c.Query("host"))
+		if err != nil {
+			log.Println(err)
+			c.JSON(500, nil)
+		}
+		c.JSON(200, nil)
+	})
+
+	r.GET("/stops", func(c *gin.Context) {
+		var st []lib.StopHostItem
+		st, _ = lib.GetStopHosts(config.GetString("db-path"))
+		c.HTML(200, "stops", gin.H{
+			"title": "Spiderwoman | Stop Hosts",
+			"hosts": st,
+		})
+	})
+
+	r.GET("/stops/delete", func(c *gin.Context) {
+		err := lib.RemoveStopHost(config.GetString("db-path"), c.Query("host"))
+		if err != nil {
+			log.Fatal(err)
+			c.JSON(500, nil)
+		}
+		c.JSON(200, nil)
+	})
+
+	r.POST("/stops/create", func(c *gin.Context) {
+		host := c.PostForm("host")
+		err := lib.AddStopHost(config.GetString("db-path"), host)
 		if err != nil {
 			log.Println(err)
 			c.JSON(500, nil)

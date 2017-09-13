@@ -536,3 +536,39 @@ func TestGetFeaturedHosts(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(hosts))
 }
+
+func TestAddStopHost(t *testing.T) {
+	TruncateDB(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	err := AddStopHost(DBFilepath, "host1")
+	assert.NoError(t, err)
+	hosts, err := GetStopHosts(DBFilepath)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(hosts))
+}
+
+func TestRemoveStopHost(t *testing.T) {
+	TruncateDB(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	err := AddStopHost(DBFilepath, "host1")
+	assert.NoError(t, err)
+	err = RemoveStopHost(DBFilepath, "host1")
+	assert.NoError(t, err)
+	hosts, err := GetStopHosts(DBFilepath)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, len(hosts))
+}
+
+func TestGetStopHosts(t *testing.T) {
+	TruncateDB(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	err := AddStopHost(DBFilepath, "host1")
+	assert.NoError(t, err)
+	err = AddStopHost(DBFilepath, "host2")
+	assert.NoError(t, err)
+	err = AddStopHost(DBFilepath, "host3")
+	assert.NoError(t, err)
+	hosts, err := GetStopHosts(DBFilepath)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(hosts))
+}

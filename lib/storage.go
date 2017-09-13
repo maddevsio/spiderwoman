@@ -31,6 +31,15 @@ type Hosts struct {
 	Host []HostItem
 }
 
+type StopHostItem struct {
+	ID   int64
+	Host string
+}
+
+type StopHosts struct {
+	Host []StopHostItem
+}
+
 type PerfomanceReportResponse struct {
 	Created         string
 	SourceHostCount int
@@ -96,6 +105,12 @@ func CreateDBIfNotExists(dbFilepath string) {
 		CONSTRAINT hostname_uniq UNIQUE (hostname)
 	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ENGINE=InnoDB;
 	create table if not exists featured_hosts (
+		ID int not null auto_increment,
+		primary key (id),
+		host varchar(255),
+		CONSTRAINT host_uniq UNIQUE (host)
+	);
+	create table if not exists stops (
 		ID int not null auto_increment,
 		primary key (id),
 		host varchar(255),
@@ -538,7 +553,7 @@ func GetFeaturedHosts(dbFilepath string) ([]string, error) {
 	rows, err := db.Query(query)
 
 	if err != nil {
-		log.Printf("Error getting data from types: %v", err)
+		log.Printf("Error getting data from featured hosts: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -555,4 +570,63 @@ func GetFeaturedHosts(dbFilepath string) ([]string, error) {
 		}
 	}
 	return hosts, nil
+}
+
+func AddStopHost(dbFilepath string, host string) error {
+	db := getDB(dbFilepath)
+	defer db.Close()
+
+	stmt, err := db.Prepare("INSERT INTO stops(host) VALUES(?)")
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	_, err = stmt.Exec(host)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	return nil
+}
+
+func RemoveStopHost(dbFilepath string, host string) error {
+	db := getDB(dbFilepath)
+	defer db.Close()
+
+	stmt, err := db.Prepare("DELETE FROM stops WHERE host = ?")
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	_, err = stmt.Exec(host)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	return nil
+}
+
+func GetStopHosts(dbFilepath string) ([]StopHostItem, error) {
+	db := getDB(dbFilepath)
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT id, host FROM stops")
+
+	rows, err := db.Query(query)
+
+	if err != nil {
+		log.Printf("Error getting data from stops hosts: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []StopHostItem
+	for rows.Next() {
+		sh := StopHostItem{}
+		err = rows.Scan(&sh.ID, &sh.Host)
+		data = append(data, sh)
+	}
+
+	return data, nil
 }
