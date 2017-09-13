@@ -1,9 +1,10 @@
 package lib
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"os"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -59,5 +60,14 @@ func TestPopulateHostsAndTypes(t *testing.T) {
 
 func TestMkdirAll(t *testing.T) {
 	err := os.MkdirAll("/tmp/xls", 0777)
+	assert.NoError(t, err)
+}
+
+func TestMigrateStopHosts(t *testing.T) {
+	os.Remove(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	err := MigrateStopHosts(DBFilepath, "../stops.default.txt")
+	assert.NoError(t, err)
+	err = MigrateStopHosts(DBFilepath, "../types.default.txt")
 	assert.NoError(t, err)
 }

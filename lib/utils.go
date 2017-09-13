@@ -3,16 +3,16 @@ package lib
 import (
 	"bufio"
 	"crypto/tls"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
-	"strings"
-	"time"
 	"os/exec"
-	"log"
-	"sync"
 	"regexp"
+	"strings"
+	"sync"
+	"time"
 )
 
 const (
@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	resolveCache map[string]string
+	resolveCache     map[string]string
 	lastCachedReturn = false
 )
 
@@ -232,6 +232,25 @@ func PopulateHostsAndTypes(DBFilePath string, typesFilePath string, typesDefault
 		} else {
 			log.Printf("Host %v and type %v saved", hostName, hostType)
 		}
+	}
+	return nil
+}
+
+func MigrateStopHosts(DBFilepath string, stopsFilePath string) error {
+	file, err := os.Open(stopsFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		err := AddStopHost(DBFilepath, scanner.Text())
+		if err != nil {
+			log.Println(err)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
 	}
 	return nil
 }
