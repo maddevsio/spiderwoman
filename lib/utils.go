@@ -168,16 +168,25 @@ func GetHostsFromFile(sourcesFilePath string, sourcesDefaultFilePath string) ([]
 	return hosts, nil
 }
 
-func HasStopHost(href string, stopHosts []string) bool {
-	if len(stopHosts) == 0 {
-		stopHosts, _ = GetSliceFromFile(StopsFilePath, StopsDefaultFilePath)
+func HasStopHost(DBFilePath string, href string) bool {
+	// stopHosts, _ = GetSliceFromFile(StopsFilePath, StopsDefaultFilePath)
+	stopHosts, err := GetStopHosts(DBFilePath)
+	if err != nil {
+		log.Println(err)
+		return false
 	}
 
-	for i := range stopHosts {
-		if strings.Contains(strings.ToLower(href), strings.ToLower(stopHosts[i])) {
+	for _, hostItem := range stopHosts {
+		if strings.Contains(strings.ToLower(href), strings.ToLower(hostItem.Host)) {
 			return true
 		}
 	}
+
+	// for i := range stopHosts {
+	// 	if strings.Contains(strings.ToLower(href), strings.ToLower(stopHosts[i])) {
+	// 		return true
+	// 	}
+	// }
 	return false
 }
 

@@ -1,13 +1,14 @@
 package main
 
 import (
+	"log"
+	"net/http"
 	"strings"
 	"time"
-	"github.com/PuerkitoBio/goquery"
+
 	"github.com/PuerkitoBio/gocrawl"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/maddevsio/spiderwoman/lib"
-	"net/http"
-	"log"
 )
 
 func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Document) (interface{}, bool) {
@@ -43,7 +44,7 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 			}
 		}
 
-		if lib.HasStopHost(href, stopHosts) {
+		if lib.HasStopHost(path.SqliteDBPath, href) {
 			return
 		}
 

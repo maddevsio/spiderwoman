@@ -1,15 +1,16 @@
 package main
 
 import (
-	"sync"
-	"github.com/maddevsio/spiderwoman/lib"
 	"log"
+	"sync"
+
 	"github.com/PuerkitoBio/gocrawl"
+	"github.com/maddevsio/spiderwoman/lib"
 )
 
 func crawl(path Path) {
 	stopHosts = nil // clear this slice on every crawl, so we can change stops.txt file w/o restart the crawler
- 	externalLinks = make(map[string]map[string]int)
+	externalLinks = make(map[string]map[string]int)
 	externalLinksResolved = make(map[string]map[string]int)
 	lib.SetCrawlStatus(path.SqliteDBPath, "Crawl started and crawling")
 	hosts, err = lib.GetHostsFromFile(path.SourcesFilePath, path.SourcesDefaultFilePath)
@@ -45,8 +46,7 @@ func crawl(path Path) {
 			go func(url string, times int, host string, wg *sync.WaitGroup, mutex *sync.Mutex) {
 				resolvedUrl := lib.Resolve(url, host, resolveTimeout, verbose, userAgent, mutex)
 				defer wg.Done()
-
-				if lib.HasStopHost(resolvedUrl, stopHosts) {
+				if lib.HasStopHost(path.SqliteDBPath, resolvedUrl) {
 					log.Printf("Url %v is in stoplist, not saving in map", resolvedUrl)
 					return
 				}
@@ -74,4 +74,3 @@ func crawl(path Path) {
 	// when we will have more than 100 days of data, than we can think about optimization
 	// createAllXLSByDays(path.SqliteDBPath)
 }
-
