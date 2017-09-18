@@ -68,6 +68,7 @@
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.15/api/row().show().js"></script>
   <script type="text/javascript" charset="utf8" src="../assets/global/scripts/bootstrap-year-calendar.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="../assets/global/scripts/jquery.bootstrap-growl.min.js"></script>
   <script>
       function include(arr,obj) {
           return (arr.indexOf(obj) != -1);
@@ -237,8 +238,9 @@
 
       function addFeaturedHost(host){
         var url = "/featured/add?host=" + host;
-        $.get(url, function(){
-          console.log('Host is added');
+        $.get(url, function(data){
+          console.log(data['message']);
+          $.bootstrapGrowl(data['message']);
         });
       }
 

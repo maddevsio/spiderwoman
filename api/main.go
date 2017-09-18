@@ -199,12 +199,20 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	})
 
 	r.GET("/featured/add/", func(c *gin.Context) {
-		err := lib.AddFeaturedHost(config.GetString("db-path"), c.Query("host"))
+		err, msg := lib.AddFeaturedHost(config.GetString("db-path"), c.Query("host"))
 		if err != nil {
 			log.Println(err)
 			c.JSON(500, nil)
 		}
-		c.JSON(200, nil)
+		if msg == "removed" {
+			c.JSON(200, gin.H{
+				"message": "Host is removed.",
+			})
+		} else {
+			c.JSON(200, gin.H{
+				"message": "Host is added.",
+			})
+		}
 	})
 
 	r.GET("/featured/remove/", func(c *gin.Context) {
