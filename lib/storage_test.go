@@ -208,7 +208,7 @@ func TestGetDataFromMonitor__ByDays(t *testing.T) {
 		_ = SaveRecordToMonitor(DBFilepath, m)
 	}
 
-	dates, err := GetAllDaysFromMonitor(DBFilepath)
+	dates, err := GetAllDaysFromMonitor(DBFilepath, "")
 	assert.NoError(t, err)
 	assert.Equal(t, len(dates), 1)
 

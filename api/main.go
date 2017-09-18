@@ -43,7 +43,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 
 	// main page
 	r.GET("/", func(c *gin.Context) {
-		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
+		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"), "7")
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))
@@ -61,7 +61,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 
 	// report page with metronic template
 	r.GET("/report", func(c *gin.Context) {
-		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"))
+		dates, _ := lib.GetAllDaysFromMonitor(config.GetString("db-path"), "")
 		s, _ := lib.GetCrawlStatus(config.GetString("db-path"))
 		var types []string
 		types, _ = lib.GetUniqueTypes(config.GetString("db-path"))

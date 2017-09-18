@@ -322,11 +322,14 @@ func GetCrawlStatus(dbFilepath string) (string, error) {
 	return status, nil
 }
 
-func GetAllDaysFromMonitor(dbFilepath string) ([]string, error) {
+func GetAllDaysFromMonitor(dbFilepath string, days string) ([]string, error) {
 	db := getDB(dbFilepath)
 	defer db.Close()
-
-	rows, err := db.Query("SELECT DISTINCT created as mon FROM monitor ORDER BY created DESC;")
+	query := "SELECT DISTINCT created as mon FROM monitor ORDER BY created DESC;"
+	if days != "" {
+		query = fmt.Sprintf("SELECT DISTINCT created as mon FROM monitor ORDER BY created DESC LIMIT %s;", days)
+	}
+	rows, err := db.Query(query)
 	if err != nil {
 		log.Fatal(err)
 	}
