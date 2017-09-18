@@ -50,7 +50,7 @@
                 data: {},
                 mRender: function(data, type, full) {
                   if(data['Action']=="add"){
-                    return "<button onClick=addHost()>add</button>";
+                    return "<button id='addBtn' onClick=addHost()>add</button>";
                   }
                   return "<button onClick=deleteHost('"+data['Host']+"')>delete</button>";
                 }
@@ -61,9 +61,14 @@
           $('#addNew').on('click', function(){
             table.row.add({
               "ID": "-",
-              "Host": "<input type='text' name='host' placeholder='Name'>",
+              "Host": "<input id='hostInput' type='text' name='host' placeholder='Name'>",
               "Action": "add"
             }).draw().show().draw(false);
+            $("#hostInput").keyup(function(event){
+                if(event.keyCode == 13){
+                    $("#addBtn").click();
+                }
+            });
           });
       } );
       function deleteHost(host){
