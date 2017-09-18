@@ -54,14 +54,15 @@
                   return "<button onClick=deleteHost('"+data['Host']+"')>delete</button>";
                 }
               }],
-              order: [[ 0, "asc" ]],
+              order: [[ 0, "desc" ]],
               dom: "<'row'<'col-sm-4'l><'col-sm-6'f>>" +
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-5'i><'col-sm-7'p>>",
           });
           $('#addNew').on('click', function(){
+            last_row_id = table.row(':first').data().ID;
             table.row.add({
-              "ID": "-",
+              "ID": last_row_id+1,
               "Host": "<input id='hostInput' type='text' name='host' placeholder='Name'>",
               "Action": "add"
             }).draw().show().draw(false);
