@@ -66,6 +66,7 @@
               "Host": "<input id='hostInput' type='text' name='host' placeholder='Name'>",
               "Action": "add"
             }).draw().show().draw(false);
+            $("#hostInput").focus();
             $("#hostInput").keyup(function(event){
                 if(event.keyCode == 13){
                     $("#addBtn").click();
