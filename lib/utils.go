@@ -169,6 +169,7 @@ func GetHostsFromFile(sourcesFilePath string, sourcesDefaultFilePath string) ([]
 }
 
 func HasStopHost(DBFilePath string, href string) bool {
+	// TODO: need to get the list of stops once per crawl, not per check
 	// stopHosts, _ = GetSliceFromFile(StopsFilePath, StopsDefaultFilePath)
 	stopHosts, err := GetStopHosts(DBFilePath)
 	if err != nil {
@@ -245,7 +246,7 @@ func PopulateHostsAndTypes(DBFilePath string, typesFilePath string, typesDefault
 	return nil
 }
 
-func MigrateStopHosts(DBFilepath string, stopsFilePath string) error {
+func MigrateStopHosts(DBName string, stopsFilePath string) error {
 	file, err := os.Open(stopsFilePath)
 	if err != nil {
 		log.Fatal(err)
@@ -253,7 +254,7 @@ func MigrateStopHosts(DBFilepath string, stopsFilePath string) error {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		err := AddStopHost(DBFilepath, scanner.Text())
+		err := AddStopHost(DBName, scanner.Text())
 		if err != nil {
 			log.Println(err)
 		}
