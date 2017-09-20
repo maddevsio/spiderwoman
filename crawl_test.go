@@ -1,11 +1,12 @@
 package main
 
 import (
+	"log"
 	"testing"
-	"gopkg.in/h2non/gock.v1"
+
 	"github.com/maddevsio/spiderwoman/lib"
 	"github.com/stretchr/testify/assert"
-	"log"
+	"gopkg.in/h2non/gock.v1"
 )
 
 func TestCrawl(t *testing.T) {
@@ -20,10 +21,10 @@ func TestCrawl(t *testing.T) {
 		Get("/").
 		Reply(200).
 		BodyString(
-		"<a href='http://lalka.com'>mamka</a>" +
-		"<a href='http://'>vse na mid!!</a>")
+			"<a href='http://lalka.com'>mamka</a>" +
+				"<a href='http://'>vse na mid!!</a>")
 
-	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	path := Path{dbName, "./test.sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
@@ -45,16 +46,16 @@ func TestCrawlCaseInsensitive(t *testing.T) {
 		Get("/").
 		Reply(200).
 		BodyString(
-		"<a href='http://lalka.com'>mamka</a>" +
-		"<a href='/2'>inteernal</a>" +
-		"<a href='http://'>vse na mid!!</a>")
+			"<a href='http://lalka.com'>mamka</a>" +
+				"<a href='/2'>inteernal</a>" +
+				"<a href='http://'>vse na mid!!</a>")
 
 	gock.New("http://server.com").
 		Get("/2").
 		Reply(200).
 		BodyString("<a href='http://laLka.com'>maMka</a>")
 
-	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	path := Path{dbName, "./test.sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
@@ -77,10 +78,10 @@ func TestCrawlCase1(t *testing.T) {
 		Get("/").
 		Reply(200).
 		BodyString(
-		"<a href='http://lalka.com'>mamka</a>" +
-			"<a href='http://LALkA.cOm'>azzazaza</a>")
+			"<a href='http://lalka.com'>mamka</a>" +
+				"<a href='http://LALkA.cOm'>azzazaza</a>")
 
-	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	path := Path{dbName, "./test.sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
@@ -117,7 +118,7 @@ func TestCrawlCase2(t *testing.T) {
 		Reply(200).
 		BodyString("plaaaah")
 
-	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	path := Path{dbName, "./test.sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
@@ -144,10 +145,10 @@ func TestCrawlWWW(t *testing.T) {
 		Get("/").
 		Reply(200).
 		BodyString(
-		"<a href='http://lalka.com'>mamka</a>" +
-			"<a href='http://www.lalka.COM/blaah'>mamka</a>")
+			"<a href='http://lalka.com'>mamka</a>" +
+				"<a href='http://www.lalka.COM/blaah'>mamka</a>")
 
-	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	path := Path{dbName, "./test.sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
@@ -170,10 +171,10 @@ func TestCrawl443(t *testing.T) {
 		Get("/").
 		Reply(200).
 		BodyString(
-		"<a href='http://lalka.com'>mamka</a>" +
-			"<a href='http://www.lalka.COM:443/blaah'>mamka</a>")
+			"<a href='http://lalka.com'>mamka</a>" +
+				"<a href='http://www.lalka.COM:443/blaah'>mamka</a>")
 
-	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	path := Path{dbName, "./test.sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
@@ -183,7 +184,6 @@ func TestCrawl443(t *testing.T) {
 	assert.Equal(t, "lalka.com", monitors[0].ExternalHost)
 	assert.Equal(t, "lalka.com", monitors[1].ExternalHost)
 }
-
 
 func TestCrawUnicodeLink(t *testing.T) {
 	defer gock.Off()
@@ -198,7 +198,7 @@ func TestCrawUnicodeLink(t *testing.T) {
 		Reply(200).
 		BodyString("<a href='https://���������.com/?i=382'>mamka</a>")
 
-	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	path := Path{dbName, "./test.sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
 	crawl(path)
 
