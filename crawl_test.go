@@ -5,6 +5,7 @@ import (
 	"gopkg.in/h2non/gock.v1"
 	"github.com/maddevsio/spiderwoman/lib"
 	"github.com/stretchr/testify/assert"
+	"log"
 )
 
 func TestCrawl(t *testing.T) {
@@ -64,7 +65,7 @@ func TestCrawlCaseInsensitive(t *testing.T) {
 	assert.Equal(t, 2, monitors[0].Count)
 }
 
-func TestCrawlCase(t *testing.T) {
+func TestCrawlCase1(t *testing.T) {
 	defer gock.Off()
 
 	dbName := "spiderwoman-test-crawl"
@@ -87,6 +88,50 @@ func TestCrawlCase(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(monitors))
 	assert.Equal(t, "lalka.com", monitors[0].ExternalHost)
+}
+
+func TestCrawlCase2(t *testing.T) {
+	defer gock.Off()
+
+	dbName := "spiderwoman-test-crawl"
+
+	lib.TruncateDB(dbName)
+	lib.CreateDBIfNotExists(dbName)
+
+	gock.New("http://server.com").
+		Get("/").
+		Reply(200).
+		BodyString("<a href='http://server.com/go/1'>redirect</a> | <a href='http://server.com/lool'>regular link</a>")
+
+	gock.New("http://server.com").
+		Get("/lool").
+		Reply(200).
+		BodyString("psst")
+
+
+	gock.New("http://server.com").
+		Get("/go/1").
+		Reply(301).
+		SetHeader("Location", "https://www.google.com")
+
+	//gock.New("http://lalka.com").
+	//	Get("/blaaaah").
+	//	Reply(200).
+	//	BodyString("plaaaah")
+
+
+	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
+	initialize(path)
+	crawl(path)
+
+	monitors, err := lib.GetAllDataFromMonitor(dbName, 0)
+
+	log.Printf("%v", monitors)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 5, len(monitors))
+	assert.Equal(t, "lalka.com", monitors[0].ExternalHost)
+
 }
 
 func TestCrawlWWW(t *testing.T) {
