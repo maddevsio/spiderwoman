@@ -139,6 +139,10 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 	response, err := client.Do(request)
 	if err == nil {
 		if verbose {
+			dump, errDump := httputil.DumpResponse(response, false)
+			if errDump == nil {
+				Debug(dump, nil)
+			}
 			log.Printf("Resolved URL %v", response.Request.URL.String())
 		}
 		defer response.Body.Close()
