@@ -91,6 +91,8 @@ func TestCrawlCase1(t *testing.T) {
 }
 
 func TestCrawlCase2(t *testing.T) {
+	// TODO: gock is not properly working when http call goes from goroutines. Need to find new mock server or ask the community
+
 	defer gock.Off()
 
 	dbName := "spiderwoman-test-crawl"
@@ -100,25 +102,20 @@ func TestCrawlCase2(t *testing.T) {
 
 	gock.New("http://server.com").
 		Get("/").
+		Persist().
 		Reply(200).
-		BodyString("<a href='http://server.com/go/1'>redirect</a> | <a href='http://server.com/lool'>regular link</a>")
-
-	gock.New("http://server.com").
-		Get("/lool").
-		Reply(200).
-		BodyString("psst")
-
+		BodyString("<a href='http://server.com/go/1'>redirect</a> | <a href='http://lalka.com/lool'>regular link</a>")
 
 	gock.New("http://server.com").
 		Get("/go/1").
-		Reply(301).
+		Persist().
+		Reply(302).
 		SetHeader("Location", "https://www.google.com")
 
-	//gock.New("http://lalka.com").
-	//	Get("/blaaaah").
-	//	Reply(200).
-	//	BodyString("plaaaah")
-
+	gock.New("http://lalka.com").
+		Get("/lool").
+		Reply(200).
+		BodyString("plaaaah")
 
 	path := Path{dbName, "./testdata/sites.txt", "./sources.default.txt", "", "./types.default.txt"}
 	initialize(path)
