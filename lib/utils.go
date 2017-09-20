@@ -151,13 +151,13 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 			mutex.Lock()
 		}
 
-		resolveCache[url] = response.Request.URL.String()
+		resolveCache[url] = strings.ToLower(response.Request.URL.String())
 
 		if mutex != nil {
 			mutex.Unlock()
 		}
 
-		return response.Request.URL.String()
+		return strings.ToLower(response.Request.URL.String())
 	} else {
 		log.Printf("Error client.Do %v", err)
 		return url
