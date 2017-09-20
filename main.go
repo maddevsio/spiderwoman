@@ -7,6 +7,7 @@ import (
 	"github.com/maddevsio/simple-config"
 	"github.com/urfave/cli"
 	"os"
+	"github.com/maddevsio/spiderwoman/lib"
 )
 
 type Ext struct {
@@ -16,7 +17,7 @@ type Ext struct {
 var (
 	mutex                 sync.Mutex
 	hosts                 []string
-	stopHosts             []string
+	StopHosts             []lib.StopHostItem
 	syncResolve           sync.WaitGroup
 	err                   error
 	externalLinksIterator int

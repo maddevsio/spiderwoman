@@ -151,13 +151,13 @@ func Resolve(url string, host string, resolveTimeout int, verbose bool, userAgen
 			mutex.Lock()
 		}
 
-		resolveCache[url] = strings.ToLower(response.Request.URL.String())
+		resolveCache[url] = response.Request.URL.String()
 
 		if mutex != nil {
 			mutex.Unlock()
 		}
 
-		return strings.ToLower(response.Request.URL.String())
+		return response.Request.URL.String()
 	} else {
 		log.Printf("Error client.Do %v", err)
 		return url
@@ -172,26 +172,12 @@ func GetHostsFromFile(sourcesFilePath string, sourcesDefaultFilePath string) ([]
 	return hosts, nil
 }
 
-func HasStopHost(DBFilePath string, href string) bool {
-	// TODO: need to get the list of stops once per crawl, not per check
-	// stopHosts, _ = GetSliceFromFile(StopsFilePath, StopsDefaultFilePath)
-	stopHosts, err := GetStopHosts(DBFilePath)
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-
+func HasStopHost(href string, stopHosts []StopHostItem) bool {
 	for _, hostItem := range stopHosts {
 		if strings.Contains(strings.ToLower(href), strings.ToLower(hostItem.Host)) {
 			return true
 		}
 	}
-
-	// for i := range stopHosts {
-	// 	if strings.Contains(strings.ToLower(href), strings.ToLower(stopHosts[i])) {
-	// 		return true
-	// 	}
-	// }
 	return false
 }
 

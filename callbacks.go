@@ -44,7 +44,7 @@ func (e *Ext) Visit(ctx *gocrawl.URLContext, res *http.Response, doc *goquery.Do
 			}
 		}
 
-		if lib.HasStopHost(path.SqliteDBPath, href) {
+		if lib.HasStopHost(href, StopHosts) {
 			return
 		}
 

@@ -6,10 +6,18 @@ import (
 
 	"github.com/PuerkitoBio/gocrawl"
 	"github.com/maddevsio/spiderwoman/lib"
+	"os"
+	"strings"
 )
 
 func crawl(path Path) {
-	stopHosts = nil // clear this slice on every crawl, so we can change stops.txt file w/o restart the crawler
+	StopHosts = nil // clear this slice on every crawl
+	StopHosts, err = lib.GetStopHosts(path.SqliteDBPath)
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+
 	externalLinks = make(map[string]map[string]int)
 	externalLinksResolved = make(map[string]map[string]int)
 	lib.SetCrawlStatus(path.SqliteDBPath, "Crawl started and crawling")
@@ -44,9 +52,9 @@ func crawl(path Path) {
 			externalLinksIterator++
 			syncResolve.Add(1)
 			go func(url string, times int, host string, wg *sync.WaitGroup, mutex *sync.Mutex) {
-				resolvedUrl := lib.Resolve(url, host, resolveTimeout, verbose, userAgent, mutex)
+				resolvedUrl := strings.ToLower(lib.Resolve(url, host, resolveTimeout, verbose, userAgent, mutex))
 				defer wg.Done()
-				if lib.HasStopHost(path.SqliteDBPath, resolvedUrl) {
+				if lib.HasStopHost(resolvedUrl, StopHosts) {
 					log.Printf("Url %v is in stoplist, not saving in map", resolvedUrl)
 					return
 				}
