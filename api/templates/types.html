@@ -38,9 +38,8 @@
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.15/api/row().show().js"></script>
   <script>
-      var table;
       $(document).ready( function () {
-          table = $('#table_id').DataTable({
+          var table = $('#table_id').DataTable({
               pageLength: 10,
               data: {{ .hosts }},
               columns: [
@@ -52,8 +51,8 @@
                 aTargets: [3],
                 data: {},
                 mRender: function(data, type, full) {
-                  if(data['Action']=="add"){
-                    return "<button id='addBtn' onClick=addHost()>add</button>";
+                  if(data['Action']=="actions"){
+                    return "<button id='addBtn'>add</button> <button id='cancelBtn'>cancel</button>";
                   }
                   return "<button onClick=deleteHost("+data['ID']+")>delete</button>";
                 }
@@ -63,39 +62,51 @@
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-5'i><'col-sm-7'p>>",
           });
+          var addNewRowBtn = $('#addNew');
+          addNewRowBtn.on('click', function(){
+            lastRowID = table.row(':first').data().ID;
+            addNewRowBtn.prop('disabled', true);
 
-          $('#addNew').on('click', function(){
-            last_row_id = table.row(':first').data().ID;
             table.row.add({
-              "ID": last_row_id+1,
+              "ID": lastRowID + 1,
               "HostName": "<input id='hostName' type='text' name='host_name' placeholder='Name'>",
               "HostType": "<input id='hostType' type='text' name='host_type' placeholder='Type'>",
-              "Action": "add"
+              "Action": "actions"
             }).draw().show().draw(false);
-            $("#hostName").focus();
-            $("#hostName").keyup(function(event){
+            var hostName = $("#hostName");
+            var hostType = $("#hostType");
+            var addNewTypeBtn = $('#addBtn');
+            hostName.focus();
+            hostName.keyup(function(event){
                 if(event.keyCode == 13){
-                    $("#addBtn").click();
+                    addNewTypeBtn.click();
                 }
             });
-            $("#hostType").keyup(function(event){
+            hostType.keyup(function(event){
                 if(event.keyCode == 13){
-                    $("#addBtn").click();
+                    addNewTypeBtn.click();
                 }
             });
+
+            $('#cancelBtn').on('click', function(){
+              table.row( $(this).parents('tr') ).remove().draw( false );
+              addNewRowBtn.prop('disabled', false);
+            });
+
+            addNewTypeBtn.on('click', function(){
+              var data = table.$('input').serialize();
+              $.post( "/types/create", data, function() {
+                window.location.reload();
+              }).fail(function() {
+                alert( "Such host already exists!" );
+              });
+            });
+
           });
       } );
       function deleteHost(host){
         $.get( "/types/delete?host=" + host, function() {
           window.location.reload();
-        });
-      }
-      function addHost(){
-        var data = table.$('input').serialize();
-        $.post( "/types/create", data, function() {
-          window.location.reload();
-        }).fail(function() {
-          alert( "Such host already exists!" );
         });
       }
   </script>
