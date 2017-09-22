@@ -69,8 +69,8 @@
 
             table.row.add({
               "ID": lastRowID + 1,
-              "HostName": "<input id='hostName' type='text' name='host_name' placeholder='Name'>",
-              "HostType": "<input id='hostType' type='text' name='host_type' placeholder='Type'>",
+              "HostName": "<input id='hostName' type='text' name='host_name' placeholder='Name' required>",
+              "HostType": "<input id='hostType' type='text' name='host_type' placeholder='Type' required>",
               "Action": "actions"
             }).draw().show().draw(false);
             var hostName = $("#hostName");
@@ -94,12 +94,16 @@
             });
 
             addNewTypeBtn.on('click', function(){
-              var data = table.$('input').serialize();
-              $.post( "/types/create", data, function() {
-                window.location.reload();
-              }).fail(function() {
-                alert( "Such host already exists!" );
-              });
+              if (document.getElementById('hostType').validity.valid && document.getElementById('hostName').validity.valid) {
+                var data = table.$('input').serialize();
+                $.post( "/types/create", data, function() {
+                  window.location.reload();
+                }).fail(function() {
+                  alert("Such host already exists!");
+                });
+              } else {
+                alert("Fields can not be empty!");
+              }
             });
 
           });
