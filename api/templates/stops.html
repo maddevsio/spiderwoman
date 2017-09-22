@@ -35,9 +35,8 @@
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.13/dataRender/datetime.js"></script>
   <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.15/api/row().show().js"></script>
   <script>
-      var table;
       $(document).ready( function () {
-          table = $('#table_id').DataTable({
+          var table = $('#table_id').DataTable({
               pageLength: 10,
               data: {{ .hosts }},
               columns: [
@@ -48,8 +47,8 @@
                 aTargets: [2],
                 data: {},
                 mRender: function(data, type, full) {
-                  if(data['Action']=="add"){
-                    return "<button id='addBtn' onClick=addHost()>add</button>";
+                  if(data['Action']=="actions"){
+                    return "<button id='addBtn'>add</button> <button id='cancelBtn'>cancel</button>";
                   }
                   return "<button onClick=deleteHost('"+data['Host']+"')>delete</button>";
                 }
@@ -59,32 +58,44 @@
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-5'i><'col-sm-7'p>>",
           });
-          $('#addNew').on('click', function(){
-            last_row_id = table.row(':first').data().ID;
+          var addNewRowBtn = $('#addNew');
+          addNewRowBtn.on('click', function(){
+            var lastRowID = table.row(':first').data().ID;
+            addNewRowBtn.prop('disabled', true);
+
             table.row.add({
-              "ID": last_row_id+1,
+              "ID": lastRowID + 1,
               "Host": "<input id='hostInput' type='text' name='host' placeholder='Name'>",
-              "Action": "add"
+              "Action": "actions"
             }).draw().show().draw(false);
-            $("#hostInput").focus();
-            $("#hostInput").keyup(function(event){
+            var hostInput = $("#hostInput");
+            var addNewHostBtn = $('#addBtn');
+            hostInput.focus();
+            hostInput.keyup(function(event){
                 if(event.keyCode == 13){
-                    $("#addBtn").click();
+                    addNewHostBtn.click();
                 }
+            });
+
+            $('#cancelBtn').on('click', function(){
+              table.row( $(this).parents('tr') ).remove().draw( false );
+              addNewRowBtn.prop('disabled', false);
+            });
+
+            addNewHostBtn.on('click', function(){
+              var data = table.$('input').serialize();
+              $.post( "/stops/create", data, function() {
+                window.location.reload();
+              }).fail(function() {
+                alert( "Such host already exists!" );
+              });
             });
           });
       } );
+
       function deleteHost(host){
         $.get( "/stops/delete?host=" + host, function() {
           window.location.reload();
-        });
-      }
-      function addHost(){
-        var data = table.$('input').serialize();
-        $.post( "/stops/create", data, function() {
-          window.location.reload();
-        }).fail(function() {
-          alert( "Such host already exists!" );
         });
       }
   </script>
