@@ -53,15 +53,28 @@
         var percentageHostsRow = [["03 HostsPercentage"], "0%"];
         var typesRow = [["04 Types"],];
         var data = {{ .data }};
+        var red = "<span style='color:red;'>";
+        var green = "<span style='color:green;'>";
         for(i=0;i<data.length;i++){
+          var percentageColor = "<span style='color:black;'>"
           dateRow.push({title:data[i].Created});
           sourceHostRow.push(data[i].SourceHostCount);
           countRow.push(data[i].Count);
           if (data[i+1]){
             percentage = (data[i+1].Count/data[i].Count-1)*100;
             percentageHosts = (data[i+1].SourceHostCount/data[i].SourceHostCount-1)*100;
-            percentageRow[i+2] = parseFloat(percentage.toFixed(2))+"%"; // start from +2 because of title and first col
-            percentageHostsRow[i+2] = parseFloat(percentageHosts.toFixed(2))+"%";
+            if (percentage < 0) {
+              percentageColor = red;
+            } else if (percentage > 0) {
+              percentageColor = green;
+            }
+            percentageRow[i+2] = percentageColor + parseFloat(percentage.toFixed(2))+"%</span>";
+            if (percentageHosts < 0) {
+              percentageColor = red;
+            } else if (percentageHosts > 0) {
+              percentageColor = green;
+            }
+            percentageHostsRow[i+2] = percentageColor + parseFloat(percentageHosts.toFixed(2))+"%</span>";
           }
           if (dataTypes[data[i].Created]) {
             for (var j=0; j<dataTypes[data[i].Created].length; j++) {
