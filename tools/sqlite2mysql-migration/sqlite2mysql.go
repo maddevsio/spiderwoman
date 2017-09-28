@@ -1,4 +1,4 @@
-package main
+package sqlite2mysql_migration
 
 import (
 	"database/sql"
