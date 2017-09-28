@@ -1,4 +1,4 @@
 #!/bin/bash
-cd ../
+cd ../../
 rm crawler
 make build
