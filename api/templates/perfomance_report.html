@@ -57,6 +57,7 @@
         var green = "<span style='color:green;'>";
         for(i=0;i<data.length;i++){
           var percentageColor = "<span style='color:black;'>"
+          var percentageHostsColor = "<span style='color:black;'>"
           dateRow.push({title:data[i].Created});
           sourceHostRow.push(data[i].SourceHostCount);
           countRow.push(data[i].Count);
@@ -70,11 +71,11 @@
             }
             percentageRow[i+2] = percentageColor + parseFloat(percentage.toFixed(2))+"%</span>";
             if (percentageHosts < 0) {
-              percentageColor = red;
+              percentageHostsColor = red;
             } else if (percentageHosts > 0) {
-              percentageColor = green;
+              percentageHostsColor = green;
             }
-            percentageHostsRow[i+2] = percentageColor + parseFloat(percentageHosts.toFixed(2))+"%</span>";
+            percentageHostsRow[i+2] = percentageHostsColor + parseFloat(percentageHosts.toFixed(2))+"%</span>";
           }
           if (dataTypes[data[i].Created]) {
             for (var j=0; j<dataTypes[data[i].Created].length; j++) {
