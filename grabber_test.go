@@ -10,19 +10,27 @@ import (
 	"gopkg.in/h2non/gock.v1"
 )
 
+type ExternalSeriveAPIURL struct {
+	Name string
+	URL  string
+}
+
+type GrabberAPIURLs struct {
+	URLs []ExternalSeriveAPIURL
+}
+
 type Grabber interface {
 	CheckConnection() (int, error)
 	GetRawData() (string, error)
-	ParseData(string) (string, error)
 }
 
 type InputData struct {
 	FeaturedHost          string
-	ExternalServiceAPIUrl string
+	ExternalServiceAPIURL string
 }
 
 func (d InputData) CheckConnection() (int, error) {
-	resp, err := http.Get(d.ExternalServiceAPIUrl)
+	resp, err := http.Get(d.ExternalServiceAPIURL)
 	if err != nil {
 		fmt.Println(err)
 		return resp.StatusCode, err
@@ -32,9 +40,7 @@ func (d InputData) CheckConnection() (int, error) {
 }
 
 func (d InputData) GetRawData() (string, error) {
-	query := fmt.Sprintf("%s/api/?host=%s", d.ExternalServiceAPIUrl, d.FeaturedHost)
-	fmt.Println(query)
-	resp, err := http.Get(query)
+	resp, err := http.Get(d.ExternalServiceAPIURL)
 	if err != nil {
 		fmt.Println(err)
 		return resp.Status, err
@@ -46,11 +52,17 @@ func (d InputData) GetRawData() (string, error) {
 	return string(body), nil
 }
 
-func (d InputData) ParseData(data string) (string, error) {
-	return "here is parsed data", nil
+func DefineGrabberAPIURLs() GrabberAPIURLs {
+	return GrabberAPIURLs{
+		[]ExternalSeriveAPIURL{
+			{"Alexa", "http://alexa.com/api/"},
+			{"Ahrefs", "https://ahrefs.com/api/v4/"},
+			{"Google Metrics", "https://metrics.google.com/api/"},
+		},
+	}
 }
 
-func GrabAlexa(g Grabber) (int, error) {
+func Grab(g Grabber) (int, error) {
 	conn, err := g.CheckConnection()
 	if err != nil {
 		fmt.Println(err)
@@ -61,22 +73,30 @@ func GrabAlexa(g Grabber) (int, error) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		parsedData, err := g.ParseData(rawData)
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(parsedData)
+		fmt.Println(rawData)
+		// TODO: Parse function is needs to be implemented for each External Service differently
 	}
 	return conn, err
 }
 
 func TestGrabber(t *testing.T) {
-	d := InputData{FeaturedHost: "nambataxi.kg", ExternalServiceAPIUrl: "https://www.alexa.com"}
+	d := InputData{
+		FeaturedHost:          "nambataxi.kg",
+		ExternalServiceAPIURL: "https://www.alexa.com",
+	}
 	defer gock.Off()
 	gock.New("https://www.alexa.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
 	gock.New("https://www.alexa.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
 
-	str, err := GrabAlexa(d)
+	grabberAPIURLs := DefineGrabberAPIURLs()
+
+	for _, service := range grabberAPIURLs.URLs {
+		fmt.Printf("Grabbing %v\n", service.URL)
+		// TODO: Implement Grab function for each External Service.
+		// Need to figure out how to pass ExternalSeriveAPIURL{} object
+		// to Grab function and satisfy Grabber interface.
+	}
+	str, err := Grab(d)
 	if err != nil {
 		fmt.Println("fail", err)
 	}
