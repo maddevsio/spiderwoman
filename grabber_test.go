@@ -10,13 +10,13 @@ import (
 	"gopkg.in/h2non/gock.v1"
 )
 
-type ExternalSeriveAPIURL struct {
+type ExternalServiceItem struct {
 	Name string
 	URL  string
 }
 
-type GrabberAPIURLs struct {
-	URLs []ExternalSeriveAPIURL
+type ExternalSeriviceList struct {
+	Services []ExternalServiceItem
 }
 
 type Grabber interface {
@@ -52,9 +52,9 @@ func (d InputData) GetRawData() (string, error) {
 	return string(body), nil
 }
 
-func DefineGrabberAPIURLs() GrabberAPIURLs {
-	return GrabberAPIURLs{
-		[]ExternalSeriveAPIURL{
+func DefineExternalServices() ExternalSeriviceList {
+	return ExternalSeriviceList{
+		[]ExternalServiceItem{
 			{"Alexa", "http://alexa.com/api/"},
 			{"Ahrefs", "https://ahrefs.com/api/v4/"},
 			{"Google Metrics", "https://metrics.google.com/api/"},
@@ -88,9 +88,9 @@ func TestGrabber(t *testing.T) {
 	gock.New("https://www.alexa.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
 	gock.New("https://www.alexa.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
 
-	grabberAPIURLs := DefineGrabberAPIURLs()
+	grabberAPIURLs := DefineExternalServices()
 
-	for _, service := range grabberAPIURLs.URLs {
+	for _, service := range grabberAPIURLs.Services {
 		fmt.Printf("Grabbing %v\n", service.URL)
 		// TODO: Implement Grab function for each External Service.
 		// Need to figure out how to pass ExternalSeriveAPIURL{} object
