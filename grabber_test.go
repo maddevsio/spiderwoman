@@ -22,15 +22,11 @@ type ExternalSeriviceList struct {
 type Grabber interface {
 	CheckConnection() (int, error)
 	GetRawData() (string, error)
+	// ParseData() (string, error)
 }
 
-type InputData struct {
-	FeaturedHost          string
-	ExternalServiceAPIURL string
-}
-
-func (d InputData) CheckConnection() (int, error) {
-	resp, err := http.Get(d.ExternalServiceAPIURL)
+func (d ExternalServiceItem) CheckConnection() (int, error) {
+	resp, err := http.Get(d.URL)
 	if err != nil {
 		fmt.Println(err)
 		return resp.StatusCode, err
@@ -39,8 +35,8 @@ func (d InputData) CheckConnection() (int, error) {
 	return resp.StatusCode, nil
 }
 
-func (d InputData) GetRawData() (string, error) {
-	resp, err := http.Get(d.ExternalServiceAPIURL)
+func (d ExternalServiceItem) GetRawData() (string, error) {
+	resp, err := http.Get(d.URL)
 	if err != nil {
 		fmt.Println(err)
 		return resp.Status, err
@@ -55,9 +51,8 @@ func (d InputData) GetRawData() (string, error) {
 func DefineExternalServices() ExternalSeriviceList {
 	return ExternalSeriviceList{
 		[]ExternalServiceItem{
-			{"Alexa", "http://alexa.com/api/"},
-			{"Ahrefs", "https://ahrefs.com/api/v4/"},
-			{"Google Metrics", "https://metrics.google.com/api/"},
+			{"Alexa", "https://www.alexa.com"},
+			{"Ahrefs", "https://www.ahrefs.com"},
 		},
 	}
 }
@@ -80,27 +75,21 @@ func Grab(g Grabber) (int, error) {
 }
 
 func TestGrabber(t *testing.T) {
-	d := InputData{
-		FeaturedHost:          "nambataxi.kg",
-		ExternalServiceAPIURL: "https://www.alexa.com",
-	}
 	defer gock.Off()
 	gock.New("https://www.alexa.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
 	gock.New("https://www.alexa.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
+	gock.New("https://www.ahrefs.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
+	gock.New("https://www.ahrefs.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
 
 	grabberAPIURLs := DefineExternalServices()
 
 	for _, service := range grabberAPIURLs.Services {
 		fmt.Printf("Grabbing %v\n", service.URL)
-		// TODO: Implement Grab function for each External Service.
-		// Need to figure out how to pass ExternalSeriveAPIURL{} object
-		// to Grab function and satisfy Grabber interface.
+		str, err := Grab(service)
+		if err != nil {
+			fmt.Println("fail", err)
+		}
+		assert.NoError(t, err)
+		assert.Equal(t, 200, str)
 	}
-	str, err := Grab(d)
-	if err != nil {
-		fmt.Println("fail", err)
-	}
-
-	assert.NoError(t, err)
-	assert.Equal(t, 200, str)
 }
