@@ -15,18 +15,26 @@ type ExternalServiceItem struct {
 	URL  string
 }
 
-type ExternalSeriviceList struct {
+type ExternalServiceList struct {
 	Services []ExternalServiceItem
 }
 
 type Grabber interface {
 	CheckConnection() (int, error)
 	GetRawData() (string, error)
-	// ParseData() (string, error)
+	//ParseData() (string, error)
 }
 
-func (d ExternalServiceItem) CheckConnection() (int, error) {
-	resp, err := http.Get(d.URL)
+type AlexaGrabber struct {
+	ExternalServiceItem
+}
+
+type AhrefsGrabber struct {
+	ExternalServiceItem
+}
+
+func GeneralCheckConnection(e ExternalServiceItem) (int, error) {
+	resp, err := http.Get(e.URL)
 	if err != nil {
 		fmt.Println(err)
 		return resp.StatusCode, err
@@ -35,8 +43,8 @@ func (d ExternalServiceItem) CheckConnection() (int, error) {
 	return resp.StatusCode, nil
 }
 
-func (d ExternalServiceItem) GetRawData() (string, error) {
-	resp, err := http.Get(d.URL)
+func GeneralGetRawData(e ExternalServiceItem) (string, error) {
+	resp, err := http.Get(e.URL)
 	if err != nil {
 		fmt.Println(err)
 		return resp.Status, err
@@ -48,13 +56,20 @@ func (d ExternalServiceItem) GetRawData() (string, error) {
 	return string(body), nil
 }
 
-func DefineExternalServices() ExternalSeriviceList {
-	return ExternalSeriviceList{
-		[]ExternalServiceItem{
-			{"Alexa", "https://www.alexa.com"},
-			{"Ahrefs", "https://www.ahrefs.com"},
-		},
-	}
+func (d AlexaGrabber) CheckConnection() (int, error) {
+	return GeneralCheckConnection(d.ExternalServiceItem)
+}
+
+func (d AlexaGrabber) GetRawData() (string, error) {
+	return GeneralGetRawData(d.ExternalServiceItem)
+}
+
+func (d AhrefsGrabber) CheckConnection() (int, error) {
+	return GeneralCheckConnection(d.ExternalServiceItem)
+}
+
+func (d AhrefsGrabber) GetRawData() (string, error) {
+	return GeneralGetRawData(d.ExternalServiceItem)
 }
 
 func Grab(g Grabber) (int, error) {
@@ -81,11 +96,16 @@ func TestGrabber(t *testing.T) {
 	gock.New("https://www.ahrefs.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
 	gock.New("https://www.ahrefs.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
 
-	grabberAPIURLs := DefineExternalServices()
+	//grabberAPIURLs := DefineExternalServices()
 
-	for _, service := range grabberAPIURLs.Services {
-		fmt.Printf("Grabbing %v\n", service.URL)
-		str, err := Grab(service)
+	alexaGrabber := AlexaGrabber{ExternalServiceItem{URL:"https://www.alexa.com", Name:"Alexa"}}
+	ahrefsGrabber := AhrefsGrabber{ExternalServiceItem{URL:"https://www.ahrefs.com", Name:"Alexa"}}
+
+	grabbers := []interface{}{&alexaGrabber, &ahrefsGrabber}
+
+	for _, service := range grabbers {
+		//fmt.Printf("Grabbing %v\n", service.(ExternalServiceItem).URL)
+		str, err := Grab(service.(Grabber))
 		if err != nil {
 			fmt.Println("fail", err)
 		}
