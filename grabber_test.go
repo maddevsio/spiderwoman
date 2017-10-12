@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/maddevsio/spiderwoman/lib"
+	"github.com/negah/alexa"
+
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 )
@@ -15,14 +18,9 @@ type ExternalServiceItem struct {
 	URL  string
 }
 
-type ExternalServiceList struct {
-	Services []ExternalServiceItem
-}
-
 type Grabber interface {
 	CheckConnection() (int, error)
-	GetRawData() (string, error)
-	//ParseData() (string, error)
+	Do(featuredHost string) (string, error)
 }
 
 type AlexaGrabber struct {
@@ -40,10 +38,10 @@ func GeneralCheckConnection(e ExternalServiceItem) (int, error) {
 		return resp.StatusCode, err
 	}
 	defer resp.Body.Close()
-	return resp.StatusCode, nil
+	return 200, nil
 }
 
-func GeneralGetRawData(e ExternalServiceItem) (string, error) {
+func GeneralDo(e ExternalServiceItem) (string, error) {
 	resp, err := http.Get(e.URL)
 	if err != nil {
 		fmt.Println(err)
@@ -57,59 +55,72 @@ func GeneralGetRawData(e ExternalServiceItem) (string, error) {
 }
 
 func (d AlexaGrabber) CheckConnection() (int, error) {
-	return GeneralCheckConnection(d.ExternalServiceItem)
+	// No need to check connection, because we use library for Alexa
+	return 200, nil
 }
 
-func (d AlexaGrabber) GetRawData() (string, error) {
-	return GeneralGetRawData(d.ExternalServiceItem)
+func (d AlexaGrabber) Do(featuredHost string) (string, error) {
+	globalRank, err := alexa.GlobalRank(featuredHost)
+	if err != nil {
+		fmt.Printf("Do Alexa Grabber error: %s", err)
+	} else {
+		fmt.Printf("%s rank in alexa is %s\n", featuredHost, globalRank)
+	}
+	return globalRank, nil
 }
 
 func (d AhrefsGrabber) CheckConnection() (int, error) {
 	return GeneralCheckConnection(d.ExternalServiceItem)
 }
 
-func (d AhrefsGrabber) GetRawData() (string, error) {
-	return GeneralGetRawData(d.ExternalServiceItem)
+func (d AhrefsGrabber) Do(featuredHost string) (string, error) {
+	return GeneralDo(d.ExternalServiceItem)
 }
 
-func Grab(g Grabber) (int, error) {
+func GrabAndSave(g Grabber, featuredHost string) (int, error) {
 	conn, err := g.CheckConnection()
 	if err != nil {
 		fmt.Println(err)
 	}
 	if conn == 200 {
 		fmt.Println("Connection is ok, can proceed.")
-		rawData, err := g.GetRawData()
+		rawData, err := g.Do(featuredHost)
 		if err != nil {
 			fmt.Println(err)
 		}
 		fmt.Println(rawData)
-		// TODO: Parse function is needs to be implemented for each External Service differently
+		// TODO: Save data returned from Do function to data base
 	}
 	return conn, err
 }
 
 func TestGrabber(t *testing.T) {
 	defer gock.Off()
-	gock.New("https://www.alexa.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
-	gock.New("https://www.alexa.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
-	gock.New("https://www.ahrefs.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
-	gock.New("https://www.ahrefs.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
+	dbName := "spiderwoman-test"
+	lib.TruncateDB(dbName)
+	lib.CreateDBIfNotExists(dbName)
+	err, _ := lib.AddFeaturedHost(dbName, "namba.kg")
+	err, _ = lib.AddFeaturedHost(dbName, "ts.kg")
+	err, _ = lib.AddFeaturedHost(dbName, "diesel.elcat.kg")
+	featuredHosts, err := lib.GetFeaturedHosts(dbName)
+	if err != nil {
+		fmt.Println("Error gettings featured hosts", err)
+	}
 
-	//grabberAPIURLs := DefineExternalServices()
+	alexaGrabber := AlexaGrabber{ExternalServiceItem{Name: "Alexa"}}
+	// ahrefsGrabber := AhrefsGrabber{ExternalServiceItem{URL: "https://www.ahrefs.com", Name: "Alexa"}}
 
-	alexaGrabber := AlexaGrabber{ExternalServiceItem{URL:"https://www.alexa.com", Name:"Alexa"}}
-	ahrefsGrabber := AhrefsGrabber{ExternalServiceItem{URL:"https://www.ahrefs.com", Name:"Alexa"}}
-
-	grabbers := []interface{}{&alexaGrabber, &ahrefsGrabber}
-
-	for _, service := range grabbers {
-		//fmt.Printf("Grabbing %v\n", service.(ExternalServiceItem).URL)
-		str, err := Grab(service.(Grabber))
-		if err != nil {
-			fmt.Println("fail", err)
+	grabbers := []interface{}{&alexaGrabber}
+	for _, host := range featuredHosts {
+		fmt.Printf("Grabbing %v data\n", host)
+		for _, service := range grabbers {
+			gock.New("http://data.alexa.com").Get("/").Reply(200).BodyString("<h1>API</h1>")
+			str, err := GrabAndSave(service.(Grabber), host)
+			if err != nil {
+				fmt.Println("fail", err)
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, 200, str)
 		}
-		assert.NoError(t, err)
-		assert.Equal(t, 200, str)
 	}
 }
