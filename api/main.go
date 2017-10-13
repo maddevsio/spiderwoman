@@ -199,7 +199,7 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 	})
 
 	r.GET("/featured/add/", func(c *gin.Context) {
-		err, msg := lib.AddFeaturedHost(config.GetString("db-path"), c.Query("host"))
+		msg, err := lib.AddFeaturedHost(config.GetString("db-path"), c.Query("host"))
 		if err != nil {
 			log.Println(err)
 			c.JSON(500, nil)

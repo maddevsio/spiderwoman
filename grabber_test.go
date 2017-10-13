@@ -118,9 +118,9 @@ func TestGrabber(t *testing.T) {
 	defer gock.Off()
 	lib.TruncateDB(dbName)
 	lib.CreateDBIfNotExists(dbName)
-	err, _ := lib.AddFeaturedHost(dbName, "namba.kg")
-	err, _ = lib.AddFeaturedHost(dbName, "ts.kg")
-	err, _ = lib.AddFeaturedHost(dbName, "diesel.elcat.kg")
+	_, err := lib.AddFeaturedHost(dbName, "namba.kg")
+	_, err = lib.AddFeaturedHost(dbName, "ts.kg")
+	_, err = lib.AddFeaturedHost(dbName, "diesel.elcat.kg")
 	featuredHosts, err := lib.GetFeaturedHosts(dbName)
 	if err != nil {
 		fmt.Println("Error gettings featured hosts", err)

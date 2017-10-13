@@ -520,14 +520,14 @@ func PerfomanceReportByHostTypes(dbFilepath string, host string) ([]PerfomanceRe
 	return data, nil
 }
 
-func AddFeaturedHost(dbFilepath string, host string) (err error, msg string) {
+func AddFeaturedHost(dbFilepath string, host string) (msg string, err error) {
 	db := getDB(dbFilepath)
 	defer db.Close()
 
 	stmt, err := db.Prepare("INSERT INTO featured_hosts(host) VALUES(?)")
 	if err != nil {
 		log.Print(err)
-		return err, "fail"
+		return "fail", err
 	}
 
 	_, err = stmt.Exec(host)
@@ -537,12 +537,12 @@ func AddFeaturedHost(dbFilepath string, host string) (err error, msg string) {
 			err = RemoveFeaturedHost(dbFilepath, host)
 			if err != nil {
 				log.Print(err)
-				return err, "fail"
+				return "fail", err
 			}
 		}
-		return err, "removed"
+		return "removed", err
 	}
-	return nil, "added"
+	return "added", nil
 }
 
 func RemoveFeaturedHost(dbFilepath string, host string) error {
