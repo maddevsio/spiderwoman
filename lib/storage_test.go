@@ -575,3 +575,15 @@ func TestGetStopHosts(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(hosts))
 }
+
+func TestSaveGrabberData(t *testing.T) {
+	TruncateDB(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	gd := GrabberData{}
+	gd.Created = "2017-08-02"
+	gd.Service = "Alexa"
+	gd.Host = "namba.kg"
+	gd.Data = "123"
+	success := SaveGrabbedData(DBFilepath, gd)
+	assert.Equal(t, true, success)
+}

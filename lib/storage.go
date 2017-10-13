@@ -52,6 +52,13 @@ type PerfomanceReportByHostTypeResponse struct {
 	Count    int
 }
 
+type GrabberData struct {
+	Created string
+	Service string
+	Host    string
+	Data    string
+}
+
 func TruncateDB(dbName string) {
 	db := getDB(dbName)
 	defer db.Close()
@@ -115,6 +122,14 @@ func CreateDBIfNotExists(dbFilepath string) {
 		primary key (id),
 		host varchar(255),
 		CONSTRAINT host_uniq UNIQUE (host)
+	);
+	create table if not exists grabber_data (
+		ID int not null auto_increment,
+		primary key (id),
+		created date,
+		host varchar(255),
+		service varchar(255),
+		data varchar(255)
 	);
 	`
 	_, err := db.Exec(sqlStmt)
@@ -632,4 +647,28 @@ func GetStopHosts(dbFilepath string) ([]StopHostItem, error) {
 	}
 
 	return data, nil
+}
+
+func SaveGrabbedData(dbFilepath string, gd GrabberData) bool {
+	db := getDB(dbFilepath)
+	defer db.Close()
+
+	stmt, err := db.Prepare("INSERT INTO grabber_data(created, service, host, data) values(NOW(), ?, ?, ?)")
+	if gd.Created != "" {
+		stmt, err = db.Prepare("INSERT INTO grabber_data(created, service, host, data) values(?, ?, ?, ?)")
+	}
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+
+	_, err = stmt.Exec(gd.Service, gd.Host, gd.Data)
+	if gd.Created != "" {
+		_, err = stmt.Exec(gd.Created, gd.Service, gd.Host, gd.Data)
+	}
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+	return true
 }
