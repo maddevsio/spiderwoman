@@ -52,3 +52,9 @@ func actionExcel(c *cli.Context) error {
 	return nil
 }
 
+func actionGrab(c *cli.Context) error {
+	initialize(path)
+	grab(path)
+	return nil
+}
+

@@ -69,6 +69,12 @@ func main() {
 			Usage:   "only create xls file",
 			Action:  actionExcel,
 		},
+		{
+			Name:    "grab",
+			Aliases: []string{"g"},
+			Usage:   "use grabber service only",
+			Action:  actionGrab,
+		},
 	}
 
 	app.Run(os.Args)

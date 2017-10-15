@@ -1,4 +1,4 @@
-objects = main.go callbacks.go actions.go crawl.go data.go init.go
+objects = main.go callbacks.go actions.go crawl.go data.go init.go grab.go
 
 test:
 	go test $(shell go list ./... | grep -v /vendor/)
@@ -14,6 +14,9 @@ run-once:
 
 run-excel:
 	go run $(objects) excel
+
+run-grab:
+	go run $(objects) grab
 
 run-forever-log:
 	go run $(objects) forever > log 2>&1
