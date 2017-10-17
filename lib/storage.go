@@ -520,6 +520,28 @@ func PerfomanceReportByHostTypes(dbFilepath string, host string) ([]PerfomanceRe
 	return data, nil
 }
 
+func PerfomanceReportGrabberData(dbFilepath string, service, host string) ([]GrabberData, error) {
+	db := getDB(dbFilepath)
+	defer db.Close()
+
+	query := fmt.Sprintf("SELECT created, data FROM grabber_data WHERE service='%s' AND host='%s' GROUP BY created", service, host)
+	rows, err := db.Query(query)
+
+	if err != nil {
+		log.Printf("Error getting data from monitor: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []GrabberData
+	for rows.Next() {
+		m := GrabberData{}
+		err = rows.Scan(&m.Created, &m.Data)
+		data = append(data, m)
+	}
+	return data, nil
+}
+
 func AddFeaturedHost(dbFilepath string, host string) (msg string, err error) {
 	db := getDB(dbFilepath)
 	defer db.Close()
