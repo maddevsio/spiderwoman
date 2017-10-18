@@ -524,7 +524,7 @@ func PerfomanceReportGrabberData(dbFilepath string, service, host string) ([]Gra
 	db := getDB(dbFilepath)
 	defer db.Close()
 
-	query := fmt.Sprintf("SELECT created, data FROM grabber_data WHERE service='%s' AND host='%s' GROUP BY created", service, host)
+	query := fmt.Sprintf("SELECT created, data FROM grabber_data WHERE service='%s' AND host='%s' GROUP BY created, data;", service, host)
 	rows, err := db.Query(query)
 
 	if err != nil {

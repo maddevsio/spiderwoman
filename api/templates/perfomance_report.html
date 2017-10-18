@@ -41,18 +41,22 @@
         var dataTypes = [];
         var alexaRank = {{ .alexaRank }};
         var alexaByDate = [];
-        for (var i=0; i<dataByTypes.length; i++){
-          if (dataTypes[dataByTypes[i].Created]){
-            dataTypes[dataByTypes[i].Created].push({"type": dataByTypes[i].HostType, "count": dataByTypes[i].Count});
-          } else{
-            dataTypes[dataByTypes[i].Created] = [{"type": dataByTypes[i].HostType, "count": dataByTypes[i].Count}];
+        if (dataByTypes.length>0){
+          for (var i=0; i<dataByTypes.length; i++){
+            if (dataTypes[dataByTypes[i].Created]){
+              dataTypes[dataByTypes[i].Created].push({"type": dataByTypes[i].HostType, "count": dataByTypes[i].Count});
+            } else{
+              dataTypes[dataByTypes[i].Created] = [{"type": dataByTypes[i].HostType, "count": dataByTypes[i].Count}];
+            }
           }
         }
-        for (var i=0; i<alexaRank.length; i++){
-          if (alexaByDate[alexaRank[i].Created]){
-            alexaByDate[alexaRank[i].Created].push({"data": alexaRank[i].Data});
-          } else{
-            alexaByDate[alexaRank[i].Created] = [{"data": alexaRank[i].Data}];
+        if (alexaRank.length>0){
+          for (var i=0; i<alexaRank.length; i++){
+            if (alexaByDate[alexaRank[i].Created]){
+              alexaByDate[alexaRank[i].Created].push({"data": alexaRank[i].Data});
+            } else{
+              alexaByDate[alexaRank[i].Created] = [{"data": alexaRank[i].Data}];
+            }
           }
         }
         var dateRow = [{title:""}];
