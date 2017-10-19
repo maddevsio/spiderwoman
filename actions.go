@@ -14,12 +14,14 @@ var path = Path{sqliteDBPath, lib.SourcesFilePath, lib.SourcesDefaultFilePath, l
 func actionOnce(c *cli.Context) error {
 	initialize(path)
 	crawl(path)
+	grab(path)
 	return nil
 }
 
 func actionForever(c *cli.Context) error {
 	job := func() {
 		crawl(path)
+		grab(path)
 	}
 	initialize(path)
 	log.Print("All is OK. Starting cron job...")
