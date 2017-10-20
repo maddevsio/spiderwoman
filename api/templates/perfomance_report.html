@@ -50,14 +50,16 @@
             }
           }
         }
-        if (alexaRank.length>0){
-          for (var i=0; i<alexaRank.length; i++){
-            if (alexaByDate[alexaRank[i].Created]){
-              alexaByDate[alexaRank[i].Created].push({"data": alexaRank[i].Data});
-            } else{
-              alexaByDate[alexaRank[i].Created] = [{"data": alexaRank[i].Data}];
+        if (alexaRank !== null) {
+            if (alexaRank.length > 0) {
+                for (var i = 0; i < alexaRank.length; i++) {
+                    if (alexaByDate[alexaRank[i].Created]) {
+                        alexaByDate[alexaRank[i].Created].push({"data": alexaRank[i].Data});
+                    } else {
+                        alexaByDate[alexaRank[i].Created] = [{"data": alexaRank[i].Data}];
+                    }
+                }
             }
-          }
         }
         var dateRow = [{title:""}];
         var sourceHostRow = ["03&nbsp;UniqHostSourceCount"];
