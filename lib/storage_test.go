@@ -383,7 +383,7 @@ func TestDeleteHost(t *testing.T) {
 	assert.Equal(t, 1, len(hosts))
 }
 
-func TestPeromnaceReport(t *testing.T) {
+func TestPerfomanceReport(t *testing.T) {
 	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
 	for i := int(0); i < 5; i++ {
@@ -586,4 +586,18 @@ func TestSaveGrabberData(t *testing.T) {
 	gd.Data = "123"
 	success := SaveGrabbedData(DBFilepath, gd)
 	assert.Equal(t, true, success)
+}
+
+func TestPerfomanceReportByHostTypesNoErrors(t *testing.T) {
+	TruncateDB(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	_, err := PerfomanceReportByHostTypes(DBFilepath, "namba.kg")
+	assert.NoError(t, err)
+}
+
+func TestPerfomanceReportGrabberDataNoErrors(t *testing.T) {
+	TruncateDB(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	_, err := PerfomanceReportGrabberData(DBFilepath, "alexa", "namba.kg")
+	assert.NoError(t, err)
 }

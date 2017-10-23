@@ -528,7 +528,7 @@ func PerfomanceReportGrabberData(dbFilepath string, service, host string) ([]Gra
 	rows, err := db.Query(query)
 
 	if err != nil {
-		log.Printf("Error getting data from monitor: %v", err)
+		log.Printf("Error getting data from grabber_data: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
