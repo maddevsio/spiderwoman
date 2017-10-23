@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"testing"
@@ -598,6 +599,15 @@ func TestPerfomanceReportByHostTypesNoErrors(t *testing.T) {
 func TestPerfomanceReportGrabberDataNoErrors(t *testing.T) {
 	TruncateDB(DBFilepath)
 	CreateDBIfNotExists(DBFilepath)
-	_, err := PerfomanceReportGrabberData(DBFilepath, "alexa", "namba.kg")
+	gd := GrabberData{}
+	gd.Created = "2017-08-02"
+	gd.Service = "Alexa"
+	gd.Host = "namba.kg"
+	gd.Data = "123"
+	_ = SaveGrabbedData(DBFilepath, gd)
+	data, err := PerfomanceReportGrabberData(DBFilepath, "alexa", "namba.kg")
 	assert.NoError(t, err)
+	fmt.Println(data)
+	assert.Equal(t, 1, len(data))
+	assert.Equal(t, "123", data[0].Data)
 }
