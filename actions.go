@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/urfave/cli"
 	"log"
-	"github.com/maddevsio/spiderwoman/lib"
 	"os"
-	"github.com/carlescere/scheduler"
 	"runtime"
+
+	"github.com/carlescere/scheduler"
+	"github.com/maddevsio/spiderwoman/lib"
+	"github.com/urfave/cli"
 )
 
 var path = Path{sqliteDBPath, lib.SourcesFilePath, lib.SourcesDefaultFilePath, lib.TypesFilePath, lib.TypesHDefaultFilePath}
@@ -59,4 +60,3 @@ func actionGrab(c *cli.Context) error {
 	grab(path)
 	return nil
 }
-

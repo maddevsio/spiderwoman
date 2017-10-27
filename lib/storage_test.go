@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"testing"
@@ -607,7 +606,27 @@ func TestPerfomanceReportGrabberDataNoErrors(t *testing.T) {
 	_ = SaveGrabbedData(DBFilepath, gd)
 	data, err := PerfomanceReportGrabberData(DBFilepath, "alexa", "namba.kg")
 	assert.NoError(t, err)
-	fmt.Println(data)
 	assert.Equal(t, 1, len(data))
 	assert.Equal(t, "123", data[0].Data)
+}
+
+func TestPerfomanceReportLatestGrabberDataReturnsLatest(t *testing.T) {
+	TruncateDB(DBFilepath)
+	CreateDBIfNotExists(DBFilepath)
+	gd := GrabberData{}
+	gd.Created = "2017-08-01"
+	gd.Service = "whois"
+	gd.Host = "namba.kg"
+	gd.Data = "123"
+	_ = SaveGrabbedData(DBFilepath, gd)
+	gd = GrabberData{}
+	gd.Created = "2017-08-02"
+	gd.Service = "whois"
+	gd.Host = "namba.kg"
+	gd.Data = "456"
+	_ = SaveGrabbedData(DBFilepath, gd)
+
+	data, err := PerfomanceReportLatestGrabberData(DBFilepath, "whois", "namba.kg")
+	assert.NoError(t, err)
+	assert.Equal(t, "456", data.Data)
 }

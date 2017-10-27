@@ -129,13 +129,38 @@ func CreateDBIfNotExists(dbFilepath string) {
 		created date,
 		host varchar(255),
 		service varchar(255),
-		data varchar(255)
+		data text
 	);
 	`
 	_, err := db.Exec(sqlStmt)
 	if err != nil {
 		log.Printf("%q: %s\n", err, sqlStmt)
 		return
+	}
+	sqlStmt = fmt.Sprintf(`select data_type as DataType from information_schema.columns where table_schema='%s' and table_name='grabber_data' and column_name='data';`, dbFilepath)
+	rows, err := db.Query(sqlStmt)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlStmt)
+		return
+	}
+	defer rows.Close()
+
+	type Column struct {
+		DataType string
+	}
+	var data []Column
+	for rows.Next() {
+		c := Column{}
+		err = rows.Scan(&c.DataType)
+		data = append(data, c)
+	}
+	if data[0].DataType == "varchar" {
+		stmt := `ALTER TABLE grabber_data MODIFY data TEXT;`
+		_, err := db.Exec(stmt)
+		if err != nil {
+			log.Printf("%q: %s\n", err, stmt)
+			return
+		}
 	}
 }
 
@@ -539,6 +564,30 @@ func PerfomanceReportGrabberData(dbFilepath string, service, host string) ([]Gra
 		err = rows.Scan(&m.Created, &m.Data)
 		data = append(data, m)
 	}
+	return data, nil
+}
+
+func PerfomanceReportLatestGrabberData(dbFilepath string, service, host string) (GrabberData, error) {
+	db := getDB(dbFilepath)
+	defer db.Close()
+	data := GrabberData{}
+
+	query := fmt.Sprintf("SELECT created, data FROM grabber_data WHERE service='%s' AND host='%s' ORDER BY created DESC LIMIT 1;", service, host)
+	fmt.Println(query)
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Printf("Error getting data from grabber_data: %v", err)
+		return data, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		m := GrabberData{}
+		err = rows.Scan(&m.Created, &m.Data)
+		return m, nil
+	}
+	err = rows.Scan(&data.Created, &data.Data)
+	fmt.Println(data.Data)
 	return data, nil
 }
 

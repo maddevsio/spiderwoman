@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/maddevsio/spiderwoman/lib"
-	"github.com/maddevsio/spiderwoman/grabber"
 	"log"
+
+	"github.com/maddevsio/spiderwoman/grabber"
+	"github.com/maddevsio/spiderwoman/lib"
 )
 
 func grab(path Path) {
@@ -14,14 +15,15 @@ func grab(path Path) {
 	}
 
 	alexaGrabber := grabber.AlexaGrabber{grabber.Service{Name: "Alexa"}}
+	whoisGrabber := grabber.WhoisGrabber{grabber.Service{Name: "Whois"}}
 
-	grabbers := []interface{}{&alexaGrabber}
+	grabbers := []interface{}{&alexaGrabber, &whoisGrabber}
 	for _, host := range featuredHosts {
 		fmt.Printf("\nGrabbing %v data\n", host)
 		for _, service := range grabbers {
 			_, err := grabber.GrabAndSave(service.(grabber.Grabber), host, path.SqliteDBPath)
 			if err != nil {
-				log.Fatalf("GRABBER error %v", err);
+				log.Fatalf("GRABBER error %v", err)
 			}
 		}
 	}

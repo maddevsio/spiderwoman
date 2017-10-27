@@ -1,7 +1,9 @@
 package main
 
 import (
+	"html/template"
 	"log"
+	"strings"
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/contrib/renders/multitemplate"
@@ -115,11 +117,14 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 		var data []lib.PerfomanceReportResponse
 		var byTypes []lib.PerfomanceReportByHostTypeResponse
 		var alexaRank []lib.GrabberData
+		var whoisData lib.GrabberData
 		if c.Query("host") != "" {
 			data, _ = lib.PerfomanceReport(config.GetString("db-path"), c.Query("host"))
 			byTypes, _ = lib.PerfomanceReportByHostTypes(config.GetString("db-path"), c.Query("host"))
 			alexaRank, _ = lib.PerfomanceReportGrabberData(config.GetString("db-path"), "alexa", c.Query("host"))
+			whoisData, _ = lib.PerfomanceReportLatestGrabberData(config.GetString("db-path"), "whois", c.Query("host"))
 		}
+		whoisDataHTML := template.HTML(strings.Replace(whoisData.Data, "\n", "<br>", -1))
 		c.HTML(200, "perfomance-report", gin.H{
 			"title":     "Spiderwoman | Perfomance Report For " + c.Query("host"),
 			"status":    s,
@@ -127,6 +132,8 @@ func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
 			"data":      data,
 			"byTypes":   byTypes,
 			"alexaRank": alexaRank,
+			"whoisDate": whoisData.Created,
+			"whoisData": whoisDataHTML,
 		})
 	})
 

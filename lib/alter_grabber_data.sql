@@ -1,0 +1,1 @@
+ALTER TABLE grabber_data MODIFY data TEXT;
