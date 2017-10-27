@@ -17,7 +17,7 @@ const (
 func TestGrabber(t *testing.T) {
 	defer gock.Off()
 	lib.TruncateDB(dbName)
-	lib.CreateDBIfNotExists(dbName)
+	lib.CreateDBIfNotExistsAndMigrate(dbName)
 	_, err := lib.AddFeaturedHost(dbName, "namba.kg")
 	_, err = lib.AddFeaturedHost(dbName, "ts.kg")
 	_, err = lib.AddFeaturedHost(dbName, "diesel.elcat.kg")

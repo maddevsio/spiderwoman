@@ -51,7 +51,7 @@ func TestGetHostsFromFile(t *testing.T) {
 
 func TestPopulateHostsAndTypes(t *testing.T) {
 	os.Remove(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	err := PopulateHostsAndTypes(DBFilepath, "", "../types.default.txt")
 	assert.NoError(t, err)
 	err = PopulateHostsAndTypes(DBFilepath, "", "../types.default.txt")
@@ -65,7 +65,7 @@ func TestMkdirAll(t *testing.T) {
 
 func TestMigrateStopHosts(t *testing.T) {
 	os.Remove(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	err := MigrateStopHosts(DBFilepath, "../stops.default.txt")
 	assert.NoError(t, err)
 	err = MigrateStopHosts(DBFilepath, "../types.default.txt")

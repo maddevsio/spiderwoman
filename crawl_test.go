@@ -15,7 +15,7 @@ func TestCrawl(t *testing.T) {
 	dbName := "spiderwoman-test-crawl"
 
 	lib.TruncateDB(dbName)
-	lib.CreateDBIfNotExists(dbName)
+	lib.CreateDBIfNotExistsAndMigrate(dbName)
 
 	gock.New("http://server.com").
 		Get("/").
@@ -40,7 +40,7 @@ func TestCrawlCaseInsensitive(t *testing.T) {
 	dbName := "spiderwoman-test-crawl"
 
 	lib.TruncateDB(dbName)
-	lib.CreateDBIfNotExists(dbName)
+	lib.CreateDBIfNotExistsAndMigrate(dbName)
 
 	gock.New("http://server.com").
 		Get("/").
@@ -72,7 +72,7 @@ func TestCrawlCase1(t *testing.T) {
 	dbName := "spiderwoman-test-crawl"
 
 	lib.TruncateDB(dbName)
-	lib.CreateDBIfNotExists(dbName)
+	lib.CreateDBIfNotExistsAndMigrate(dbName)
 
 	gock.New("http://server.com").
 		Get("/").
@@ -99,7 +99,7 @@ func TestCrawlCase2(t *testing.T) {
 	dbName := "spiderwoman-test-crawl"
 
 	lib.TruncateDB(dbName)
-	lib.CreateDBIfNotExists(dbName)
+	lib.CreateDBIfNotExistsAndMigrate(dbName)
 
 	gock.New("http://server.com").
 		Get("/").
@@ -139,7 +139,7 @@ func TestCrawlWWW(t *testing.T) {
 	dbName := "spiderwoman-test-crawl"
 
 	lib.TruncateDB(dbName)
-	lib.CreateDBIfNotExists(dbName)
+	lib.CreateDBIfNotExistsAndMigrate(dbName)
 
 	gock.New("http://server.com").
 		Get("/").
@@ -165,7 +165,7 @@ func TestCrawl443(t *testing.T) {
 	dbName := "spiderwoman-test-crawl"
 
 	lib.TruncateDB(dbName)
-	lib.CreateDBIfNotExists(dbName)
+	lib.CreateDBIfNotExistsAndMigrate(dbName)
 
 	gock.New("http://server.com").
 		Get("/").
@@ -191,7 +191,7 @@ func TestCrawUnicodeLink(t *testing.T) {
 	dbName := "spiderwoman-test-crawl"
 
 	lib.TruncateDB(dbName)
-	lib.CreateDBIfNotExists(dbName)
+	lib.CreateDBIfNotExistsAndMigrate(dbName)
 
 	gock.New("http://server.com").
 		Get("/").

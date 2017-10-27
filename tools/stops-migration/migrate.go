@@ -5,6 +5,6 @@ import (
 )
 
 func main() {
-	lib.CreateDBIfNotExists("spiderwoman")
+	lib.CreateDBIfNotExistsAndMigrate("spiderwoman")
 	lib.MigrateStopHosts("spiderwoman", "../../stops.txt")
 }

@@ -15,12 +15,12 @@ const (
 
 func TestCreateDBIfNotExists(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 }
 
 func TestCheckMonitorTable(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 
 	db := getDB(DBFilepath)
 	defer db.Close()
@@ -42,7 +42,7 @@ func TestCheckMonitorTable(t *testing.T) {
 
 func TestCheckStatusTable(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 
 	db := getDB(DBFilepath)
 	defer db.Close()
@@ -64,7 +64,7 @@ func TestCheckStatusTable(t *testing.T) {
 
 func TestSaveRecordToMonitor(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 
 	m := Monitor{}
 	m.SourceHost = "http://a"
@@ -95,7 +95,7 @@ func TestSaveRecordToMonitor(t *testing.T) {
 
 func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 
 	m := Monitor{}
 	m.SourceHost = "http://a"
@@ -125,7 +125,7 @@ func TestSaveRecordToMonitor_BadExternalLink(t *testing.T) {
 
 func TestGetAllDataFromSqlite_MapToStruct(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
@@ -195,7 +195,7 @@ func TestParseSqliteDate(t *testing.T) {
 
 func TestGetDataFromMonitor__ByDays(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
 
@@ -226,7 +226,7 @@ func TestGetDataFromMonitor__ByDays(t *testing.T) {
 }
 
 func TestCrawlStatus(t *testing.T) {
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 
 	SetCrawlStatus(DBFilepath, "Crawling...")
 	s1, _ := GetCrawlStatus(DBFilepath)
@@ -237,7 +237,7 @@ func TestCrawlStatus(t *testing.T) {
 	s2, _ := GetCrawlStatus(DBFilepath)
 	assert.Equal(t, "Crawl done", s2)
 
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	SetCrawlStatus(DBFilepath, "Crawling...")
 	s3, _ := GetCrawlStatus(DBFilepath)
 	assert.Equal(t, "Crawling...", s3)
@@ -245,7 +245,7 @@ func TestCrawlStatus(t *testing.T) {
 
 func TestSaveHostType(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
 	err = SaveHostType(DBFilepath, "host1", "type1")
@@ -260,7 +260,7 @@ func TestGetNewDataForDate(t *testing.T) {
 	// fixture for different days
 	// change SaveRecordToMonitor func to use date as a param, or create new method
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 
 	monitorNoDate := Monitor{}
 	monitorNoDate.SourceHost = "host2"
@@ -308,7 +308,7 @@ func TestGetNewDataByExternalHost(t *testing.T) {
 	// fixture for different days
 	// change SaveRecordToMonitor func to use date as a param, or create new method
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 
 	monitorNoDate := Monitor{}
 	monitorNoDate.SourceHost = "host2"
@@ -338,7 +338,7 @@ func TestDeleteTypesTable(t *testing.T) {
 
 func TestGetAllTypes(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
 	err = SaveHostType(DBFilepath, "host2", "type2")
@@ -350,7 +350,7 @@ func TestGetAllTypes(t *testing.T) {
 
 func TestUpdateType(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 
 	err := UpdateOrCreateHostType(DBFilepath, "test.com", "H")
 	assert.NoError(t, err)
@@ -371,7 +371,7 @@ func TestUpdateType(t *testing.T) {
 
 func TestDeleteHost(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	err := SaveHostType(DBFilepath, "host1", "type1")
 	assert.NoError(t, err)
 	err = SaveHostType(DBFilepath, "host2", "type2")
@@ -385,7 +385,7 @@ func TestDeleteHost(t *testing.T) {
 
 func TestPerfomanceReport(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	for i := int(0); i < 5; i++ {
 		m := Monitor{}
 		m.Created = "2017-08-01"
@@ -494,7 +494,7 @@ func TestPerfomanceReport(t *testing.T) {
 
 func TestAddFeaturedHost(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	_, err := AddFeaturedHost(DBFilepath, "host1")
 	assert.NoError(t, err)
 	hosts, err := GetFeaturedHosts(DBFilepath)
@@ -504,7 +504,7 @@ func TestAddFeaturedHost(t *testing.T) {
 
 func TestRemoveFeaturedHost(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	_, err := AddFeaturedHost(DBFilepath, "host1")
 	assert.NoError(t, err)
 	err = RemoveFeaturedHost(DBFilepath, "host1")
@@ -516,7 +516,7 @@ func TestRemoveFeaturedHost(t *testing.T) {
 
 func TestAddExistingFeaturedHost(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	_, err := AddFeaturedHost(DBFilepath, "host1")
 	assert.NoError(t, err)
 	_, err = AddFeaturedHost(DBFilepath, "host1")
@@ -528,7 +528,7 @@ func TestAddExistingFeaturedHost(t *testing.T) {
 
 func TestGetFeaturedHosts(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	_, err := AddFeaturedHost(DBFilepath, "host1")
 	assert.NoError(t, err)
 	_, err = AddFeaturedHost(DBFilepath, "host2")
@@ -542,7 +542,7 @@ func TestGetFeaturedHosts(t *testing.T) {
 
 func TestAddStopHost(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	err := AddStopHost(DBFilepath, "host1")
 	assert.NoError(t, err)
 	hosts, err := GetStopHosts(DBFilepath)
@@ -552,7 +552,7 @@ func TestAddStopHost(t *testing.T) {
 
 func TestRemoveStopHost(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	err := AddStopHost(DBFilepath, "host1")
 	assert.NoError(t, err)
 	err = RemoveStopHost(DBFilepath, "host1")
@@ -564,7 +564,7 @@ func TestRemoveStopHost(t *testing.T) {
 
 func TestGetStopHosts(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	err := AddStopHost(DBFilepath, "host1")
 	assert.NoError(t, err)
 	err = AddStopHost(DBFilepath, "host2")
@@ -578,7 +578,7 @@ func TestGetStopHosts(t *testing.T) {
 
 func TestSaveGrabberData(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	gd := GrabberData{}
 	gd.Created = "2017-08-02"
 	gd.Service = "Alexa"
@@ -590,14 +590,14 @@ func TestSaveGrabberData(t *testing.T) {
 
 func TestPerfomanceReportByHostTypesNoErrors(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	_, err := PerfomanceReportByHostTypes(DBFilepath, "namba.kg")
 	assert.NoError(t, err)
 }
 
 func TestPerfomanceReportGrabberDataNoErrors(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	gd := GrabberData{}
 	gd.Created = "2017-08-02"
 	gd.Service = "Alexa"
@@ -612,7 +612,7 @@ func TestPerfomanceReportGrabberDataNoErrors(t *testing.T) {
 
 func TestPerfomanceReportLatestGrabberDataReturnsLatest(t *testing.T) {
 	TruncateDB(DBFilepath)
-	CreateDBIfNotExists(DBFilepath)
+	CreateDBIfNotExistsAndMigrate(DBFilepath)
 	gd := GrabberData{}
 	gd.Created = "2017-08-01"
 	gd.Service = "whois"

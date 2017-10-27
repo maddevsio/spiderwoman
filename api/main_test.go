@@ -1,16 +1,17 @@
 package main
 
 import (
-	"testing"
-	"net/http/httptest"
-	"net/http"
+	"encoding/json"
 	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"strconv"
-	"github.com/maddevsio/spiderwoman/lib"
-	"encoding/json"
-	"github.com/stretchr/testify/assert"
+	"testing"
+
 	"github.com/maddevsio/simple-config"
+	"github.com/maddevsio/spiderwoman/lib"
+	"github.com/stretchr/testify/assert"
 	"github.com/tealeg/xlsx"
 )
 
@@ -20,13 +21,13 @@ var (
 
 func TestIndex(t *testing.T) {
 	lib.TruncateDB(config.GetString("db-path"))
-	lib.CreateDBIfNotExists(config.GetString("db-path"))
+	lib.CreateDBIfNotExistsAndMigrate(config.GetString("db-path"))
 
 	ts := httptest.NewServer(GetAPIEngine(config))
 	defer ts.Close()
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", ts.URL + "/", nil)
+	req, err := http.NewRequest("GET", ts.URL+"/", nil)
 	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
 	resp, err := client.Do(req)
 	if err != nil {
@@ -50,7 +51,7 @@ func TestPing200(t *testing.T) {
 	defer ts.Close()
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", ts.URL + "/ping", nil)
+	req, err := http.NewRequest("GET", ts.URL+"/ping", nil)
 	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
 	resp, err := client.Do(req)
 
@@ -68,7 +69,7 @@ func TestPing404(t *testing.T) {
 	defer ts.Close()
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", ts.URL + "/pong", nil)
+	req, err := http.NewRequest("GET", ts.URL+"/pong", nil)
 	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
 	resp, err := client.Do(req)
 
@@ -83,13 +84,13 @@ func TestPing404(t *testing.T) {
 
 func TestAll(t *testing.T) {
 	lib.TruncateDB(config.GetString("db-path"))
-	lib.CreateDBIfNotExists(config.GetString("db-path"))
+	lib.CreateDBIfNotExistsAndMigrate(config.GetString("db-path"))
 
 	for i := int(0); i < 2; i++ {
 		m := lib.Monitor{}
 		m.SourceHost = "http://a"
 		m.ExternalLink = "http://b/1?" + strconv.Itoa(i)
-		m.Count = 800+i
+		m.Count = 800 + i
 		m.ExternalHost = "b"
 		_ = lib.SaveRecordToMonitor(config.GetString("db-path"), m)
 	}
@@ -98,7 +99,7 @@ func TestAll(t *testing.T) {
 	defer ts.Close()
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", ts.URL + "/all", nil)
+	req, err := http.NewRequest("GET", ts.URL+"/all", nil)
 	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
 	resp, err := client.Do(req)
 
@@ -124,8 +125,8 @@ func TestAllForDate(t *testing.T) {
 
 func TestXLSSimple(t *testing.T) {
 	xlsTestFile := "/tmp/test-excel.xls"
-	uris := [2]string{"/get-new-xls", "/get-day-xls",}
-	for _, uri  := range uris {
+	uris := [2]string{"/get-new-xls", "/get-day-xls"}
+	for _, uri := range uris {
 		os.Remove(xlsTestFile)
 		ts := httptest.NewServer(GetAPIEngine(config))
 		defer ts.Close()
@@ -153,16 +154,15 @@ func TestXLSSimple(t *testing.T) {
 	}
 }
 
-
 func TestAllForHost(t *testing.T) {
 	lib.TruncateDB(config.GetString("db-path"))
-	lib.CreateDBIfNotExists(config.GetString("db-path"))
+	lib.CreateDBIfNotExistsAndMigrate(config.GetString("db-path"))
 
 	for i := int(0); i < 2; i++ {
 		m := lib.Monitor{}
 		m.SourceHost = "http://a"
 		m.ExternalLink = "http://b/1?" + strconv.Itoa(i)
-		m.Count = 800+i
+		m.Count = 800 + i
 		m.ExternalHost = "b"
 		_ = lib.SaveRecordToMonitor(config.GetString("db-path"), m)
 	}
@@ -173,7 +173,7 @@ func TestAllForHost(t *testing.T) {
 	// check without "host" query string param
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", ts.URL + "/all-for-host", nil)
+	req, err := http.NewRequest("GET", ts.URL+"/all-for-host", nil)
 	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
 	resp, err := client.Do(req)
 
@@ -197,7 +197,7 @@ func TestAllForHost(t *testing.T) {
 	// check with "host" query string
 
 	client = &http.Client{}
-	req, err = http.NewRequest("GET", ts.URL + "/all-for-host?host=b", nil)
+	req, err = http.NewRequest("GET", ts.URL+"/all-for-host?host=b", nil)
 	req.SetBasicAuth(config.GetString("admin-user"), config.GetString("admin-password"))
 	resp, err = client.Do(req)
 

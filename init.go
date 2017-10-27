@@ -5,6 +5,6 @@ import (
 )
 
 func initialize(path Path) {
-	lib.CreateDBIfNotExists(path.SqliteDBPath)
+	lib.CreateDBIfNotExistsAndMigrate(path.SqliteDBPath)
 	lib.ClearResolveCache()
 }

@@ -13,7 +13,7 @@ import (
 )
 
 func GetAPIEngine(config simple_config.SimpleConfig) *gin.Engine {
-	lib.CreateDBIfNotExists(config.GetString("db-path"))
+	lib.CreateDBIfNotExistsAndMigrate(config.GetString("db-path"))
 
 	// set the log level
 	if config.GetString("box") != "dev" {

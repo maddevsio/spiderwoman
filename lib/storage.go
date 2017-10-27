@@ -83,7 +83,7 @@ func getDB(dbName string) *sql.DB {
 	return db
 }
 
-func CreateDBIfNotExists(dbFilepath string) {
+func CreateDBIfNotExistsAndMigrate(dbFilepath string) {
 	db := getDB(dbFilepath)
 	defer db.Close()
 
