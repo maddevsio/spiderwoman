@@ -1,8 +1,9 @@
 package grabber
 
 import (
-	"github.com/negah/alexa"
 	"fmt"
+
+	"github.com/negah/alexa"
 )
 
 type AlexaGrabber struct {
@@ -22,7 +23,7 @@ func (ag AlexaGrabber) Do(featuredHost string) (string, error) {
 	globalRank, err := alexa.GlobalRank(featuredHost)
 	if err != nil {
 		fmt.Printf("Alexa.Do(): %s\n", err)
-		return "", err
+		return "No rank", nil
 	}
 	fmt.Printf("Alexa.Do(): %s rank in alexa is %s\n", featuredHost, globalRank)
 	return globalRank, nil
