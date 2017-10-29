@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/maddevsio/spiderwoman/lib"
+	gock "gopkg.in/h2non/gock.v1"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/h2non/gock.v1"
 )
 
 const (
