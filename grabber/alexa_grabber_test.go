@@ -10,6 +10,8 @@ import (
 )
 
 func TestAlexaLib(t *testing.T) {
+	lib.TruncateDB(dbName)
+	lib.CreateDBIfNotExistsAndMigrate(dbName)
 	hosts := []string{"apteka312.kg", "apteka", "12341234"}
 	for _, h := range hosts {
 		rank, err := alexa.GlobalRank(h)
@@ -23,6 +25,8 @@ func TestAlexaLib(t *testing.T) {
 }
 
 func TestGrabberSavedNoRankAlexaData(t *testing.T) {
+	lib.TruncateDB(dbName)
+	lib.CreateDBIfNotExistsAndMigrate(dbName)
 	alexaGrabber := AlexaGrabber{Service{Name: "Alexa"}}
 	hosts := []string{"apteka312.kg", "apteka", "12341234"}
 	for _, h := range hosts {

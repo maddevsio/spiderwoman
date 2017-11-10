@@ -1,17 +1,18 @@
 package grabber
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/maddevsio/spiderwoman/lib"
-	gock "gopkg.in/h2non/gock.v1"
+	"gopkg.in/h2non/gock.v1"
 
+	"fmt"
 	"github.com/stretchr/testify/assert"
 )
 
 const (
-	dbName = "spiderwoman-test"
+	//dbName = "spiderwoman-test"
+	dbName = "spiderwoman-api-test"
 )
 
 func TestGrabber(t *testing.T) {

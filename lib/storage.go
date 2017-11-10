@@ -62,10 +62,20 @@ type GrabberData struct {
 func TruncateDB(dbName string) {
 	db := getDB(dbName)
 	defer db.Close()
-	sqlStmt := fmt.Sprintf("DROP DATABASE IF EXISTS `%s`; CREATE DATABASE `%s`;", dbName, dbName)
+
+	sqlStmt := fmt.Sprintf("DROP DATABASE IF EXISTS `%s`", dbName)
+	log.Printf("TRUNCATE DB: %s", sqlStmt)
 	_, err := db.Exec(sqlStmt)
 	if err != nil {
-		log.Printf("%q: %s\n", err, sqlStmt)
+		log.Fatalf("%q: %s\n", err, sqlStmt)
+		return
+	}
+
+	sqlStmt = fmt.Sprintf("CREATE DATABASE `%s`", dbName)
+	log.Printf("CREATE DB: %s", sqlStmt)
+	_, err = db.Exec(sqlStmt)
+	if err != nil {
+		log.Fatalf("%q: %s\n", err, sqlStmt)
 		return
 	}
 }
@@ -73,11 +83,12 @@ func TruncateDB(dbName string) {
 func getDB(dbName string) *sql.DB {
 	db, err := sql.Open("mysql", "root:@tcp(mysql:3306)/"+dbName+"?multiStatements=true")
 	if err != nil {
-		log.Printf("===%v===", err)
+		log.Print("ERROR DB CONNECTION")
 		log.Panic(err)
 	}
 	err = db.Ping()
 	if err != nil {
+		log.Print("ERROR DB PING")
 		log.Panic(err)
 	}
 	return db
@@ -158,7 +169,7 @@ func CreateDBIfNotExistsAndMigrate(dbFilepath string) {
 		stmt := `ALTER TABLE grabber_data MODIFY data TEXT;`
 		_, err := db.Exec(stmt)
 		if err != nil {
-			log.Printf("%q: %s\n", err, stmt)
+			log.Printf("Error in migration %q: %s\n", err, stmt)
 			return
 		}
 	}
@@ -176,6 +187,7 @@ func SaveRecordToMonitor(dbFilepath string, monitor Monitor) bool {
 		log.Print(err)
 		return false
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(monitor.SourceHost, monitor.ExternalLink, monitor.Count, monitor.ExternalHost)
 	if monitor.Created != "" {
@@ -226,6 +238,8 @@ func UpdateOrCreateHostType(dbFilepath string, hostName string, hostType string)
 		log.Print(err)
 		return err
 	}
+	defer stmt.Close()
+
 	_, err = stmt.Exec(hostName, hostType)
 	if err != nil {
 		log.Print(err)
@@ -333,6 +347,7 @@ func SetCrawlStatus(dbFilepath string, status string) bool {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(status, "crawl")
 	if err != nil {
@@ -410,6 +425,7 @@ func SaveHostType(dbFilepath string, hostName string, hostType string) error {
 		log.Print(err)
 		return err
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(hostName, hostType)
 	if err != nil {
@@ -487,6 +503,8 @@ func DeleteHost(dbFilepath string, hostID string) error {
 		log.Print(err)
 		return err
 	}
+	defer stmt.Close()
+
 	_, err = stmt.Exec(hostID)
 	if err != nil {
 		log.Print(err)
@@ -600,6 +618,7 @@ func AddFeaturedHost(dbFilepath string, host string) (msg string, err error) {
 		log.Print(err)
 		return "fail", err
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(host)
 	if err != nil {
@@ -625,6 +644,8 @@ func RemoveFeaturedHost(dbFilepath string, host string) error {
 		log.Print(err)
 		return err
 	}
+	defer stmt.Close()
+
 	_, err = stmt.Exec(host)
 	if err != nil {
 		log.Print(err)
@@ -670,6 +691,7 @@ func AddStopHost(dbFilepath string, host string) error {
 		log.Print(err)
 		return err
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(host)
 	if err != nil {
@@ -688,6 +710,8 @@ func RemoveStopHost(dbFilepath string, host string) error {
 		log.Print(err)
 		return err
 	}
+	defer stmt.Close()
+
 	_, err = stmt.Exec(host)
 	if err != nil {
 		log.Print(err)
@@ -732,6 +756,7 @@ func SaveGrabbedData(dbFilepath string, gd GrabberData) bool {
 		log.Print(err)
 		return false
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(gd.Service, gd.Host, gd.Data)
 	if gd.Created != "" {
