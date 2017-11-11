@@ -1,7 +1,10 @@
 objects = main.go callbacks.go actions.go crawl.go data.go init.go grab.go
 
 test:
-	go test $(shell go list ./... | grep -v /vendor/)
+	go test github.com/maddevsio/spiderwoman
+	go test github.com/maddevsio/spiderwoman/api
+	go test github.com/maddevsio/spiderwoman/grabber
+	go test github.com/maddevsio/spiderwoman/lib
 
 run:
 	go run $(objects)

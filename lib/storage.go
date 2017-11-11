@@ -63,25 +63,26 @@ func TruncateDB(dbName string) {
 	db := getDB(dbName)
 	defer db.Close()
 
-	sqlStmt := fmt.Sprintf("DROP DATABASE IF EXISTS `%s`", dbName)
-	log.Printf("TRUNCATE DB: %s", sqlStmt)
-	_, err := db.Exec(sqlStmt)
+	tx, err := db.Begin()
 	if err != nil {
-		log.Fatalf("%q: %s\n", err, sqlStmt)
+		log.Fatal(err)
 		return
 	}
+	defer tx.Commit()
 
-	sqlStmt = fmt.Sprintf("CREATE DATABASE `%s`", dbName)
-	log.Printf("CREATE DB: %s", sqlStmt)
-	_, err = db.Exec(sqlStmt)
-	if err != nil {
-		log.Fatalf("%q: %s\n", err, sqlStmt)
-		return
+	tables := [6]string{"monitor", "status", "types", "featured_hosts", "stops", "grabber_data",}
+	for _, table := range tables {
+		sqlStmt := "DROP TABLE IF EXISTS " + table + ""
+		_, err := tx.Exec(sqlStmt)
+		if err != nil {
+			log.Printf("%q: %s\n", err, sqlStmt)
+			return
+		}
 	}
 }
 
 func getDB(dbName string) *sql.DB {
-	db, err := sql.Open("mysql", "root:@tcp(mysql:3306)/"+dbName+"?multiStatements=true&charset=utf8mb4,utf8&maxAllowedPacket=0")
+	db, err := sql.Open("mysql", "root:@tcp(mysql:3306)/"+dbName+"?multiStatements=true&charset=utf8mb4,utf8&maxAllowedPacket=419430400")
 	if err != nil {
 		log.Print("ERROR DB CONNECTION")
 		log.Panic(err)
@@ -91,12 +92,20 @@ func getDB(dbName string) *sql.DB {
 		log.Print("ERROR DB PING")
 		log.Panic(err)
 	}
+	db.SetMaxIdleConns(0)
 	return db
 }
 
 func CreateDBIfNotExistsAndMigrate(dbFilepath string) {
 	db := getDB(dbFilepath)
 	defer db.Close()
+
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer tx.Commit()
 
 	sqlStmt := `
 	create table if not exists monitor (
@@ -107,33 +116,74 @@ func CreateDBIfNotExistsAndMigrate(dbFilepath string) {
 		count int,
 		external_host varchar(255),
 		created date
-	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ENGINE=InnoDB;
-    		create table if not exists status (
+	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ENGINE=InnoDB`
+	_, err = tx.Exec(sqlStmt)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlStmt)
+		return
+	}
+
+	sqlStmt = `
+    create table if not exists status (
 		ID int NOT NULL AUTO_INCREMENT,
 	        PRIMARY KEY (id),
 		status_key varchar(255),
 		status_value varchar(255)
-	);
-    	insert into status(status_key, status_value) values('crawl', 'Crawl done');
-    	create table if not exists types (
+	);`
+	_, err = tx.Exec(sqlStmt)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlStmt)
+		return
+	}
+
+	sqlStmt = `insert into status(status_key, status_value) values('crawl', 'Crawl done');`
+	_, err = tx.Exec(sqlStmt)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlStmt)
+		return
+	}
+
+	sqlStmt = `
+	create table if not exists types (
 		ID int NOT NULL AUTO_INCREMENT,
         	PRIMARY KEY (id),
 		hostname varchar(255),
 		hosttype varchar(255),
 		CONSTRAINT hostname_uniq UNIQUE (hostname)
-	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ENGINE=InnoDB;
+	) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci ENGINE=InnoDB;`
+	_, err = tx.Exec(sqlStmt)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlStmt)
+		return
+	}
+
+	sqlStmt = `
 	create table if not exists featured_hosts (
 		ID int not null auto_increment,
 		primary key (id),
 		host varchar(255),
 		CONSTRAINT host_uniq UNIQUE (host)
-	);
+	);`
+	_, err = tx.Exec(sqlStmt)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlStmt)
+		return
+	}
+
+	sqlStmt = `
 	create table if not exists stops (
 		ID int not null auto_increment,
 		primary key (id),
 		host varchar(255),
 		CONSTRAINT host_uniq UNIQUE (host)
-	);
+	);`
+	_, err = tx.Exec(sqlStmt)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlStmt)
+		return
+	}
+
+	sqlStmt = `
 	create table if not exists grabber_data (
 		ID int not null auto_increment,
 		primary key (id),
@@ -141,15 +191,15 @@ func CreateDBIfNotExistsAndMigrate(dbFilepath string) {
 		host varchar(255),
 		service varchar(255),
 		data text
-	);
-	`
-	_, err := db.Exec(sqlStmt)
+	);`
+	_, err = tx.Exec(sqlStmt)
 	if err != nil {
 		log.Printf("%q: %s\n", err, sqlStmt)
 		return
 	}
+
 	sqlStmt = fmt.Sprintf(`select data_type as DataType from information_schema.columns where table_schema='%s' and table_name='grabber_data' and column_name='data';`, dbFilepath)
-	rows, err := db.Query(sqlStmt)
+	rows, err := tx.Query(sqlStmt)
 	if err != nil {
 		log.Printf("%q: %s\n", err, sqlStmt)
 		return
@@ -165,12 +215,14 @@ func CreateDBIfNotExistsAndMigrate(dbFilepath string) {
 		err = rows.Scan(&c.DataType)
 		data = append(data, c)
 	}
-	if data[0].DataType == "varchar" {
-		stmt := `ALTER TABLE grabber_data MODIFY data TEXT;`
-		_, err := db.Exec(stmt)
-		if err != nil {
-			log.Printf("Error in migration %q: %s\n", err, stmt)
-			return
+	if len(data) > 0 {
+		if data[0].DataType == "varchar" {
+			stmt := `ALTER TABLE grabber_data MODIFY data TEXT;`
+			_, err := tx.Exec(stmt)
+			if err != nil {
+				log.Printf("Error in migration %q: %s\n", err, stmt)
+				return
+			}
 		}
 	}
 }
@@ -380,6 +432,7 @@ func GetCrawlStatus(dbFilepath string) (string, error) {
 func GetAllDaysFromMonitor(dbFilepath string, days string) ([]string, error) {
 	db := getDB(dbFilepath)
 	defer db.Close()
+
 	query := "SELECT DISTINCT created as mon FROM monitor ORDER BY created DESC;"
 	if days != "" {
 		query = fmt.Sprintf("SELECT DISTINCT created as mon FROM monitor ORDER BY created DESC LIMIT %s;", days)
@@ -588,6 +641,7 @@ func PerfomanceReportGrabberData(dbFilepath string, service, host string) ([]Gra
 func PerfomanceReportLatestGrabberData(dbFilepath string, service, host string) (GrabberData, error) {
 	db := getDB(dbFilepath)
 	defer db.Close()
+
 	data := GrabberData{}
 
 	query := fmt.Sprintf("SELECT created, data FROM grabber_data WHERE service='%s' AND host='%s' ORDER BY created DESC LIMIT 1;", service, host)

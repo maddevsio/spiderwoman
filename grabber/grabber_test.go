@@ -11,8 +11,7 @@ import (
 )
 
 const (
-	//dbName = "spiderwoman-test"
-	dbName = "spiderwoman-api-test"
+	dbName = "spiderwoman-test"
 )
 
 func TestGrabber(t *testing.T) {
