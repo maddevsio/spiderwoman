@@ -81,7 +81,7 @@ func TruncateDB(dbName string) {
 }
 
 func getDB(dbName string) *sql.DB {
-	db, err := sql.Open("mysql", "root:@tcp(mysql:3306)/"+dbName+"?multiStatements=true")
+	db, err := sql.Open("mysql", "root:@tcp(mysql:3306)/"+dbName+"?multiStatements=true&charset=utf8mb4,utf8&maxAllowedPacket=0")
 	if err != nil {
 		log.Print("ERROR DB CONNECTION")
 		log.Panic(err)
