@@ -3,11 +3,12 @@ package main
 import (
 	"sync"
 
+	"os"
+
 	"github.com/PuerkitoBio/gocrawl"
 	"github.com/maddevsio/simple-config"
-	"github.com/urfave/cli"
-	"os"
 	"github.com/maddevsio/spiderwoman/lib"
+	"github.com/urfave/cli"
 )
 
 type Ext struct {
@@ -24,17 +25,17 @@ var (
 
 	externalLinks         map[string]map[string]int
 	externalLinksResolved map[string]map[string]int
-	config 		      simple_config.SimpleConfig = simple_config.NewSimpleConfig("./config", "yml")
+	config                simple_config.SimpleConfig = simple_config.NewSimpleConfig("./config", "yml")
 
-	userAgent             string                    = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-	resolveURLsPool       int                       = 100
-	verbose               bool                      = true
-	maxVisits             int                       = 10
-	resolveTimeout        int                       = 30
-	sqliteDBPath          string                    = config.GetString("db-path")
-	excelFilePath         string                    = config.GetString("xls-path")
-	internalOutPatterns   []string                  = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
-	badSuffixes           []string                  = []string{".png", ".jpg", ".pdf"}
+	userAgent           string   = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+	resolveURLsPool     int      = 100
+	verbose             bool     = true
+	maxVisits           int      = 10
+	resolveTimeout      int      = 30
+	sqliteDBPath        string   = config.GetString("db-path")
+	excelFilePath       string   = config.GetString("xls-path")
+	internalOutPatterns []string = []string{"/go/", "/go.php?", "/goto/", "/banners/click/", "/adrotate-out.php?", "/bsdb/bs.php?"}
+	badSuffixes         []string = []string{".png", ".jpg", ".pdf"}
 )
 
 type Path struct {
